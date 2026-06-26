@@ -1,0 +1,24 @@
+# Failure modes (never do these)
+
+- **Write SQL from scratch instead of starting from a verified template** — past agents have produced wrong queries: wrong platform casing (`meta` vs `Meta`), missing `HAVING SUM(ad_spend) > 0` causing zero-spend rows to top a DESC sort, average-of-ratios ROAS (mathematically wrong), `ROW_NUMBER()` / CTE / UNION (rejected by Cube). **Always copy from** `references/sql-examples.md` **first, then adapt.**
+- **Skip `dashboard-metrics-list` and query directly** — guessing field names causes SQL errors or wrong data
+- **Skip `knowledge-base-ask` before SQL** — `database-query-sql` requires the `ctx` it produces; without it the query fails at execution
+- **Use raw warehouse SQL instead of Cube.dev syntax** — `database-query-sql` only accepts Cube.dev SQL
+- **Use `attribution_model` as a SQL column** — the actual dimension is `attr_model_name`
+- **Hard-code `propertyNames` for NC dimensions** — they are tenant-specific and case-sensitive; always pass `tenantId` to `dashboard-metrics-list` first
+- **Silently switch `attribution_model`** — if user said "last_click", don't replace it with iDDA / DDA / anything else
+- **Proactively ask "which attribution model?"** — use the default
+- **Run iDDA without lift test data** — tell the user instead and offer DDA
+- **Add dimensions the user didn't ask for** — "ROAS by channel" should not become "ROAS by channel by date by country"
+- **Drop information** — "by channel for the last 30 days" must not default to 7 days
+- **Hard-code today's date** from training data or from earlier in the conversation — always re-fetch
+- **Proactively ask "what chart type?"** — the query path doesn't need a chart type
+- **Expose DataSet technical names** — user should never see `channel_attribution` / `ads_attribution` / `creative_attribution` / `order_sales` as literal strings
+- **Proactively ask "save as dashboard?"** — UI already exposes this
+- **Long-form analysis or attribution-model lectures** — query returns data, not diagnosis or education
+- **Guess metric aliases and query anyway** — if "POAS" doesn't exist, don't fabricate `profit_roas`
+- **Misaligned time-comparison windows** — "this month vs last month" mid-period must not be full month vs full month
+- **Wrong aggregation granularity** — "spend > 1000" must not be applied per-day when the user means aggregate
+- **Wrong operator precedence in compound filters** — "(A or B) and C" must not become "A or (B and C)"
+- **Surface `inf` / `999999` / `null` on ratio metrics** — always guard with `NULLIF`
+- **Fabricate data for un-connected platforms** — tell the user the platform isn't connected
