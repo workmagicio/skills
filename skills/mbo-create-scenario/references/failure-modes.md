@@ -1,0 +1,41 @@
+## Failure modes — never do these
+
+- **Skip the provisioning check** — running create on a non-provisioned tenant fails; check feature flag first
+- **Silently lock saturation-prone tactics** — never apply locks without explicit user confirmation
+- **Flag a tactic as saturation-prone without giving the reason**
+- **Insist on locking a tactic the user explicitly said they want to scale** — surface the saturation signal as a caution, recommend manual max instead of full lock
+- **Fan out into a multi-question form** — one pivotal question per round
+- **Skip asking about reference period** — reference period MUST always be surfaced with explicit proposed dates + length match check
+- **Propose a reference period whose length doesn't match optimization period** without flagging to the user that MBO will prorate
+- **Auto-default reference period silently** (without surfacing dates to user)
+- **Propose a reference period that extends past `model_window.end`** — always clamp to `[model_window.start, model_window.end]`. If the immediately-prior same-length window falls outside, propose the same-length window ending at `model_window.end` instead. Suggesting "intuitive" dates (e.g., September as ref for October opt) without checking the model window is a critical failure.
+- **Default `outcome` to `totalSales` when tenant is a Halo customer** (Amazon / TikTok Shop integrated) — must default to `totalSalesHalo`
+- **Default a budget or target value to a number you invented** — only acceptable budget default is `budgetChangeType=percentage, budget=100` (keep flat) and only when user explicitly didn't say anything
+- **Mis-parse budget unit** ("\$100k" → 100 not 100000) — critical failure
+- **Mis-map percentage semantics** — `budget=100` is "keep flat", NOT "+100% / 2x". `budget=120` is "+20% / 1.2x". Treat percentage as **% of baseline**, not delta. Mis-parsing this is a critical failure.
+- **Drop a sign on relative budget** ("cut 10%" → budget=110 instead of 90) — critical failure
+- **Build "maximize" when user said "hit X target"** (dropping the target value) — critical failure
+- **Build goal=ROAS when user said "maximize sales"** (or vice versa) — critical failure
+- **Misinterpret total vs period budget** ("\$300K for the quarter" treated as monthly) — critical failure
+- **Ask about budget constraints when user didn't mention them** — default is none
+- **Silently adjust constraint numbers to make scenario fit** — worst possible failure
+- **Skip constraint sum vs total budget pre-check**
+- **Silently drop a channel that doesn't exist in tenant integration**
+- **Expand scope beyond what user said** ("Meta only" → build with all channels)
+- **Hard-code a budget anchor without consulting reference data**
+- **Build a scenario with past start date**
+- **Build a scenario with negative budget**
+- **Treat offline / un-integrated channels as if they're supported**
+- **Try to explain MMM model internals when user questions model** — route to CSM
+- **Silently substitute an unsupported goal**
+- **Skip preview-and-confirm** — every single `budget-optimizer-create` call MUST be immediately preceded by a Step 11 preview-and-confirm in the SAME turn. No exceptions.
+- **Omit auto-applied defaults from the preview** — every UI default the skill applied (level, period, goal, method, outcome, budgetChangeType, budget=100 etc.) must be visible to the user with *(default)* annotation
+- **Use scenario IDs in conversation** — use scenario names
+- **Use tool names in clarification questions** ("do you want list or forecast?")
+- **Refuse delivery because backtesting accuracy is low** — deliver with caveat
+- **Use "60s undo" or countdown timer language** — deprecated
+- **Trigger forecast re-run on a rename-only modify**
+- **Skip second confirmation on delete**
+- **Run scenario without telling user it takes a few minutes**
+- **Deliver without the MBO link** — saturation curves and full breakdown live in MBO
+- **Pad with "want to compare against another scenario?" / "should I schedule this?"** — UI exposes both
