@@ -7,28 +7,28 @@ version: 1.0.0
 last-updated: 2026-06-25
 
 references:
-- references/inputs-detail.md
-- references/mode-detection.md
-- references/basic-read-mode.md
-- references/scenario-compare-mode.md
-- references/mbo-vs-attribution-mode.md
-- references/mbo-vs-lift-test-mode.md
-- references/mbo-vs-actual-mode.md
-- references/interpretation-playbook.md
-- references/term-usage.md
-- references/output-format.md
-- references/edge-cases.md
-- references/failure-modes.md
-- references/key-concepts.md
+  - references/inputs-detail.md
+  - references/mode-detection.md
+  - references/basic-read-mode.md
+  - references/scenario-compare-mode.md
+  - references/mbo-vs-attribution-mode.md
+  - references/mbo-vs-lift-test-mode.md
+  - references/mbo-vs-actual-mode.md
+  - references/interpretation-playbook.md
+  - references/term-usage.md
+  - references/output-format.md
+  - references/edge-cases.md
+  - references/failure-modes.md
+  - references/key-concepts.md
 
 templates:
-- templates/basic-read-output.md
-- templates/scenario-compare-output.md
-- templates/mbo-vs-attribution-output.md
-- templates/mbo-vs-lift-test-output.md
+  - templates/basic-read-output.md
+  - templates/scenario-compare-output.md
+  - templates/mbo-vs-attribution-output.md
+  - templates/mbo-vs-lift-test-output.md
 
 examples:
-- examples/example-goal-vs-projection-mismatch.md
+  - examples/example-goal-vs-projection-mismatch.md
 ---
 
 ## 1. Purpose
