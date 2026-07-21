@@ -34,10 +34,6 @@ Claude, OpenAI, and other mainstream AI tools.
 - **[mbo-create-scenario](skills/mbo-create-scenario/SKILL.md)** — Turn a budget-allocation ask into a forward-looking MBO (Media Budget Optimizer) scenario; also handles modifications.
 - **[mbo-read-scenario](skills/mbo-read-scenario/SKILL.md)** — Interpret the results of an existing MBO scenario.
 
-### Growth Diagnostics
-
-- **[dtc-marketing-diagnostic](skills/dtc-marketing-diagnostic/SKILL.md)** — Structural quarterly growth diagnostic for North American DTC brands: from a `tenant_id` to an operator-voice report + multi-sheet Excel data pack + 90-day plan in ~30 minutes. For QBR prep, onboarding audits, and scale decisions.
-
 ---
 
 ## Get the skills
