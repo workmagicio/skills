@@ -1,9 +1,16 @@
 ## Interpretation playbook — canonical language for common patterns
 
+<callout emoji="🎯">
+**先按场景类型选框架(Maximize vs Target)——这决定了怎么讲。**
+- **Maximize(Outcome Max)**:核心不是任何单条饱和曲线,而是**跨渠道的相对边际效率再分配**——MBO 比较各渠道"下一美元的回报",把预算从边际回报低的挪到高的,直到各渠道边际回报大致**拉平(equalize)**。解读要讲渠道**之间**的相对差距,不要只说某个渠道自己"陡/平"。
+- **Target Achievement**:更贴近单渠道曲线位置——在给定目标(如 3.5x ROAS)下用最少花费达成,单个渠道所处的曲线位置直接决定加减,下面的单渠道语言更适用。
+下面的 canonical 语言默认写的是单渠道视角;**Maximize 场景请以相对/跨渠道的措辞为主**(见"增加/削减渠道 X"两行的 Maximize 说明)。
+</callout>
+
 | **Pattern** | **Business-language explanation** |
 |-|-|
-| MBO recommends increasing channel X | "Channel X's saturation curve is still steep at current spend — there's headroom for additional dollars to keep producing meaningful incremental returns. The recommendation moves you closer to the equilibrium where every channel's next dollar produces a similar incremental outcome." |
-| MBO recommends cutting channel X | "Channel X is near saturation — its curve is flat at current spend, meaning each additional dollar adds little incremental return. The model reallocates that spend to channels still on the steep part of their curves." |
+| MBO recommends increasing channel X | **Maximize:** "在你当前的分配下,{X} 的**下一美元回报比其他渠道更高**——所以 MBO 把预算挪向它,直到各渠道的边际回报拉平。不是 {X} 本身'表现好',而是相对其他渠道,同一美元投在 {X} 上此刻更划算。" **Target:** "{X} 的饱和曲线在当前花费处还陡,加钱仍能带来有意义的增量。" |
+| MBO recommends cutting channel X | **Maximize:** "砍 {X} **不代表它差**——很可能它 ROAS 还是正的。原因是**机会成本**:在当前分配下,同一美元投到别的渠道**边际回报更高**,所以 MBO 把 {X} 的部分预算挪走以抬高整体产出。要讲清是'相对其他渠道此刻更值',不是'{X} 饱和了/不行了'。" **Target:** "{X} 接近饱和,曲线在当前花费处已平,每多一美元增量很小,故减配。" |
 | High average ROAS but low marginal ROAS | "Average ROAS blends efficient early spend with saturated late spend into one number. Channel X's average ROAS looks healthy, but at its current spend level the marginal ROAS — return on the next dollar — has collapsed. That's why MBO is suggesting a cut." |
 | Baseline (organic) sales are large vs paid media sales | "A big share of your sales are organic / recurring demand that exists independently of paid media. MBO doesn't optimize that baseline — it only reallocates the paid portion. Reading the recommendation requires looking at the paid component separately." |
 | **Total projected sales is LOWER than reference, even though the goal is "maximize sales" (or similar positive direction)** | **This is almost always a baseline issue, not a recommendation issue.** Total sales = baseline (organic) sales + paid media sales. Decompose before explaining:  <br/>• **Paid media component**: is it up or down vs reference? If up (and ROAS / marginal ROAS improved) → **the reallocation IS working as intended**; this is the part MBO optimizes.  <br/>• **Baseline component**: if down → that's where the total drop comes from. MBO doesn't optimize baseline — it's projected from organic trend + seasonality.  <br/>• **Net**: surface the decomposition explicitly. Say something like "Paid media sales are up \$X (+Y%) and ROAS improved from A → B — the reallocation is doing its job. Total is down \$Z because the model projects baseline (organic) demand to be Q% lower next period (seasonal / organic decline). MBO can't optimize baseline, so this drop is outside the recommendation's control."  <br/>• **If low backtesting confidence flag is present**, additionally note: "Treat the absolute projection as directional rather than literal."  <br/>**Never say** "the reference baseline reflects channel mix" or "the optimizer finds a more efficient distribution" without first checking baseline — that explanation is generic and often misleads. |
