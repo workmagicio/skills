@@ -154,7 +154,7 @@ Ask the knowledge base about Cube.dev schema patterns. `database-query-sql` requ
 - **Top-N summary**: large sets → top 10 / 20 with "N total rows" note
 - **One-line reading**: what's high / low (≤ 2 sentences)
 - **Transparent defaults**: state which defaults applied (window, model)
-- **Cite the data source**: annotate DataSet name at end
+- **Cite the data source** in business language at end — attribution model + data-as-of window (e.g. "Source: data-driven attribution, last 7 days ending Jul 20"). **Never print the raw DataSet technical name** (`channel_attribution` / `ads_attribution` / `creative_attribution` / `order_sales`) — see rule 8 below; those are internal identifiers, not customer-facing labels
 - **No "save as dashboard" prompt** — UI has it
 - **No long analysis** — that's `attribution-anomaly-diagnosis`
 

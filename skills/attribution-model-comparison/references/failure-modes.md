@@ -2,6 +2,8 @@
 
 - **Run N separate queries instead of one CASE WHEN** — separate queries can drift on filters / dedup and produce non-comparable numbers
 - **Compare click-based models on a non-DTC sales platform** — last_click / first_click / any_click are NOT valid on Amazon Store and similar; only iDDA, DDA, and platform-reported are. Dropping click models silently is also wrong — tell the user once.
+- **Silently drop a requested model that returned no rows** — if a valid model in the comparison set comes back EMPTY at query time (a data-availability gap, not a validity issue), say so explicitly in one line ("First Click returned no data for this period") instead of quietly showing fewer columns. The user must be able to tell "no data" apart from "not requested".
+- **Expose internal terminology** — use business-language model names in the table and text (Platform-reported, Last Click, DDA, iDDA), never the raw dimension / DataSet identifiers `attr_model_name` / `channel_attribution` / `ads_attribution` / `model_id`. Those are query internals; the customer must never see them as literal strings.
 - **Mix multiple sales platforms in one comparison row** — attribution is per sales platform AND the valid model set differs (DTC vs non-DTC). Run separately per sales platform; never merge into one row.
 - **Skip `knowledge-base-ask` before SQL** — `database-query-sql` requires the `ctx` timestamp
 - **Invent a reason for a diff that doesn't match any known pattern** — say "this pattern isn't typical; worth checking lift test calendar / VTA config" instead
