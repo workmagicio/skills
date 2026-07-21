@@ -137,7 +137,7 @@ If user asks "which model should I trust?", do NOT answer "iDDA is the right one
 The user picks based on their decision context. Pushing one as the answer presumes the user's question.
 </callout>
 
-## 7. CRITICAL rules (top 8 — full list in references/failure-modes.md)
+## 7. CRITICAL rules (top 9 — full list in references/failure-modes.md)
 
 1. **Always copy the template SQL** (`templates/01-multi-model-comparison.sql`) — never run N separate queries; they can drift on filters / dedup and produce non-comparable numbers
 2. **Never compare click-based models on a non-DTC sales platform** — last_click / first_click / any_click are NOT valid on Amazon Store and similar; only iDDA / DDA / platform_reported are. Dropping click models silently is also wrong — tell user once.
@@ -147,6 +147,7 @@ The user picks based on their decision context. Pushing one as the answer presum
 6. **Never push one model as "the right answer"** — give situational guidance only when asked
 7. **Never default to a 7-day window** — too noisy; use 30 days
 8. **Never compare iDDA when no lift tests exist** — surface missing-lift-test and use dda instead
+9. **Never expose internal terminology** — use business-language model names (Platform-reported, Last Click, DDA, iDDA), never the raw dimension / DataSet identifiers `attr_model_name` / `channel_attribution` / `ads_attribution` / `model_id` as literal strings in the answer. A leaked identifier is a customer-facing defect.
 
 ## 8. Edge cases
 
