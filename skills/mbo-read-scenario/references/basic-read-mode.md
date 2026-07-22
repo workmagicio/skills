@@ -5,7 +5,7 @@
 3. **For each top channel, structure the explanation across 4 dimensions**:
 
    - **Direction**: add or cut budget?
-   - **Reason**: marginal ROAS / saturation curve position / lift test calibration impact
+   - Reason: 对 **Maximize** 场景,重点是**相对其他渠道**的边际效率(为什么此刻这一美元投这里比投别处更值),而非仅自身曲线位置;对 **Target** 场景才主要看自身 marginal ROAS / 饱和曲线位置 / lift test 校准影响
    - **Magnitude**: % change vs current spend ("Meta +12% from \$275K → \$310K")
    - **Impact**: effect on total sales / ROAS ("contributes \~\$180K of the expected +\$240K sales lift")
 4. **Check for special states** and flag explicitly (don't bury in channel list):
