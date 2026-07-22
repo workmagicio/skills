@@ -1,7 +1,7 @@
 ## Key concepts
 
 - **Saturation curve**: per-channel spend-to-incremental-return curve, calibrated by lift tests
-- Marginal vs Average ROAS: marginal = 下一美元的回报;average = 已实现混合值。MBO 优化的是 marginal。**Maximize 的核心机制 = 跨渠道边际拉平**:把预算从边际回报低的渠道挪到高的,直到各渠道下一美元回报大致相等(此时组合总产出最大)——所以"砍某渠道"常是机会成本,不代表它差。**Target** 则是在给定目标下按各渠道曲线位置分配。
+- Marginal vs Average ROAS: marginal = return on the next dollar; average = the realized blended value. MBO optimizes for marginal. **Maximize's core mechanism = equalizing marginal returns across channels**: move budget from channels with low marginal returns to those with high ones, until each channel's next-dollar return is roughly equal (at which point total combined output is maximized) — so "cutting a channel" is often opportunity cost, not a sign that it's bad. **Target**, by contrast, allocates according to each channel's position on its curve under a given goal.
 - **Baseline vs Paid Media sales**: only shown when all channels in scenario; baseline = organic demand, paid = what reallocation affects
 - **MBO ≠ Attribution**: model-estimated vs realized actuals; two methodologies, expected to differ
 - **Lift test ≠ Opposed to MBO**: lift test is the calibration input to MBO; they're complementary measurements (iROAS vs marginal ROAS) of related but different things
