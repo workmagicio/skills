@@ -11,6 +11,19 @@ Claude, OpenAI, and other mainstream AI tools.
 
 ---
 
+## Quick start
+
+**Two ways to use these skills — pick by how you access WorkMagic:**
+
+| You access WorkMagic through… | Use | Install | Updates |
+| --- | --- | --- | --- |
+| **A chat app** — ChatGPT, Claude.ai (web/desktop) | **WorkMagic MCP** — skills are built in (`skills-list` / `skills-read`) | Just connect the MCP server | **Automatic** — always the latest |
+| **A coding agent / CLI** — Claude Code, Codex, Cursor, Gemini CLI | **This repo** via `npx skills` | `npx skills add github.com/workmagicio/skills` | `npx skills update` |
+
+Chat apps can't install GitHub skills — they get them through the MCP. CLI agents can use either. See [Install](#install) and [Updating](#updating).
+
+---
+
 ## Catalog
 
 ### Understanding Incrementality
@@ -36,18 +49,52 @@ Claude, OpenAI, and other mainstream AI tools.
 
 ---
 
-## Get the skills
+## Install
+
+### Recommended for CLI agents: `npx skills`
+
+Works with Claude Code, Codex, Cursor, Gemini CLI, and 70+ agents — one command to install, one to update:
+
+```bash
+npx skills add github.com/workmagicio/skills   # install all skills
+npx skills update                               # pull the latest
+```
+
+To stay current automatically, schedule the update (cron or your shell startup):
+
+```bash
+0 9 * * *  npx -y skills update --yes
+```
+
+### Chat apps (ChatGPT, Claude.ai): use the WorkMagic MCP
+
+ChatGPT and Claude.ai (web/desktop) can't install GitHub skills — they load the **same skills through the WorkMagic MCP** (`skills-list` / `skills-read`), which **updates automatically** (nothing to reinstall). Connect the MCP server:
+
+- Server URL: `https://mcp.workmagic.io/mcp`
+- **Claude.ai / Desktop:** Settings → Connectors → Add custom connector
+- **ChatGPT:** enable Developer Mode (Plus/Pro/Business/Enterprise), then add the connector
+
+### Claude Code plugin marketplace (native)
+
+```bash
+/plugin marketplace add workmagicio/skills
+/plugin install workmagic-skills@workmagic
+```
+
+### Manual (fallback)
 
 ```bash
 git clone https://github.com/workmagicio/skills.git workmagic-skills
 cd workmagic-skills
 ```
 
-Everything below assumes you've cloned the repo and are inside it.
+Then load the folders into your tool (see the per-platform notes below). Prefer `npx skills` or the MCP above — a manual copy does **not** auto-update.
 
 ---
 
 ## Claude
+
+> **Chat / claude.ai users:** the easiest path is the [WorkMagic MCP](#chat-apps-chatgpt-claudeai-use-the-workmagic-mcp) — skills are built in and auto-update, with nothing to install. The steps below are for loading the skill *files* into Claude Code / SDK / API.
 
 ### Claude Code (CLI / IDE)
 
@@ -162,9 +209,12 @@ file, or knowledge base can use them.
 
 ## Updating
 
-```bash
-cd workmagic-skills && git pull
-```
+| How you installed | How to update |
+| --- | --- |
+| **WorkMagic MCP** (chat apps) | Nothing to do — it always serves the latest. |
+| **`npx skills`** | `npx skills update` — or schedule it (see [Install](#install)) for automatic updates. |
+| **Plugin marketplace** | `/plugin marketplace update workmagic`, then reinstall the plugin. |
+| **Manual `git clone` + symlink** | `cd workmagic-skills && git pull` — symlinks reflect the changes; re-run the symlink command to pick up newly added skills. |
+| **Manual copy / uploaded to claude.ai / Custom GPT** | Frozen — re-copy / re-upload, or switch to the MCP for automatic updates. |
 
-If you symlinked into `~/.claude/skills/`, updates apply automatically. If you copied the
-folders, re-copy after pulling.
+Each skill is versioned in its `SKILL.md` frontmatter (`version:` + `last-updated:`); see [CHANGELOG.md](CHANGELOG.md).
