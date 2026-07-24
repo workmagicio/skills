@@ -68,7 +68,7 @@ Optimization period 2026-10-01 → 2026-10-31 is future. Reference period inside
 | Outcome | totalSalesHalo *(default — Amazon integrated)* |
 | Budget constraints | Google_Brand_Search locked at \$45K, Meta_Retargeting locked at \$30K *(your saturation-lock choice)* |
 
-[Confirm and run]   [Modify]   [Cancel]
+Reply *confirm* to run this scenario, or tell me what you'd like to change.
 
 *"This scenario takes a few minutes to run."*
 

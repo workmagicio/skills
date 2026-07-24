@@ -15,6 +15,6 @@ Preview message template — fill in all fields including auto-applied defaults 
 | Outcome | {totalSalesHalo \| totalSales} *(default)* |
 | Budget constraints | {None} *(default)* or {explicit constraints with (your constraint) annotation} |
 
-[Confirm and run]   [Modify]   [Cancel]
+Reply *confirm* to run this scenario, or tell me what you'd like to change (budget, period, constraints, …).
 
 *"This scenario takes a few minutes to run."*
