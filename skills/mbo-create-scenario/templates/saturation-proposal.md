@@ -6,6 +6,6 @@ Saturation lock proposal template — surface ALL flagged tactics with reason pe
 - *{Tactic_Name_2} — {reason e.g., saturation curve is flat at current spend (marginal ROAS \~0.4× average); audience pool is small}*
 - *{Tactic_Name_3} — {reason e.g., name-matched as a returning-customer tactic; closed audience}*
 
-*Lock these at reference spend?*
+*Lock these at reference spend?* Reply *lock all* to lock every flagged tactic, *adjust* to set them one at a time, or *skip* to let the optimizer move budget freely.
 
-[Lock all]   [Adjust per tactic]   [Skip locks]
+(Ask in plain language like the line above — do NOT emit bracketed pseudo-buttons like `[Lock all]`; the chat surfaces render them as literal text, not clickable buttons.)

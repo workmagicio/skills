@@ -230,6 +230,7 @@ Three turns max:
 - Internal terminology (`attr_model_name`, table names, model IDs)
 - Tool names exposed to user ("do you want list or forecast?")
 - Scenario IDs in conversation (use scenario names)
+- Bracketed pseudo-buttons (`[Confirm and run]`, `[Lock all]`, `[Cancel]`, …) — the chat surfaces render them as literal text, not clickable buttons. Present the options in plain language and ask the user to reply. The only real interactive confirm is the system R2 card, which fires automatically for a gated tool; the skill never draws its own.
 
 ## 7. CRITICAL rules (top 8)
 

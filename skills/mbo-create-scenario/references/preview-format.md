@@ -20,6 +20,6 @@ Also surface baseline anchors:
 
 Use the table template at templates/scenario-preview.md.
 
-End with three action buttons: `[Confirm and run]   [Modify]   [Cancel]`.
+End by asking the user to confirm in plain language — e.g. "Reply *confirm* to run, or tell me what to change." Do NOT emit bracketed pseudo-buttons like `[Confirm and run]` / `[Modify]` / `[Cancel]`: the chat surfaces (Slack, embedded web) render them as literal text, not clickable buttons — it looks broken and invites a redundant confirmation. The only real interactive confirm prompt is the system R2 card, which fires automatically when a gated tool runs; the skill never draws its own.
 
 Tell the user the scenario takes a few minutes.
