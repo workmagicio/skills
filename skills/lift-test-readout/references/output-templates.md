@@ -8,20 +8,20 @@ Primary metric: Orders
 
 Summary:
 
-| Channel    | Ad spend  | Incr. orders | Lift % | Incr. ROAS | CI (lift %) | Significance     |
+| Channel    | Ad spend  | Incr. orders | Lift % | Incr. ROAS | Confidence score | Significance     |
 
-| Combined   | \$29,873   | 29,873       | 13.5%  | \$2.50      | [22% \~ 38%] | Significant      |
+| Combined   | \$29,873   | 29,873       | 13.5%  | \$2.50      | 98% | Significant      |
 
-| DTC        | \$29,873   | 29,873       | 13.5%  | \$2.10      | [16% \~ 30%] | Significant      |
+| DTC        | \$29,873   | 29,873       | 13.5%  | \$2.10      | 95% | Significant      |
 
-| Amazon     | —         | 29,873       | 13.5%  | \$1.80      | [-2% \~ 18%] | Not significant  |
+| Amazon     | —         | 29,873       | 13.5%  | \$1.80      | 68% | Not significant  |
 
 
 
 Headline:
 
-- On DTC, the test shows \$2.10 incremental ROAS at 13.5% lift, CI entirely above zero — the result rules out no-lift.
-- The Amazon halo measurement spans below zero in the CI ([-2% \~ 18%]) — the data can't rule out zero halo from this Meta spend.
+- On DTC, the test shows \$2.10 incremental ROAS at 13.5% lift, confidence 98% — the result confirms incremental return.
+- The Amazon halo measurement came back at 68% confidence — below the significance threshold, so the data can't confirm halo direction from this Meta spend.
 
 Want this as a deck for sharing internally?
 
@@ -36,8 +36,8 @@ Want this as a deck for sharing internally?
 Read:
 
 - DTC iROAS is \$2.10, above the typical \$1.00 break-even for blended-margin businesses. At current spend (\$10,989), Meta is producing incremental revenue at a positive return on this channel.
-- The CI is fully above zero — the lift signal isn't being driven by noise.
-- Halo to Amazon couldn't be confirmed in this test — that channel's lift CI spans zero.
+- The DTC row’s confidence is 98% — above the significance threshold, so the lift signal isn't driven by noise.
+- Halo to Amazon couldn't be confirmed in this test — that channel's confidence is 68%, below the significance threshold.
 
 Consider: Scale Meta. Marginal returns at current spend look healthy. Tradeoff: this test measured the current spend level — at materially higher daily budgets, expect diminishing returns past the point this test covered. To size up the next budget step with confidence, run an MBO scenario or schedule a follow-up test at the higher spend.
 
@@ -49,15 +49,11 @@ Want this as a deck?
 
 - **Significance-explainer**
 
-The Amazon row shows lift % of 13.5%, but its confidence interval is [-2% \~ 18%].
+The Amazon row shows lift % of 13.5%, but its confidence score is 68% — below the significance threshold the product uses to mark a result as Significant.
 
+The confidence score is computed from the test’s p-value (1 - p_value); a higher score means the observed lift is less likely to be due to random chance. Because Amazon’s score is 68%, the data doesn’t confirm the observed halo — it might reflect a real effect, or it might reflect noise. That’s what “Not significant” means: not that the result is bad, but that this test didn’t have enough signal on the Amazon side to confirm direction.
 
-
-The CI is the range the true lift % likely falls in, at 95% confidence. Because that range crosses zero, the data can't rule out that the actual halo to Amazon was zero (or even slightly negative). That's what "Not significant" means — not that the result is bad, but that this test didn't have enough signal on the Amazon side to confirm direction.
-
-
-
-The DTC row on the same test was significant, so the Meta spend did drive incremental DTC orders. The halo question on Amazon is the part that needs more data to resolve.
+The DTC row on the same test came back at 95% confidence and was flagged Significant, so the Meta spend did drive incremental DTC orders. The halo question on Amazon is the part that needs more data to resolve.
 
 
 
@@ -69,18 +65,20 @@ Last 3 completed tests:
 
 | Test                                          | Channel  | iROAS  | Lift %  | CI            | Significance     |
 
-| 20260320-Meta Ads - 20% DTC orders - PTM     | DTC      | \$2.10  | 13.5%   | [16% \~ 30%]   | Significant      |
+| 20260320-Meta Ads - 20% DTC orders - PTM     | DTC      | \$2.10  | 13.5%   | 98%  | Significant      |
 
-| 20260215-TikTok - new customer test - LTM    | DTC      | \$1.40  | 8.2%    | [3% \~ 13%]    | Significant      |
+| 20260215-TikTok - new customer test - LTM    | DTC      | \$1.40  | 8.2%    | 94%    | Significant      |
 
-| 20260108-Google - Prospecting tactic - PTM   | DTC      | \$0.90  | 2.1%    | [-1% \~ 5%]    | Not significant  |
+| 20260108-Google - Prospecting tactic - PTM   | DTC      | \$0.90  | 2.1%    | 72%    | Not significant  |
 
 
 
 Notes:
 
-- Two tests confirmed positive lift; the Google Prospecting test came back not significant — the CI on lift % crossed zero.
+- Two tests confirmed positive lift; the Google Prospecting test came back not significant — confidence 72%, below the significance threshold.
 - These tests measured different channels at different time windows; direct cross-test comparison should be read with that caveat.
+
+
 
 
 
@@ -111,8 +109,8 @@ Notes:
 | User asked for cross-test synthesis (“how is my measurement program going overall”) | Pull recent tests, surface in a table, but **don’t roll up to a single number** — each test measured a different thing under different conditions. |
 | User asks about a test that doesn’t exist | List close matches; ask which one they meant. Don’t guess. |
 | User asks “what’s the iROAS” and there are multiple sales channels | Show the per-channel breakdown (DTC vs. Amazon vs. Combined). Don’t pick one silently. |
-| User claims a target (“I need iROAS above \$2”) and the result is at the boundary | State the comparison plainly: “\$2.10 iROAS — above your \$2.00 target, with the CI at [\$1.85 \~ \$2.40].” Let the boundary speak for itself; don’t editorialize. |
-| User asks “is this good?” with no stated target | Don’t invent a target. Describe the result against significance and the user’s prior tests (if available). State: “iROAS of \$X with a CI that doesn’t cross zero — the data confirms incremental return. Whether \$X clears your business’s break-even depends on your margin structure.” |
+| User claims a target (“I need iROAS above \$2”) and the result is at the boundary | State the comparison plainly: “\$2.10 iROAS — above your \$2.00 target, confidence 98% (Significant).” Let the boundary speak for itself; don’t editorialize. |
+| User asks “is this good?” with no stated target | Don’t invent a target. Describe the result against significance and the user’s prior tests (if available). State: “iROAS of X, confidence 94% — the data confirms incremental return. Whether X clears your business’s break-even depends on your margin structure.” |
 | Result conflicts with the user’s expectation (“I thought Meta was working better”) | Don’t validate or dismiss the prior belief. Surface the data and what it does and doesn’t say. The platform’s attribution-model number (in the attribution comparison view, when available) may explain why their belief diverged — but reading that is out of scope for this skill version. |
 | Multiple stores, conflicting signals (DTC significant positive, Amazon significant negative) | Read each store’s result on its own. Don’t summarize across with a single label. Note the divergence and recommend the user weigh each store’s economics separately. |
 
@@ -146,9 +144,7 @@ Notes:
 
 **On significance**:
 
-- ❌ Reporting lift % without confidence interval / significance
-- ❌ Treating a wide CI as “directional” — if it crosses zero, the data doesn’t support direction
-- ❌ Talking about confidence as a variable level (e.g. "at 60% confidence", "with high confidence") — every test runs at fixed **95%** confidence. Talk about the CI (width, whether it crosses zero), not about the confidence level itself.
+- ❌ Reporting lift % without confidence score / significance
 - ❌ Reading not-significant rows as if they were significant
 - ❌ Tucking the significance flag at the end as an afterthought — surface it next to the lift % it qualifies
 
