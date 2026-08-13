@@ -38,4 +38,5 @@
 - **Skip second confirmation on delete**
 - **Run scenario without telling user it takes a few minutes**
 - **Deliver without the MBO link** — saturation curves and full breakdown live in MBO
+- **Blame the reallocation (or the user's locks) for a baseline-driven total drop** — when total sales projects lower under a maximize-sales goal, the cause is almost always the baseline (organic / non-media) component falling, which MBO doesn't control. Decompose baseline vs paid media before explaining; never write "trading sales for ROAS efficiency" or "because you locked X/Y/Z" without decomposing first (see references/deliver-flow.md).
 - **Pad with "want to compare against another scenario?" / "should I schedule this?"** — UI exposes both

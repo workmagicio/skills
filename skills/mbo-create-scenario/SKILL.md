@@ -7,24 +7,24 @@ version: 1.0.0
 last-updated: 2026-06-25
 
 references:
-- references/inputs-detail.md
-- references/reference-period-rules.md
-- references/budget-parsing.md
-- references/saturation-tactics.md
-- references/constraint-conflicts.md
-- references/preview-format.md
-- references/deliver-flow.md
-- references/modify-flow.md
-- references/edge-cases.md
-- references/failure-modes.md
-- references/key-concepts.md
+  - references/inputs-detail.md
+  - references/reference-period-rules.md
+  - references/budget-parsing.md
+  - references/saturation-tactics.md
+  - references/constraint-conflicts.md
+  - references/preview-format.md
+  - references/deliver-flow.md
+  - references/modify-flow.md
+  - references/edge-cases.md
+  - references/failure-modes.md
+  - references/key-concepts.md
 
 templates:
-- templates/scenario-preview.md
-- templates/saturation-proposal.md
+  - templates/scenario-preview.md
+  - templates/saturation-proposal.md
 
 examples:
-- examples/example-october-budget.md
+  - examples/example-october-budget.md
 ---
 
 ## 1. Purpose
@@ -191,7 +191,7 @@ Use the template at templates/scenario-preview.md. Full preview format spec live
 
 ### Step 13: Deliver
 
-After Step 12 (create) succeeds, **wait \~1 minute** then auto-call `budget-optimizer-forecast` to fetch the completed scenario. Then summarize the result for the user (top 2-3 reallocations + expected delta vs baseline + any excluded channels).
+After Step 12 (create) succeeds, **wait \~1 minute** then auto-call `budget-optimizer-forecast` to fetch the completed scenario. Then summarize the result for the user (top 2-3 reallocations + expected delta vs baseline + any excluded channels). **The summary is an interpretation — run the goal-vs-projection sanity check and baseline / paid-media decomposition per references/deliver-flow.md before writing it** (same discipline as mbo-read-scenario): if total sales projected drops under a maximize-sales goal, the cause is almost always the baseline (organic / non-media) component, NOT the reallocation — do not call it "trading sales for efficiency" and do not blame the users locks without decomposing first.
 
 Forecast `status` handling (ready / running / error) lives in references/deliver-flow.md.
 
@@ -230,7 +230,6 @@ Three turns max:
 - Internal terminology (`attr_model_name`, table names, model IDs)
 - Tool names exposed to user ("do you want list or forecast?")
 - Scenario IDs in conversation (use scenario names)
-- Bracketed pseudo-buttons (`[Confirm and run]`, `[Lock all]`, `[Cancel]`, …) — the chat surfaces render them as literal text, not clickable buttons. Present the options in plain language and ask the user to reply. The only real interactive confirm is the system R2 card, which fires automatically for a gated tool; the skill never draws its own.
 
 ## 7. CRITICAL rules (top 8)
 
