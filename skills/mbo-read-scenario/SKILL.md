@@ -144,7 +144,6 @@ Before interpreting, always check the forecast state:
 | `budget-optimizer-list` | Required | R0 | Provisioning check + locate scenarios |
 | `budget-optimizer-forecast` | Required (basic_read, mbo_vs\_\*) | R0 | Per-channel forecast + saturation curve data (pass `includeSaturation=true`) |
 | `budget-optimizer-compare` | Required (scenario_compare) | R0 | Diff two scenarios programmatically |
-| `budget-optimizer-accuracy` | Required (basic_read) | R0 | Backtesting accuracy; caveat if < 70% |
 | `budget-optimizer-reference-data` | Optional | R0 | Ready-platform context + baseline spend (useful when explaining excluded channels) |
 | `dashboard-metrics-list` | Required (mbo_vs_attribution) | R0 | Validate attribution metric names |
 | `database-query-sql` | Required (mbo_vs_attribution, mbo_vs_actual) | R0 | Pull attribution actuals / realized outcome for the scenario period |

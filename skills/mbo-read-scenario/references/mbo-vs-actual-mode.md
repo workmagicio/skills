@@ -5,7 +5,7 @@
 
    - Forecast = expected outcome based on historical saturation curves
    - Actual = realized outcome influenced by market conditions, creative quality, seasonality, competitor activity, and execution variance
-   - Some gap is expected; what matters is whether the gap is within typical model uncertainty (backtesting accuracy gives the range)
+   - Some gap is expected; what matters is whether the gap is within typical model uncertainty
 3. **Diagnose the gap** at a high level:
 
    - Was overall spend different from the scenario's recommended spend? (execution variance)

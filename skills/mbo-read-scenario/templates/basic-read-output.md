@@ -8,7 +8,7 @@ basic_read output template — single scenario reading:
 - **{Channel 2}: {direction} {%} ({\$baseline} → {\$recommended})**  
 *Why*: {reason}.  
 *Impact*: {impact}.
-**Worth knowing**: {baseline vs paid media split, backtesting accuracy if < 70%}.
+**Worth knowing**: {baseline vs paid media split}.
 **Heads-up**: {special states — zero ref-period spend, insufficient data, locked-by-default}.
 **[Open scenario in MBO →]** for full saturation curves and per-tactic detail.
 </callout>
@@ -23,7 +23,7 @@ basic_read output template — single scenario reading:
 - **Google: −15% (\$224K → \$190K)**  
 *Why*: near saturation — average ROAS is 4.1x but marginal ROAS has dropped to 1.8x; each additional dollar adds little.  
 *Impact*: the freed \$34K is redistributed to channels with higher marginal returns.
-**Worth knowing**: baseline (organic) sales are \~60% of total; MBO only reallocates the paid 40%. Backtesting accuracy is 78% (within recommended range).
+**Worth knowing**: baseline (organic) sales are \~60% of total; MBO only reallocates the paid 40%.
 **Heads-up**: Snapchat had zero reference-period spend, so it's excluded from this scenario.
 **[Open scenario in MBO →]** for full saturation curves and per-tactic detail.
 </callout>

@@ -24,8 +24,7 @@
      - State the decomposition explicitly in the reading. The paid component is what MBO actually optimizes; the baseline is the model's organic projection (seasonality + trend), which MBO does NOT control.
      - See interpretation-playbook.md row "Total projected sales is LOWER than reference" for the canonical framing.
      - If decomposition can't be computed (e.g., scenario only covers a subset of channels and baseline section is hidden), say so honestly — don't fabricate a generic "channel mix is more efficient" answer.
-7. **Caveat backtesting accuracy** only if < 70%.
-8. **Link to MBO** — full curves, table, download live there.
+7. **Link to MBO** — full curves, table, download live there.
 
 <callout emoji="💡">
 **Don't take the bait — "more efficient channel mix" as a default explanation.** When goal direction and projection direction disagree, the default-sounding "MBO found a more efficient channel mix" is almost always WRONG. The real cause is usually the baseline (organic) component dropping while the paid component is actually improving. Always decompose first.

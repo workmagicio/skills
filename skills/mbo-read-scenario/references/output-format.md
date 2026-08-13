@@ -8,5 +8,4 @@
 - **Pick top 2-3 channels worth naming** — full table is in MBO
 - **Numbers with units + % change** in comparisons
 - **Flag special states explicitly** (zero ref spend, insufficient data) — don't bury
-- **Cite backtesting accuracy** only when < 70% or user specifically asks
 - **First use of technical terms** needs an inline explanation; subsequent uses don't
