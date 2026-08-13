@@ -1,6 +1,6 @@
 ---
 name: lift-test-readout
-description: Read and act on completed lift test results — interpret iROAS, confidence intervals, and turn the data into a post-test decision.
+description: Read and act on completed lift test results — interpret iROAS, confidence scores, and turn the data into a post-test decision.
 category: lift-test
 risk: R0
 version: 1.0.0
@@ -16,7 +16,7 @@ references:
 
 ## Purpose
 
-How to read and act on lift test results — interpreting incremental ROAS, confidence intervals, and making post-test decisions. This skill turns a completed test’s raw output into a concise, decision-oriented readout: the headline numbers, what they mean in context, and what to do next. Default interpretation skill in the Lift Test domain.
+How to read and act on lift test results — interpreting incremental ROAS, confidence scores, and making post-test decisions. This skill turns a completed test’s raw output into a concise, decision-oriented readout: the headline numbers, what they mean in context, and what to do next. Default interpretation skill in the Lift Test domain.
 
 ## When to trigger
 
@@ -62,9 +62,9 @@ Terminology rules (DB field → UI label, store-family names, number formatting)
 ### 4.1 Steps
 
 1. **Resolve the test(s).** Apply rules in references/test-resolution.md. If ambiguous, surface candidates and ask — don’t guess. If test is still running, surface status and stop.
-2. **Pull the data.** From lift-test-get: primary metric, ad spend, calibration status, test window dates. From lift-test-readout: per-sales-platform metric rows, CI / significance from extra_info JSON. Detail → references/sop-detail.md.
+2. **Pull the data.** From lift-test-get: primary metric, ad spend, calibration status, test window dates. From lift-test-readout: per-sales-platform metric rows, confidence score, significance flag from extra_info JSON. Detail → references/sop-detail.md.
 3. **Pick the read shape** based on user intent — see §4.1 below.
-4. **Build the readout following the rubric.** Connect every metric to an implication, pair lift with CI / significance, use comparative framing only when reference is in the data, no evaluative adjectives, no speculation about causes. Full rubric → references/sop-detail.md.
+4. **Build the readout following the rubric.** Connect every metric to an implication, pair lift with confidence score, use comparative framing only when reference is in the data, no evaluative adjectives, no speculation about causes. Full rubric → references/sop-detail.md.
 5. **Make a recommendation** (only if user asked a decision question). One label from fixed vocabulary — Scale / Maintain / Optimize / Adjust and retest. Framing rules and tradeoff surfacing → references/sop-detail.md.
 6. **Offer deck handoff** (only when the read is substantive). Skip for single-metric queries, status checks, or all-not-significant reads. On acceptance, hand off to the deck pipeline (rubric document is the deck pipeline’s system prompt — readout doesn’t duplicate it).
 
@@ -86,7 +86,7 @@ Match the user’s intent to a read shape; each maps to a template in references
 |-|-|-|
 | lift-test-list | Required | Resolve “my last test” / “my last 3 tests” / partial-name matches |
 | lift-test-get | Required | Pull full test config, status, and stored primary metric |
-| lift-test-readout | Required | Pull result rows: ad spend, incr. orders, lift %, incr. ROAS, CI, significance, trendline data, calibration status |
+| lift-test-readout | Required | Pull result rows: ad spend, incr. orders, lift %, incr. ROAS, Confidence score, significance flag, trendline data, calibration status |
 | Deck generation pipeline | Optional | Hand off when the user accepts the deck offer in Step 6 |
 
 If a needed field isn’t in the lift-test-result table (e.g., attribution comparison breakdown — explicitly out of scope for this skill version), don’t fabricate it. Either skip that part of the read or tell the user that piece isn’t available here.
@@ -94,11 +94,10 @@ If a needed field isn’t in the lift-test-result table (e.g., attribution compa
 ## Output rules
 
 - Use UI labels for every metric (Incr. orders, Lift %, Incr. ROAS, Incr. CAC, etc.) — full mapping in references/terminology.md.
-- Pair every lift % with its CI and significance flag — never report lift % alone.
-- Confidence level is fixed at **95%** — never talk about it as variable. Discuss the CI (its bounds, whether it crosses zero), not the confidence level.
+- Pair every lift % with its confidence score and significance flag — never report lift % alone.
 - Connect every metric to an implication; never report numbers in isolation.
 - Comparative framing **only** when the reference exists in the data — user-stated target, prior period, or another channel in the same test. Don’t invent baselines.
-- Format numbers per references/terminology.md — \$X.XX for ROAS (2 decimals), X.X% for percentages (1 decimal), [X% \~ Y%] for CI matching UI. Always round.
+- Format numbers per references/terminology.md — \$X.XX for ROAS (2 decimals), X.X% for percentages (1 decimal), integer % for confidence score (e.g. 92%, 65%). Always round.
 - Store family naming: shopify\_\* → “DTC” (never “Shopify”), amazon\_\* → “Amazon”, tiktok\_\* → “TikTok Shop”, combined\_\* → “Combined”.
 - Output templates per read shape → references/output-templates.md.
 
@@ -109,7 +108,7 @@ See references/edge-cases.md — 15 cases covering tests still running / in cool
 ## CRITICAL rules (top 6)
 
 1. **Never invent fields or benchmarks.** If “new customers acquired” isn’t a stored count, don’t substitute it for nc_orders (allowed shorthand: \~X new customers with tilde, qualified by store). No “above the typical \$1.50 industry baseline” unless the user stated \$1.50.
-2. **Never report lift % without confidence interval / significance.** A 13.5% lift with CI [16% \~ 30%] is a confirmed result; the same 13.5% with CI [-2% \~ 18%] is not. Always surface both alongside.
+2. **Never report lift % without confidence score / significance.** A 13.5% lift with confidence 98% is a confirmed result (“Significant”); the same 13.5% lift with confidence 68% is not (“Not significant”). Always surface both alongside.
 3. **Never recommend Scale or Maintain on a Not-significant result.** Suggest Adjust and retest, or route to creation skill for a new test with adjusted parameters. Don’t pick a directional recommendation on data that doesn’t support it.
 4. **Never use evaluative adjectives.** Banned: strong, solid, weak, meaningful, substantial, remarkable, considerable, robust, compelling, impressive. Use neutral descriptors tied to data (“above your $2 target”, “stays above $X”, “diminishing past \$X”).
 5. **Never own cross-channel allocation or attribution calibration prose.** “Shift 30% of Meta’s \$40k to Google” is MBO’s job; attribution-calibration interpretation is the attribution model’s. Hand off, don’t speak their language.

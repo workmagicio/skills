@@ -24,8 +24,8 @@ UI labels not directly from lift-test-readout — source and rendering
 | UI label | Source | Skill handling |
 |-|-|-|
 | Ad spend | NOT from lift-test-readout — comes from lift-test-get config or aggregated platform spend | Required to interpret any iROAS / CAC value. Pull from config source, not the readout response. |
-| Confidence interval (lift %) | In extra_info JSON in the readout response | Render as [X% \~ Y%] matching UI format. |
-| Significance | If extra_info contains CI → derive from CI crossing zero. If extra_info does not contain CI → significant by default. | Render as “Significant” / “Not significant” matching UI badge. |
+| Confidence score | In extra_info JSON in the readout response | value; per test, per sales channel. Render as integer % — e.g. 92%, 65%, 98%. |
+| Significance | If Confidence score > =90%, derive as "Significant"; if Confidence score < 90%, derive as "Not significant" | Render as “Significant” / “Not significant” matching UI badge. |
 
 Fields NOT exposed in the readout
 
@@ -51,7 +51,7 @@ Number formatting (always apply)
 | Per-order count | ≥ 1,000 → 1,234; < 1,000 → integer 146 |
 | ROAS / iROAS / NC iROAS values | \$X.XX always 2 decimals — \$2.10, \$0.58 |
 | Percentages | X.X% one decimal — 13.5%, 0.2% |
-| Dollar amounts ≥ \$1,000 \| \`\$X,XXX—\$10,989\| \| Per-unit costs < \$1,000 \|\$XX.XX—\$76.31\| \| Confidence intervals \|[X% \~ Y%]\` matching UI format |  |
+| Dollar amounts ≥ \$1,000 \| \`\$X,XXX—\$10,989\| \| Per-unit costs < \$1,000 \|\$XX.XX—\$76.31\| \| Confidence score \| integer % — 92%, 65%, 98%\` matching UI format |  |
 | Significance flag | “Significant” / “Not significant” (match UI badge exactly) |
 
 **Always round** — never carry source precision through. \$2.1287643 is wrong, \$2.13 is right.
