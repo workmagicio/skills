@@ -5,8 +5,8 @@
 SELECT
   campaign_name,
   SUM(ad_spend)           AS ad_spend,
-  SUM(attr_shopify_sales) AS sales,
-  SUM(attr_shopify_sales) / NULLIF(SUM(ad_spend), 0) AS attr_roas
+  SUM(attr_all_sales) AS sales,
+  SUM(attr_all_sales) / NULLIF(SUM(ad_spend), 0) AS attr_roas
 FROM dws_view_copilot_attr_ads_ad_level_daily_latest
 WHERE tenant_id        = <tenant_id>
   AND attr_model_name  = '<attr_model>'

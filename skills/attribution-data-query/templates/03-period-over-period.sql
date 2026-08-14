@@ -7,9 +7,9 @@
 -- Query 1: current period
 -- ============================================================
 SELECT
-  SUM(attr_shopify_sales) AS sales,
+  SUM(attr_all_sales) AS sales,
   SUM(ad_spend)           AS ad_spend,
-  SUM(attr_shopify_sales) / NULLIF(SUM(ad_spend), 0) AS attr_roas
+  SUM(attr_all_sales) / NULLIF(SUM(ad_spend), 0) AS attr_roas
 FROM dws_view_copilot_attr_channel_level_daily_latest
 WHERE tenant_id        = <tenant_id>
   AND attr_model_name  = '<attr_model>'
@@ -22,9 +22,9 @@ WHERE tenant_id        = <tenant_id>
 -- Query 2: prior period — IDENTICAL filters, only dates shift
 -- ============================================================
 SELECT
-  SUM(attr_shopify_sales) AS sales,
+  SUM(attr_all_sales) AS sales,
   SUM(ad_spend)           AS ad_spend,
-  SUM(attr_shopify_sales) / NULLIF(SUM(ad_spend), 0) AS attr_roas
+  SUM(attr_all_sales) / NULLIF(SUM(ad_spend), 0) AS attr_roas
 FROM dws_view_copilot_attr_channel_level_daily_latest
 WHERE tenant_id        = <tenant_id>
   AND attr_model_name  = '<attr_model>'

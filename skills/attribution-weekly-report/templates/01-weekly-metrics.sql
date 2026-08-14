@@ -6,10 +6,10 @@
 SELECT
     ads_platform,
     SUM(ad_spend)                                AS spend,
-    SUM(attr_shopify_sales)                      AS revenue,
+    SUM(attr_all_sales)                      AS revenue,
     SUM(attr_orders)                             AS orders,
     SUM(attr_new_customer_orders)                AS nc_orders,
-    SUM(attr_shopify_sales)
+    SUM(attr_all_sales)
         / NULLIF(SUM(ad_spend), 0)               AS roas,
     SUM(attr_new_customer_sales)
         / NULLIF(SUM(ad_spend), 0)               AS nc_roas,
