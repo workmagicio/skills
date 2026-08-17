@@ -6,7 +6,7 @@
 SELECT
   creative_text_headline,
   SUM(impressions)        AS impressions,
-  SUM(attr_shopify_sales) AS sales,
+  SUM(attr_all_sales) AS sales,
   SUM(ad_spend)           AS ad_spend
 FROM dws_view_copilot_attr_ads_creative_level_daily_latest
 WHERE tenant_id        = <tenant_id>

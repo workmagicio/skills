@@ -10,9 +10,9 @@
 
 ```sql
 SELECT
-  SUM(attr_shopify_sales) AS sales,
+  SUM(attr_all_sales) AS sales,
   SUM(ad_spend)           AS ad_spend,
-  SUM(attr_shopify_sales) / NULLIF(SUM(ad_spend), 0) AS attr_roas
+  SUM(attr_all_sales) / NULLIF(SUM(ad_spend), 0) AS attr_roas
 FROM dws_view_copilot_attr_channel_level_daily_latest
 WHERE tenant_id        = <tenant_id>
   AND attr_model_name  = '<attr_model>'
@@ -39,8 +39,8 @@ HAVING SUM(ad_spend) > 0
 SELECT
   campaign_name,
   SUM(ad_spend)           AS ad_spend,
-  SUM(attr_shopify_sales) AS sales,
-  SUM(attr_shopify_sales) / NULLIF(SUM(ad_spend), 0) AS attr_roas
+  SUM(attr_all_sales) AS sales,
+  SUM(attr_all_sales) / NULLIF(SUM(ad_spend), 0) AS attr_roas
 FROM dws_view_copilot_attr_ads_ad_level_daily_latest
 WHERE tenant_id        = <tenant_id>
   AND attr_model_name  = '<attr_model>'
@@ -69,9 +69,9 @@ Cube SQL does NOT support CTEs (`WITH`), `UNION`, subqueries, `LAG`, or window f
 ```sql
 -- Query 1: current period
 SELECT
-  SUM(attr_shopify_sales) AS sales,
+  SUM(attr_all_sales) AS sales,
   SUM(ad_spend)           AS ad_spend,
-  SUM(attr_shopify_sales) / NULLIF(SUM(ad_spend), 0) AS attr_roas
+  SUM(attr_all_sales) / NULLIF(SUM(ad_spend), 0) AS attr_roas
 FROM dws_view_copilot_attr_channel_level_daily_latest
 WHERE tenant_id        = <tenant_id>
   AND attr_model_name  = '<attr_model>'
@@ -84,9 +84,9 @@ WHERE tenant_id        = <tenant_id>
 ```sql
 -- Query 2: prior period — identical filters, shifted dates
 SELECT
-  SUM(attr_shopify_sales) AS sales,
+  SUM(attr_all_sales) AS sales,
   SUM(ad_spend)           AS ad_spend,
-  SUM(attr_shopify_sales) / NULLIF(SUM(ad_spend), 0) AS attr_roas
+  SUM(attr_all_sales) / NULLIF(SUM(ad_spend), 0) AS attr_roas
 FROM dws_view_copilot_attr_channel_level_daily_latest
 WHERE tenant_id        = <tenant_id>
   AND attr_model_name  = '<attr_model>'
@@ -112,7 +112,7 @@ WHERE tenant_id        = <tenant_id>
 SELECT
   creative_text_headline,
   SUM(impressions)        AS impressions,
-  SUM(attr_shopify_sales) AS sales,
+  SUM(attr_all_sales) AS sales,
   SUM(ad_spend)           AS ad_spend
 FROM dws_view_copilot_attr_ads_creative_level_daily_latest
 WHERE tenant_id        = <tenant_id>
@@ -159,5 +159,5 @@ When returning the result, prepend a scope warning: *"⚠️ Data scope: store-r
 **Common pitfalls**:
 
 - Adding `attr_model_name = '...'` to an `order_sales` query — that column does NOT exist on `dws_view_copilot_sales_channel_daily_latest`. The query will fail.
-- Silently defaulting to `order_*` fields when the user did NOT say "actual" — phrases like "total sales" default to `attr_shopify_sales` on `channel_attribution`, not `order_total_sales`. The word "total" alone is not a trigger.
+- Silently defaulting to `order_*` fields when the user did NOT say "actual" — phrases like "total sales" default to `attr_all_sales` on `channel_attribution`, not `order_total_sales`. The word "total" alone is not a trigger.
 - `sales_platform` values are lowercase (`shopify`, `amazon`, `other`) — capitalize when rendering to the user.

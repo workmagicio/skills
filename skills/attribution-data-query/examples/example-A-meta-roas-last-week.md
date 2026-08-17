@@ -27,7 +27,7 @@ Ask: *"How to query channel_attribution with filter on ads_platform for the last
 
 ### Step 4 — dashboard-metrics-list
 
-Confirm fields exist: `attr_shopify_sales`, `ad_spend`, `ads_platform`, `attr_model_name`, `src_channel`, `event_date` ✓
+Confirm fields exist: `attr_all_sales`, `ad_spend`, `ads_platform`, `attr_model_name`, `src_channel`, `event_date` ✓
 
 ### Step 5 — Copy from template
 
@@ -35,9 +35,9 @@ This is a single-platform channel-level ROAS query → match to `templates/01-ch
 
 ```sql
 SELECT
-  SUM(attr_shopify_sales) AS sales,
+  SUM(attr_all_sales) AS sales,
   SUM(ad_spend)           AS ad_spend,
-  SUM(attr_shopify_sales) / NULLIF(SUM(ad_spend), 0) AS attr_roas
+  SUM(attr_all_sales) / NULLIF(SUM(ad_spend), 0) AS attr_roas
 FROM dws_view_copilot_attr_channel_level_daily_latest
 WHERE tenant_id        = 12345
   AND attr_model_name  = 'idda'

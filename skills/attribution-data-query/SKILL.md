@@ -3,12 +3,13 @@ name: attribution-data-query
 description: Translate explicit data requests into Cube.dev SQL and return results. Default skill for query-type asks in the Attribution domain. No estimation, no fabrication, no proactive dashboards.
 category: attribution
 risk: R0
-version: 1.1.0
-last-updated: 2026-06-25
+version: 1.2.0
+last-updated: 2026-08-14
 
 references:
   - references/time-range-resolution.md
   - references/attribution-model.md
+  - references/sales-platform-scope.md
   - references/granularity-default.md
   - references/sql-examples.md
   - references/edge-cases.md
@@ -68,6 +69,7 @@ Translate the user's explicit data request into a precise Cube.dev SQL query and
 | dimension | Required | Validate against dashboard-metrics-list. For ads_attribution / creative_attribution with NC dimensions (Product Group, Asset Type, Creator name, etc.), pass tenantId to fan out tenant-specific propertyNames. |
 | time_range | Has default | Default: past 7 days. When user doesn't specify, use the default and inform them in one sentence ("Defaulting to the past 7 days — let me know if you want a different window"). Do not ask back. |
 | attribution_model | Has default | Resolved per §3.2. Filter via WHERE attr_model_name = '<resolved>'. |
+| sales_platform_scope | Has default | **Default: all sales platforms** — use `attr_all_sales` / `attr_all_orders`, NOT Shopify-only. Use `attr_shopify_sales` only when the user explicitly asks for Shopify / DTC alone. Per-platform breakdown via the dedicated measures → `references/sales-platform-scope.md`. |
 | filters | Optional | Extract from input ("only Meta", "ROAS > 2", "exclude test"). |
 | order_by / limit | Optional | "top 10" / "most" implies sorting — order descending by the implied key. |
 
@@ -80,7 +82,7 @@ Translate the user's explicit data request into a precise Cube.dev SQL query and
 
 **Step 1: Parse the request**
 
-Map natural language into the input fields. Resolve silently: today's date (re-fetch — never hard-code) → time window → attribution model → DataSet → dimensions → metrics.
+Map natural language into the input fields. Resolve silently: today's date (re-fetch — never hard-code) → time window → attribution model → sales-platform scope (default all platforms, `attr_all_*`) → DataSet → dimensions → metrics.
 
 **Step 2: Pick the DataSet (by dimension)**
 
@@ -153,8 +155,8 @@ Ask the knowledge base about Cube.dev schema patterns. `database-query-sql` requ
 - **Table first**: small result sets (≤ 20 rows) shown directly
 - **Top-N summary**: large sets → top 10 / 20 with "N total rows" note
 - **One-line reading**: what's high / low (≤ 2 sentences)
-- **Transparent defaults**: state which defaults applied (window, model)
-- **Cite the data source** in business language at end — attribution model + data-as-of window (e.g. "Source: data-driven attribution, last 7 days ending Jul 20"). **Never print the raw DataSet technical name** (`channel_attribution` / `ads_attribution` / `creative_attribution` / `order_sales`) — see rule 8 below; those are internal identifiers, not customer-facing labels
+- **Transparent defaults**: state which defaults applied (window, model, sales-platform scope)
+- **Cite the data source** in business language at end — **sales-platform scope + attribution model** + data-as-of window (e.g. "Source: all sales platforms, data-driven attribution, last 7 days ending Jul 20"). **State the sales-platform scope every time**, the same way the model is stated — a sales / ROAS figure is ambiguous without it (all-platform vs Shopify-only read very differently) → `references/sales-platform-scope.md`. **Never print the raw DataSet technical name** (`channel_attribution` / `ads_attribution` / `creative_attribution` / `order_sales`) — see rule 8 below; those are internal identifiers, not customer-facing labels
 - **No "save as dashboard" prompt** — UI has it
 - **No long analysis** — that's `attribution-anomaly-diagnosis`
 
