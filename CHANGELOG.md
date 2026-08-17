@@ -6,16 +6,23 @@ its `SKILL.md` frontmatter (`version:` / `last-updated:`).
 
 ## 2026-08-14
 ### Changed
-- **Sales-platform scope is now a first-class part of the measurement identity.** Attributed
-  sales / ROAS now default to **all sales platforms** (`attr_all_*`), not Shopify-only, and every
-  answer states the sales-platform scope alongside the attribution model — the two together are
-  what make a figure interpretable. New reference `attribution-data-query/references/sales-platform-scope.md`
-  (default, always-state rule, per-platform breakdown via dedicated measures, "Other marketplaces"
-  for platforms without a dedicated measure, no `sales_platform` dimension on the attribution
-  dataset, spend never split by sales platform). `attribution-data-query` SQL templates/examples and
-  `attribution-weekly-report`'s metrics template flipped `attr_shopify_sales` → `attr_all_sales`.
-  Follow-up: `attribution-model-comparison` (its own `sales_platform`-filter mechanism) and the
-  remaining skills' output-scope labeling.
+- **Sales-platform scope is now a first-class part of the measurement identity.** Every attribution
+  number states BOTH the **sales-platform scope** and the **attribution model** — the two together
+  are what make a figure interpretable (a "$3.87M" reads very differently as all-platform vs
+  Shopify-only). New reference `attribution-data-query/references/sales-platform-scope.md`: the
+  always-label **law**, the **scoped default** (totals / business overview → all sales platforms
+  `attr_all_*`; per-sales-platform model comparison & anomaly diagnosis stay **per platform** on
+  purpose, because model validity differs by platform), per-platform breakdown via dedicated
+  measures, "Other marketplaces" for platforms without a dedicated measure, no `sales_platform`
+  dimension on the attribution dataset, and spend never split by sales platform.
+  - `attribution-data-query` (1.1.0 → **1.2.0**): SQL templates/examples default `attr_all_sales`;
+    SKILL states scope + model in the source citation; worked example carries the scope label.
+  - `attribution-weekly-report` (1.0.0 → **1.1.0**): metrics template uses `attr_all_sales`, and the
+    report header + footer now carry `Sales platforms: {sales_scope}` alongside the model — closing
+    the gap where all-platform revenue/ROAS shipped to a CMO labeled with the model only.
+  - Unchanged on purpose: `attribution-model-comparison` and `attribution-anomaly-diagnosis` stay
+    **per sales platform** (model validity differs by platform). Follow-up: their output-scope
+    labeling standardization, and the remaining skills' provenance lines.
 
 ## 2026-07-14
 ### Added
@@ -34,7 +41,7 @@ its `SKILL.md` frontmatter (`version:` / `last-updated:`).
 | attribution-edge-routing | 1.0.0 |
 | attribution-intent-clarification | 1.0.0 |
 | attribution-model-comparison | 1.0.0 |
-| attribution-weekly-report | 1.0.0 |
+| attribution-weekly-report | 1.1.0 |
 | lift-test-creation | 1.0.0 |
 | lift-test-readout | 1.0.0 |
 | mbo-create-scenario | 1.0.0 |

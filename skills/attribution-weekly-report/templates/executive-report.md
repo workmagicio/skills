@@ -45,7 +45,7 @@
 
 ---
 
-*Attribution model: {model_name}  ·  Data as of: {query_time}*
+*Sales platforms: {sales_scope}  ·  Attribution model: {model_name}  ·  Data as of: {query_time}*
 
 📊 [Full quarterly review in WorkMagic]({dashboard_url})
 

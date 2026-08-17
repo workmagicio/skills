@@ -14,5 +14,5 @@
 - **Multi-question form in the clarification turn** — one pivotal question, defaults elsewhere
 - **Fire the report immediately without scheduling** — that's one-time data query, not this skill
 - **Add `tenant_id` filters in SQL** — platform-mcp injects it
-- **Forget to include attribution model + data-as-of in the report footer** — readers will misinterpret without it
+- **Forget to include sales-platform scope + attribution model + data-as-of in the report header/footer** — readers will misinterpret without it. The numbers are all-platform by default; a footer that names only the model ships unlabeled all-platform revenue/ROAS to a CMO
 - **Invent a report layout instead of copying from `templates/`** — produces inconsistent reports for the same client week-to-week
