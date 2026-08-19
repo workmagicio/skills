@@ -4,7 +4,7 @@ description: Pull attribution numbers under multiple attribution models side-by-
 category: attribution
 risk: R0
 version: 1.0.0
-last-updated: 2026-06-25
+last-updated: 2026-08-19
 
 references:
 - references/model-reference.md
@@ -44,7 +44,7 @@ Trigger when user wants to **compare attribution under different models**:
 
 - User wants a single model's number → `attribution-data-query`
 - User asks "why did X drop?" on a single model → `attribution-anomaly-diagnosis`
-- Pure educational ("what is iDDA?") → answer from `knowledge-base-ask` without pulling data
+- Pure educational ("what is iDDA?") → answer from `database-query-ask` without pulling data
 
 ## 3. Inputs
 
@@ -64,16 +64,16 @@ Trigger when user wants to **compare attribution under different models**:
 **Step 1: Parse the request**
 
 - Identify which models user wants. 0 specified → use default 4-way (DTC) or 3-way (non-DTC). 1 specified → assume comparison against default set; ask once to confirm. 2+ specified → use exactly what they named.
-- Check tenant has `idda` available by probing for `attr_model_name = 'idda'` data via `dashboard-metrics-list` or a quick `database-query-sql` count on model 32 — **not via `lift-test-list`** (a tenant can have ran lift tests historically without having current iDDA data). If no model 32 data, replace `idda` with `dda` in the default set and inform the user.
+- Check tenant has `idda` available by probing for `attr_model_name = 'idda'` data via `dashboard-metrics-list` or a quick `database-query-run` count on model 32 — **not via `lift-test-list`** (a tenant can have ran lift tests historically without having current iDDA data). If no model 32 data, replace `idda` with `dda` in the default set and inform the user.
 - Cap at **6 models**; more than that is unreadable.
 
-**Step 2: `knowledge-base-ask` (MANDATORY)**
+**Step 2: `database-query-ask` (MANDATORY)**
 
 - How to query multiple models in one SQL via `attr_model_name` / `attr_model_array`
 - Mechanism diff between the chosen models (powers Step 6 interpretation)
 - Whether the tenant has active lift tests affecting the time window (relevant for iDDA interpretation)
 
-Required for the `ctx` timestamp `database-query-sql` needs.
+Required for the `ctx` timestamp `database-query-run` needs.
 
 **Step 3: Validate fields via `dashboard-metrics-list`** — confirm metric names + `attr_model_name` dimension.
 
@@ -110,9 +110,9 @@ For few channels → 1-2 sentences **per row**. For many channels → cover the 
 
 | **Tool** | **Required?** | **Purpose** |
 |-|-|-|
-| `knowledge-base-ask` | Required (first) | Model mechanism explanations + Cube.dev schema patterns + `ctx` timestamp. **This skill especially depends on KB for interpretation** — never invent model behavior. |
+| `database-query-ask` | Required (first) | Model mechanism explanations + Cube.dev schema patterns + `ctx` timestamp. **This skill especially depends on KB for interpretation** — never invent model behavior. |
 | `dashboard-metrics-list` | Required | Validate `attr_orders`, `attr_roas`, `attr_model_name` and other field names |
-| `database-query-sql` | Required | Execute the multi-model CASE WHEN SQL in one shot |
+| `database-query-run` | Required | Execute the multi-model CASE WHEN SQL in one shot |
 | `lift-test-list` | Conditional | Optional context for grounding the dda-vs-idda interpretation (e.g., "iDDA dropped after this lift test"). **Do NOT use to check iDDA availability** — probe model 32 data via `dashboard-metrics-list` instead. |
 
 ## 6. Output format
@@ -142,7 +142,7 @@ The user picks based on their decision context. Pushing one as the answer presum
 1. **Always copy the template SQL** (`templates/01-multi-model-comparison.sql`) — never run N separate queries; they can drift on filters / dedup and produce non-comparable numbers
 2. **Never compare click-based models on a non-DTC sales platform** — last_click / first_click / any_click are NOT valid on Amazon Store and similar; only iDDA / DDA / platform_reported are. Dropping click models silently is also wrong — tell user once.
 3. **Never mix multiple sales platforms in one comparison row** — attribution is per sales platform AND valid model set differs. Run separately per sales platform.
-4. **Never skip `knowledge-base-ask`** before SQL — `ctx` required
+4. **Never skip `database-query-ask`** before SQL — `ctx` required
 5. **Never invent a reason for a diff that doesn't match a known pattern** — say "this isn't a typical pattern" instead
 6. **Never push one model as "the right answer"** — give situational guidance only when asked
 7. **Never default to a 7-day window** — too noisy; use 30 days

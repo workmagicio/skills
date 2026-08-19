@@ -3,8 +3,8 @@ name: attribution-weekly-report
 description: Create scheduled, recurring attribution reports (daily / weekly / monthly / quarterly) delivered via in-app / email / Slack. Cron or Heartbeat trigger. Always preview + test-run before activating. R1 write at system level.
 category: attribution
 risk: R1
-version: 1.1.0
-last-updated: 2026-08-14
+version: 1.0.0
+last-updated: 2026-08-19
 
 references:
 - references/executive-variant.md
@@ -68,7 +68,7 @@ Trigger when user wants something to **run on a schedule** and **be delivered**:
 
 **Do not ask**: attribution model, time-window-per-report (derive from cadence), report format (derive from delivery channel).
 
-**Step 3: `knowledge-base-ask` (MANDATORY)** — required for `ctx` timestamp before any SQL (test run needs it). Also ask: scheduled-task creation schema + delivery channel constraints.
+**Step 3: `database-query-ask` (MANDATORY)** — required for `ctx` timestamp before any SQL (test run needs it). Also ask: scheduled-task creation schema + delivery channel constraints.
 
 **Step 4: Build the report layout**
 
@@ -115,9 +115,9 @@ If the user asks to deliver to an email outside their org (e.g., a freelance age
 
 | **Tool** | **Required?** | **Purpose** |
 |-|-|-|
-| `knowledge-base-ask` | Required (first) | Schema patterns + scheduled-task conventions + `ctx` for test-run SQL |
+| `database-query-ask` | Required (first) | Schema patterns + scheduled-task conventions + `ctx` for test-run SQL |
 | `dashboard-metrics-list` | Required | Validate metric / dimension names. Pass `tenantId` for NC propertyNames. |
-| `database-query-sql` | Required | Execute the test run (Step 6) before activating |
+| `database-query-run` | Required | Execute the test run (Step 6) before activating |
 | `create_scheduled_task` | Required | R1 at system level. Fires only after explicit user confirmation + successful test run. |
 | `list_scheduled_tasks` | Conditional | When user says "update my weekly report" — list first to find target ID |
 | `update_scheduled_task` | Conditional | Edits to existing tasks; same preview + confirm flow |

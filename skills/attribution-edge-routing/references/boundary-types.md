@@ -44,4 +44,4 @@
 - "What was yesterday's ROAS?" at 9am on T+1-lag data (data lands by \~2pm)
 - "Why does last week's data keep changing?" — PPS backfill (this is actually `attribution-anomaly-diagnosis` territory; caught here only if misclassified)
 
-**Required verification**: `knowledge-base-ask` the data-freshness conventions before quoting a specific time.
+**Required verification**: `database-query-ask` the data-freshness conventions before quoting a specific time.

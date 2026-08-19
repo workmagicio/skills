@@ -4,7 +4,7 @@ description: Interpret existing MBO scenario results across five modes — basic
 category: mbo
 risk: R0
 version: 1.0.0
-last-updated: 2026-06-25
+last-updated: 2026-08-19
 
 references:
   - references/inputs-detail.md
@@ -112,7 +112,7 @@ Call `budget-optimizer-list`. Not provisioned → exit with CSM bridge, don't at
 - **0 scenarios** → tell user none exist, guide to create flow
 - If user named a scenario precisely ("my Q3 conservative plan") → use it, don't re-ask
 
-### Step 5: Consult knowledge-base-ask (MANDATORY)
+### Step 5: Consult database-query-ask (MANDATORY)
 
 Required for `ctx` timestamp (any SQL) + canonical interpretation language.
 
@@ -140,13 +140,13 @@ Before interpreting, always check the forecast state:
 
 | **Tool** | **Required?** | **System risk** | **Purpose** |
 |-|-|-|-|
-| `knowledge-base-ask` | Required (first) | R0 | Canonical interpretation language + `ctx` timestamp |
+| `database-query-ask` | Required (first) | R0 | Canonical interpretation language + `ctx` timestamp |
 | `budget-optimizer-list` | Required | R0 | Provisioning check + locate scenarios |
 | `budget-optimizer-forecast` | Required (basic_read, mbo_vs\_\*) | R0 | Per-channel forecast + saturation curve data (pass `includeSaturation=true`) |
 | `budget-optimizer-compare` | Required (scenario_compare) | R0 | Diff two scenarios programmatically |
 | `budget-optimizer-reference-data` | Optional | R0 | Ready-platform context + baseline spend (useful when explaining excluded channels) |
 | `dashboard-metrics-list` | Required (mbo_vs_attribution) | R0 | Validate attribution metric names |
-| `database-query-sql` | Required (mbo_vs_attribution, mbo_vs_actual) | R0 | Pull attribution actuals / realized outcome for the scenario period |
+| `database-query-run` | Required (mbo_vs_attribution, mbo_vs_actual) | R0 | Pull attribution actuals / realized outcome for the scenario period |
 | `lift-test-list` | Required (mbo_vs_lift_test) | R0 | Pull iROAS data + identify recent calibrations (also useful in scenario_compare to explain curve shifts) |
 
 ## 6. Output format

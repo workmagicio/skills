@@ -4,7 +4,7 @@
 2. **Pull both numbers**:
 
    - MBO via `budget-optimizer-forecast` (model-estimated)
-   - Attribution via `database-query-sql` (realized actuals)
+   - Attribution via `database-query-run` (realized actuals)
 3. **Explain methodology gap**:
 
    - MBO = model-estimated outcome at the reference-period spend level; smooths historical fluctuations for a stable forecast

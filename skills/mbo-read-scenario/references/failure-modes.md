@@ -26,7 +26,7 @@
 - **Confuse average ROAS with marginal ROAS** in interpretation — these are different and the distinction is MBO's value
 - **Recommend an action** ("follow MBO's recommendation") — give framing, let user decide
 - **Pick a side** in mbo_vs_attribution or mbo_vs_lift_test — give situational guidance
-- **Skip `knowledge-base-ask` before SQL**
+- **Skip `database-query-ask` before SQL**
 - **Compare more than 2 scenarios in one shot** — too dense; offer pairwise
 - **Output two scenarios sequentially instead of as a comparison** ("scenario A first, then scenario B") — use a table / side-by-side
 - **Skip the MBO link at the end** — curves and full detail live in MBO

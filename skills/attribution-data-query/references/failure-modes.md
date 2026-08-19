@@ -2,8 +2,8 @@
 
 - **Write SQL from scratch instead of starting from a verified template** — past agents have produced wrong queries: wrong platform casing (`meta` vs `Meta`), missing `HAVING SUM(ad_spend) > 0` causing zero-spend rows to top a DESC sort, average-of-ratios ROAS (mathematically wrong), `ROW_NUMBER()` / CTE / UNION (rejected by Cube). **Always copy from** `references/sql-examples.md` **first, then adapt.**
 - **Skip `dashboard-metrics-list` and query directly** — guessing field names causes SQL errors or wrong data
-- **Skip `knowledge-base-ask` before SQL** — `database-query-sql` requires the `ctx` it produces; without it the query fails at execution
-- **Use raw warehouse SQL instead of Cube.dev syntax** — `database-query-sql` only accepts Cube.dev SQL
+- **Skip `database-query-ask` before SQL** — `database-query-run` requires the `ctx` it produces; without it the query fails at execution
+- **Use raw warehouse SQL instead of Cube.dev syntax** — `database-query-run` only accepts Cube.dev SQL
 - **Use `attribution_model` as a SQL column** — the actual dimension is `attr_model_name`
 - **Hard-code `propertyNames` for NC dimensions** — they are tenant-specific and case-sensitive; always pass `tenantId` to `dashboard-metrics-list` first
 - **Silently switch `attribution_model`** — if user said "last_click", don't replace it with iDDA / DDA / anything else

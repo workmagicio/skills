@@ -4,7 +4,7 @@ description: Recognize when a user request falls outside attribution's capabilit
 category: attribution
 risk: R0
 version: 1.0.0
-last-updated: 2026-06-25
+last-updated: 2026-08-19
 
 references:
 - references/boundary-types.md
@@ -53,7 +53,7 @@ Detailed boundary type definitions + classification examples → `references/bou
 | `user_intent_summary` | Required | One-sentence restatement of what user is trying to accomplish (not just the literal words). Used to find the closest alternative. |
 | `nearest_supported_question` | Required | The closest thing attribution **can** answer that gets the user partway there. Offered as a bridge, not a substitute. |
 | `routing_target` | Required | Where to send: another WM product (with link / activation path), CSM, DS, Eng, or clean decline. |
-| `tenant_status` | Conditional (Type C) | Which integration is missing, what data range is available, which sales platforms are connected. Pull via `tenant-list` and `knowledge-base-ask`. |
+| `tenant_status` | Conditional (Type C) | Which integration is missing, what data range is available, which sales platforms are connected. Pull via `tenant-list` and `database-query-ask`. |
 
 ## 4. SOP
 
@@ -68,10 +68,10 @@ Detailed boundary type definitions + classification examples → `references/bou
 7. **Very recent data (today, yesterday) before lag covers it?** → Type D
 8. **None of the above** → re-check; this might not be an edge case
 
-**Step 2: Verify with `tenant-list` + `knowledge-base-ask`** (mandatory for Type C, recommended for D)
+**Step 2: Verify with `tenant-list` + `database-query-ask`** (mandatory for Type C, recommended for D)
 
 - Type C: `tenant-list` shows what integrations / sales platforms exist + what data window is available
-- Type D: `knowledge-base-ask` the data-freshness conventions (T+1 for clicks, T+2 for PPS, etc.)
+- Type D: `database-query-ask` the data-freshness conventions (T+1 for clicks, T+2 for PPS, etc.)
 - **Don't guess.** If you'd guess wrong half the time, ask the tools.
 
 **Step 3: Compose the routing response (4 parts)**
@@ -106,7 +106,7 @@ If user asks for TikTok and you show Meta because TikTok isn't integrated, that'
 
 | **Tool** | **Required?** | **Purpose** |
 |-|-|-|
-| `knowledge-base-ask` | Required | Confirm what other WM products do + their activation paths; check data-freshness conventions for Type D |
+| `database-query-ask` | Required | Confirm what other WM products do + their activation paths; check data-freshness conventions for Type D |
 | `tenant-list` | Required for Type C | Verify which integrations / sales platforms are connected, what data window exists. Don't claim "TikTok isn't integrated" without checking. |
 | `lift-test-list` | Conditional | For incrementality asks routed to Lift Test — show what tests already exist or how to start one |
 | `budget-optimizer-list` / `budget-optimizer-reference-data` | Conditional | For forecasting asks routed to MBO — check whether tenant is provisioned |
@@ -131,7 +131,7 @@ Type-specific callout examples (A / B / C / D) + full output rules → `referenc
 3. **Never cold refuse** — "Sorry, I can't do that" without a routing path or bridge question makes the user feel stuck
 4. **Always copy `templates/routing-response.md`** — the 4-part structure (Acknowledge / Boundary / Routing / Bridge) is non-negotiable
 5. **Never skip `tenant-list` verification for Type C** — claiming "TikTok isn't integrated" without checking is a credibility risk
-6. **Never promise other products do things they don't** — verify via `knowledge-base-ask` before claiming "MBO can answer that"
+6. **Never promise other products do things they don't** — verify via `database-query-ask` before claiming "MBO can answer that"
 7. **Never expose internal terminology** — "out-of-scope dataset", "T+1 lag with PPS backfill" — rewrite in business language
 8. **Never refuse a multi-part ask wholesale because one part is edge** — split; answer what you can, route what you can't
 

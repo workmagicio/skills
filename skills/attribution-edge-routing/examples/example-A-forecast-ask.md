@@ -14,9 +14,9 @@ Decision sequence:
 
 - Forecast / scenario? **Yes** → Type A → MBO ✓
 
-#### Step 2 — Verify with knowledge-base-ask + check MBO provisioning
+#### Step 2 — Verify with database-query-ask + check MBO provisioning
 
-Ask `knowledge-base-ask` what MBO can do (confirm: budget scenario optimization with forward-looking projections). Call `budget-optimizer-list` to check if tenant is provisioned for MBO. **Result**: MBO is provisioned, tenant has 2 saved scenarios.
+Ask `database-query-ask` what MBO can do (confirm: budget scenario optimization with forward-looking projections). Call `budget-optimizer-list` to check if tenant is provisioned for MBO. **Result**: MBO is provisioned, tenant has 2 saved scenarios.
 
 #### Step 3 — Compose 4-part response
 

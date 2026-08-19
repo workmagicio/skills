@@ -20,7 +20,7 @@ User answers: *"in-app"*.
 
 Use defaults: prior-week window (Mon–Sun), iDDA (tenant has lift tests), markdown format.
 
-#### Step 3 — knowledge-base-ask
+#### Step 3 — database-query-ask
 
 Ask: *"How to create a Cron-driven scheduled task in WM?"* + *"channel_attribution schema for weekly ROAS / NC ROAS / CTR / CPA"*. Returns `ctx`.
 
@@ -34,7 +34,7 @@ User clicks "Confirm and test-run".
 
 #### Step 6 — Test run
 
-Copy `templates/01-weekly-metrics.sql`. Fill: `{start_date}=2026-06-09`, `{end_date}=2026-06-16`, `{tenant_default_model}=idda`, channels = Meta + Google. Execute via `database-query-sql`.
+Copy `templates/01-weekly-metrics.sql`. Fill: `{start_date}=2026-06-09`, `{end_date}=2026-06-16`, `{tenant_default_model}=idda`, channels = Meta + Google. Execute via `database-query-run`.
 
 Result populates the `templates/weekly-report.md` placeholders:
 

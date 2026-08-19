@@ -10,7 +10,7 @@
 - **Ask "which attribution model?"** — auto-apply tenant default
 - **Expose internal labels** ("Cron job", "Heartbeat", "task_id") — user sees "scheduled task" everywhere
 - **Pad with "want to set up another?"** — end the turn after activation confirmation
-- **Skip `knowledge-base-ask` before SQL** — needed for `ctx` on the test run
+- **Skip `database-query-ask` before SQL** — needed for `ctx` on the test run
 - **Multi-question form in the clarification turn** — one pivotal question, defaults elsewhere
 - **Fire the report immediately without scheduling** — that's one-time data query, not this skill
 - **Add `tenant_id` filters in SQL** — platform-mcp injects it

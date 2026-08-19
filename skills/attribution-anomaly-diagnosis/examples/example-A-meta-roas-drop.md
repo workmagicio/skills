@@ -8,7 +8,7 @@ End-to-end walkthrough of the most common case: a sudden ROAS drop on Meta, diag
 
 ### Step-by-step
 
-#### Step 0 — knowledge-base-ask
+#### Step 0 — database-query-ask
 
 Ask: *"How to compare attribution models in dws_view_analytics_attribution_channel_level_latest?"* → returns ctx timestamp.
 

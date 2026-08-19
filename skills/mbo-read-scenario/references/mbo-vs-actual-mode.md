@@ -1,6 +1,6 @@
 ## Mode 7e — mbo_vs_actual (forecast vs realized results)
 
-1. **Pull the scenario's forecast** + **actuals for the same optimization period** via `database-query-sql`.
+1. **Pull the scenario's forecast** + **actuals for the same optimization period** via `database-query-run`.
 2. **Frame the comparison**:
 
    - Forecast = expected outcome based on historical saturation curves
