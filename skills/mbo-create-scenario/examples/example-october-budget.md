@@ -8,7 +8,7 @@
 
 `budget-optimizer-list` → returns existing scenarios. MBO enabled. ✓
 
-### Step 4 — knowledge-base-ask
+### Step 4 — database-query-ask
 
 Retrieve `ctx` + MBO conventions. ✓
 

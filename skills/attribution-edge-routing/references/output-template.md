@@ -37,4 +37,4 @@ Yesterday's numbers aren't fully ready yet — click and conversion data lands b
 - **Always name a specific product / page / person** — "use MBO" beats "use another product"; "Settings → Integrations" beats "the integrations page"
 - **Always offer a bridge** — never a flat "no, can't do that"
 - **Don't over-apologize** — one acknowledgment is enough; "sorry I'm so limited" is annoying
-- **Don't promise capabilities you can't verify** — "MBO can do X" should be true; check via `knowledge-base-ask` if unsure
+- **Don't promise capabilities you can't verify** — "MBO can do X" should be true; check via `database-query-ask` if unsure

@@ -4,7 +4,7 @@ description: Handle queries that slice attribution data by a business label ("by
 category: attribution
 risk: R1
 version: 1.0.0
-last-updated: 2026-06-25
+last-updated: 2026-08-19
 
 references:
 - references/state-routing.md
@@ -43,7 +43,7 @@ Trigger when the user asks for data **"by <business term>"** where the term isn'
 
 - Dimension is already a built-in field (`ads_platform`, `campaign_name`, `tactic_name`, etc.) → `attribution-data-query`
 - Dimension is already an NC-derived property the tenant has configured → `attribution-data-query` (just use the propertyName as returned)
-- User is asking about NC configuration in general ("how does NC work?") → answer from `knowledge-base-ask` without entering this skill
+- User is asking about NC configuration in general ("how does NC work?") → answer from `database-query-ask` without entering this skill
 
 ## 3. Inputs
 
@@ -75,7 +75,7 @@ Detailed branch handling → `references/state-routing.md`
 
 <callout emoji="🛑">
 **HARD RULE — read real campaign names first; never fabricate examples**
-Before proposing any extraction rule, copy `templates/01-sample-campaign-names.sql` to pull 5–10 real `campaign_name` / `ad_name` values from `database-query-sql`. Then propose a rule that matches the observed pattern. **Fabricated examples destroy user trust the moment they don't match the user's actual campaigns.**
+Before proposing any extraction rule, copy `templates/01-sample-campaign-names.sql` to pull 5–10 real `campaign_name` / `ad_name` values from `database-query-run`. Then propose a rule that matches the observed pattern. **Fabricated examples destroy user trust the moment they don't match the user's actual campaigns.**
 </callout>
 
 1. **Look at real ad names** via `templates/01-sample-campaign-names.sql`
@@ -105,13 +105,13 @@ If most rows resolve to NULL, the rule is wrong and the user will get an empty d
 
 | **Tool** | **Required?** | **Purpose** |
 |-|-|-|
-| `knowledge-base-ask` | Required (first) | NC schema patterns + Cube.dev syntax + `ctx` timestamp for any SQL (sample pull + sanity check) |
+| `database-query-ask` | Required (first) | NC schema patterns + Cube.dev syntax + `ctx` timestamp for any SQL (sample pull + sanity check) |
 | `dashboard-metrics-list` | Required | List propertyNames for this tenant (built-in + NC). **Always pass `tenantId`** — NC properties are tenant-scoped. |
 | `naming-convention-list` | Required | Read existing NC rules to determine State A / B / C |
 | `naming-convention-separators` | Conditional (State C) | Detect what separators the tenant's campaign names use, before proposing a rule |
 | `naming-convention-create` | Conditional (B + C) | Create NC rule after user confirmation. **R1 write (system direct-execute + audit log)**; skill-level requires one explicit confirm before firing. |
 | `naming-convention-update-or-delete` | Conditional (State B) | Update existing NC ruleset to add the new property |
-| `database-query-sql` | Required | (a) Pull sample real campaign names; (b) sanity-check the new propertyName resolves; (c) execute the original query at the end via `attribution-data-query` |
+| `database-query-run` | Required | (a) Pull sample real campaign names; (b) sanity-check the new propertyName resolves; (c) execute the original query at the end via `attribution-data-query` |
 
 ## 6. Output format
 

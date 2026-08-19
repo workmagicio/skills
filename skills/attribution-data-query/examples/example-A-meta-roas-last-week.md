@@ -21,7 +21,7 @@ An anonymized end-to-end walkthrough of the simplest happy-path query. Use this 
 
 `channel_attribution` (we're filtering to one ads_platform, not breaking by campaign)
 
-### Step 3 — knowledge-base-ask
+### Step 3 — database-query-ask
 
 Ask: *"How to query channel_attribution with filter on ads_platform for the last N days?"* → returns ctx timestamp.
 

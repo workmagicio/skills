@@ -14,7 +14,7 @@ End-to-end walkthrough of the canonical case: user wants to see why WorkMagic da
 - `ads_platform=Meta`, `sales_platform=Shopify` (tenant default), `time_range`=past 30 days
 - Tenant has lift tests → iDDA available ✓
 
-#### Step 2 — knowledge-base-ask
+#### Step 2 — database-query-ask
 
 Ask: *"How to query multiple attribution models in one SQL on channel_attribution?"* + *"Mechanism diff between platform_reported / last_click / dda / idda for Meta"*. Returns `ctx` timestamp + mechanism notes.
 

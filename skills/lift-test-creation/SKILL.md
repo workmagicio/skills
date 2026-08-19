@@ -4,7 +4,7 @@ description: Turn a natural-language request into an executable lift test draft.
 category: lift-test
 risk: R0
 version: 1.0.0
-last-updated: 2026-06-29
+last-updated: 2026-08-19
 
 references:
   - references/input-parsing.md
@@ -38,7 +38,7 @@ Turn the user’s natural-language request into a **well-configured, executable 
 | Query results / progress of an existing lift test | `lift-test-readout` |
 | Compare multiple completed tests | `lift-test-readout` |
 | “Why did my test fail / come back inconclusive?” | `lift-test-diagnosis` |
-| Conceptual questions about PTM vs. LTM / wanting documentation | `knowledge-base-ask` |
+| Conceptual questions about PTM vs. LTM / wanting documentation | `database-query-ask` |
 
 ## Inputs
 

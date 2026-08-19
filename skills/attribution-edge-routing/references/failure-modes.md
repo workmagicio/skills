@@ -5,7 +5,7 @@
 - **Substitute silently** — if user asks for TikTok and you show Meta because TikTok isn't integrated, that's data fraud. State the missing integration first.
 - **Expose internal terminology** — "out-of-scope dataset", "unsupported tool", "T+1 lag with PPS backfill" — rewrite in business language
 - **Skip `tenant-list` verification for Type C** — claiming "TikTok isn't integrated" without checking is a credibility risk
-- **Promise other products do things they don't** — "MBO can answer that" must actually be true; verify via `knowledge-base-ask`
+- **Promise other products do things they don't** — "MBO can answer that" must actually be true; verify via `database-query-ask`
 - **Over-apologize** — one acknowledgment line is enough; long apologies feel performative
 - **Route everything to "contact CSM"** — that's the dead-end fallback; only use when no product / no self-service path exists
 - **Treat "I don't know" as edge-routing** — sometimes attribution can answer and the agent just hasn't tried hard enough. Verify the limitation before declaring an edge case.

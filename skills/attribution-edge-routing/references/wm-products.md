@@ -1,6 +1,6 @@
 ## Other WM products this skill routes to
 
-Verify each product's actual capability via `knowledge-base-ask` before claiming it can answer the user's question. Don't promise features that don't exist.
+Verify each product's actual capability via `database-query-ask` before claiming it can answer the user's question. Don't promise features that don't exist.
 
 | **Product** | **What it does** |
 |-|-|

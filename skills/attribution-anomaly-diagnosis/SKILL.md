@@ -4,7 +4,7 @@ description: Diagnose "why" questions about attribution anomalies — attributio
 category: attribution
 risk: R0
 version: 1.0.0
-last-updated: 2026-06-25
+last-updated: 2026-08-19
 
 references:
 - references/basic-checks.md
@@ -67,7 +67,7 @@ Trigger when user is asking **why** attribution looks wrong, not just **what** t
 
 ## 4. SOP
 
-**Step 0: `knowledge-base-ask` (MANDATORY)** — produces the `ctx` timestamp `database-query-sql` requires. Skipping fails at execution.
+**Step 0: `database-query-ask` (MANDATORY)** — produces the `ctx` timestamp `database-query-run` requires. Skipping fails at execution.
 
 **Step 1: Lock the scope** — pinpoint *whose* attribution is broken before diagnosing why. If `attribution_model` is unspecified, compare all models in anomaly vs baseline windows to find which one diverged.
 
@@ -132,9 +132,9 @@ Step 3a is the fastest check for a reason. If spend ↓ X% and `attr_orders` ↓
 
 | **Tool** | **Required?** | **Purpose** |
 |-|-|-|
-| `knowledge-base-ask` | Required (first) | Cube.dev schema patterns + `ctx` timestamp |
+| `database-query-ask` | Required (first) | Cube.dev schema patterns + `ctx` timestamp |
 | `dashboard-metrics-list` | Required | Validate field names (e.g., `attr_model_name`, `calibrated_orders`) |
-| `database-query-sql` | Required | Execute Cube.dev SQL. Pass `ctx` from `knowledge-base-ask`. Tenant isolation is injected — do not add `tenant_id` filters. |
+| `database-query-run` | Required | Execute Cube.dev SQL. Pass `ctx` from `database-query-ask`. Tenant isolation is injected — do not add `tenant_id` filters. |
 | `lift-test-list` / `lift-test-get` | Conditional | Branch C / C3 — pull lift test metadata when iDDA retroactive change is suspected |
 
 ## 6. Output format
@@ -146,7 +146,7 @@ Full template + 7 reusable scenario snippets → `references/output-template.md`
 ## 7. CRITICAL rules (top 8 — full list in references/failure-modes.md)
 
 1. **Always copy a verified SQL template from `templates/`** before writing SQL — do not write from scratch
-2. **Never skip `knowledge-base-ask` before SQL** — `database-query-sql` requires the `ctx`
+2. **Never skip `database-query-ask` before SQL** — `database-query-run` requires the `ctx`
 3. **Never skip Step 3a (spend check)** — most "swings" are just proportional spend changes; stop there if proportional
 4. **Never jump straight into lift-test diagnosis** on a rule-based or DDA anomaly — lift tests only affect iDDA
 5. **Never treat iDDA retroactive change as a bug** — it's expected; lead the client explanation with "this is expected"

@@ -4,7 +4,7 @@ description: Turn a natural-language ask about media budget optimization into a 
 category: mbo
 risk: R1
 version: 1.0.0
-last-updated: 2026-06-25
+last-updated: 2026-08-19
 
 references:
   - references/inputs-detail.md
@@ -90,7 +90,7 @@ Full per-field semantics, parsing rules and budget percentage math live in refer
    - "Actual spend on the attribution dashboard"
 2. **If user picks "build new"** → continue this skill. If "existing recommendations" → route to `mbo-read-scenario`. If "actual spend" → route to `attribution-data-query`.
 
-### Step 4: Consult knowledge-base-ask (MANDATORY)
+### Step 4: Consult database-query-ask (MANDATORY)
 
 Required before any data lookup or scenario creation. `ctx` timestamp for SQL plus MBO conventions + valid goal-vs-method combinations.
 
@@ -203,12 +203,12 @@ Don't pad. End the turn.
 
 | **Tool** | **Required?** | **System risk** | **Purpose** |
 |-|-|-|-|
-| `knowledge-base-ask` | Required (first) | R0 | MBO conventions, goal-method combinations, `ctx` timestamp for SQL |
+| `database-query-ask` | Required (first) | R0 | MBO conventions, goal-method combinations, `ctx` timestamp for SQL |
 | `budget-optimizer-list` | Required | R0 | Provisioning check (Step 1) + locate scenarios for modify intent |
 | `budget-optimizer-reference-data` | Required | R0 | Ready platforms + baseline spend + Halo eligibility + MMM model window (for reference period bounds) |
 | `tenant-list` | Optional | R0 | Verify sales platform setup if needed |
 | `lift-test-list` | Optional | R0 | Reference if user asks "is this channel calibrated"; not used for eligibility (backend-gated) |
-| `database-query-sql` | Optional | R0 | Check reference window for anomalies |
+| `database-query-run` | Optional | R0 | Check reference window for anomalies |
 | `budget-optimizer-create` | Required | R1 | Create the scenario. R1 system-level; skill-level preview+confirm before firing. |
 | `budget-optimizer-update-or-delete` | Conditional (modify intent) | R1 | Update fields or delete scenario. Delete requires explicit second confirmation. |
 | `budget-optimizer-forecast` | Required | R0 | Fetch completed scenario in Step 13 |
