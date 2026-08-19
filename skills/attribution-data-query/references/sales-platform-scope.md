@@ -2,27 +2,44 @@
 
 Every attributed sales / ROAS number carries **two** scoping choices that define what
 it means: the **attribution model** (see `attribution-model.md`) and the
-**sales-platform scope** (this file). State BOTH, every time — a figure with only one
-of them named is ambiguous.
+**sales-platform scope** (this file).
 
-## Default: all sales platforms
+## The law: always state the scope
 
-Default the sales measure to **`attr_all_sales` / `attr_all_orders`** — Shopify DTC
-**plus** Amazon, TikTok Shop, and other marketplaces — NOT Shopify-only. A brand's
-"sales" or "ROAS" means its whole business unless the user narrows it. Use
-`attr_shopify_sales` only when the user explicitly asks for Shopify / DTC alone.
+**State BOTH — sales-platform scope AND attribution model — on every number, every
+time.** A figure with only one of them named is ambiguous ("$3.87M" reads very
+differently as all-platform vs Shopify-only, and the reader can't tell which). This is
+non-negotiable and applies to *all* attribution outputs — chat answers, reports,
+dashboards, diagnoses — including when the scope is "all platforms". How the default is
+*chosen* varies by context (below); how it is *labeled* never does.
 
-> These templates historically defaulted to `attr_shopify_sales` (Shopify-only). That
-> default is now **`attr_all_sales`**. The only intentional Shopify-only spots are an
-> explicit "Shopify / DTC only" ask and the per-platform breakdown row below.
+## The default is scoped by context
 
-## Always state the scope
+- **Totals / business overview** (an overall "sales", "ROAS", "how's the business"
+  ask, and this query skill's generic default) → **all sales platforms**:
+  `attr_all_sales` / `attr_all_orders` (Shopify DTC **plus** Amazon, TikTok Shop, and
+  other marketplaces). A brand's business is its whole business unless the user
+  narrows it. This skill (`attribution-data-query`) defaults here; offer a per-platform
+  breakdown when useful.
+- **Per-sales-platform-specific analysis** — attribution-**model comparison** and
+  anomaly **diagnosis** — stays **per sales platform**, on purpose: model *validity*
+  differs by platform (non-DTC platforms like Amazon have no click-based models), so
+  aggregating them into one all-platform row would compare undefined things. Those
+  skills default to a single sales platform and say which. That is intentional, not
+  drift — don't "fix" them to all-platform.
+- Use `attr_shopify_sales` only when the user explicitly asks for Shopify / DTC alone.
 
-In every answer, name the sales-platform scope next to the model — e.g. "all sales
-platforms · incrementality-adjusted" — exactly the way the model is already stated.
-Never surface a sales / ROAS figure without its scope: "$3.87M" means something
-different as all-platform vs Shopify-only, and the reader can't tell which without the
-label.
+> These templates historically defaulted to `attr_shopify_sales` (Shopify-only). The
+> overview/total default is now **`attr_all_sales`**. Intentional Shopify-only spots:
+> an explicit "Shopify / DTC only" ask, and the per-platform breakdown row below.
+
+## The measurement-identity line
+
+Emit the scope next to the model wherever a number appears — one consistent string:
+**`<sales-platform scope> · <attribution model>`** (e.g. "all sales platforms ·
+incrementality-adjusted", or "Shopify · data-driven"). Same phrasing in a chat footer,
+a report header/footer, a dashboard subtitle, or a diagnosis — so a reader always sees
+both halves of what a number means.
 
 ## Breaking down by sales platform
 

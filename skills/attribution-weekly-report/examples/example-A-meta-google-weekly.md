@@ -40,7 +40,7 @@ Result populates the `templates/weekly-report.md` placeholders:
 
 <callout emoji="📊">
 **Ad Performance Weekly Report · Jun 09 – Jun 15, 2026**
-*Period: Jun 09 – Jun 15  ·  Comparison: vs Jun 02 – Jun 08  ·  Attribution model: iDDA*
+*Period: Jun 09 – Jun 15  ·  Comparison: vs Jun 02 – Jun 08  ·  Sales platforms: all sales platforms  ·  Attribution model: iDDA*
 </callout>
 
 | Channel | Spend | Revenue | ROAS | CTR | NC ROAS | WoW (ROAS) |

@@ -54,7 +54,9 @@ HAVING SUM(ad_spend) > 0
 |-|-|-|
 | \$420,160 | \$135,200 | 3.11 |
 
-Reading: *"Meta ROAS last 7 days is **3.11x**, on \$135K spend. (iDDA model — your default since lift tests are calibrated.)"*
+Reading: *"Across all sales platforms, Meta's ROAS over the last 7 days is **3.11x**, on \$135K spend. (all sales platforms · iDDA — iDDA is your default since lift tests are calibrated.)"*
+
+> Note the measurement identity — **all sales platforms · iDDA** — stated on the number, not just the model. "Meta" here is the *ad* platform; the sales scope is still all platforms (`attr_all_sales`). See `references/sales-platform-scope.md`.
 
 ## What this example illustrates
 

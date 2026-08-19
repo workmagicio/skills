@@ -132,7 +132,7 @@ Three turns:
 
 Full report layout, rules, and Heartbeat alert variant → `references/output-template.md`
 
-## 7. CRITICAL rules (top 8 — full list in references/failure-modes.md)
+## 7. CRITICAL rules (top 9 — full list in references/failure-modes.md)
 
 1. **Always copy a template from `templates/`** — never invent a layout; clients get inconsistent reports week-to-week otherwise
 2. **Never skip the test run** — empty / broken reports landing in inboxes is the worst possible failure mode
@@ -140,8 +140,9 @@ Full report layout, rules, and Heartbeat alert variant → `references/output-te
 4. **Never default to email silently** — always confirm delivery channel; defaulting risks unintended external sends
 5. **Never send to external email without extra confirmation** — sharing attribution data outside the requester's org is a data-exposure event
 6. **Never ask "which attribution model?"** — auto-apply tenant default
-7. **Never expose internal labels** ("Cron job", "Heartbeat", "task_id") — user sees "scheduled task" everywhere
-8. **Never use misaligned period-over-period** — full Mon–Sun vs full Mon–Sun, not partial-vs-full
+7. **Always label the measurement identity** — sales-platform scope + attribution model in the report header AND footer. Revenue/ROAS default to **all sales platforms** (`attr_all_sales`); a report that names only the model ships unlabeled all-platform numbers to a CMO (`attribution-data-query/references/sales-platform-scope.md`)
+8. **Never expose internal labels** ("Cron job", "Heartbeat", "task_id") — user sees "scheduled task" everywhere
+9. **Never use misaligned period-over-period** — full Mon–Sun vs full Mon–Sun, not partial-vs-full
 
 ## 8. Edge cases
 
