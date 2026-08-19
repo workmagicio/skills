@@ -1,6 +1,6 @@
 ## Failure modes (never do these)
 
-- **Skip `knowledge-base-ask` before SQL** — `database-query-sql` requires the `ctx` timestamp
+- **Skip `database-query-ask` before SQL** — `database-query-run` requires the `ctx` timestamp
 - **Skip Step 3a (spend check)** — most "swings" are just proportional spend changes
 - **Jump straight into lift-test diagnosis on a rule-based or DDA anomaly** — lift tests only affect iDDA
 - **Conclude "WM bug" without verifying against platform-reported orders** — if Meta Ads Manager also shows the drop, it's real

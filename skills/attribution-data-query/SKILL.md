@@ -4,7 +4,7 @@ description: Translate explicit data requests into Cube.dev SQL and return resul
 category: attribution
 risk: R0
 version: 1.2.0
-last-updated: 2026-08-14
+last-updated: 2026-08-19
 
 references:
   - references/time-range-resolution.md
@@ -93,9 +93,9 @@ Map natural language into the input fields. Resolve silently: today's date (re-f
 - "campaigns spent the most" → **not** channel; use `ads_attribution`
 - `lift_test_result` exists but belongs to lift-test domain — route there if user asks about lift test results
 
-**Step 3: `knowledge-base-ask` first (MANDATORY)**
+**Step 3: `database-query-ask` first (MANDATORY)**
 
-Ask the knowledge base about Cube.dev schema patterns. `database-query-sql` requires the `ctx` timestamp it produces. **Skipping fails execution.**
+Ask `database-query-ask` about the warehouse's Cube.dev schema patterns. `database-query-run` requires the `ctx` timestamp it produces. **Skipping fails execution.**
 
 **Step 4: Validate fields via `dashboard-metrics-list`**
 
@@ -103,7 +103,7 @@ Ask the knowledge base about Cube.dev schema patterns. `database-query-sql` requ
 - For aliases ("POAS", "return on ad spend") → find closest match. If none, ask once.
 - **For NC dimensions on `ads_attribution` / `creative_attribution`**: pass `tenantId` to fan out tenant-specific propertyNames (e.g., `Product Group`, `Asset Type`). Use propertyName **exactly as returned (case-sensitive)**.
 
-**Step 5: Construct & execute SQL via `database-query-sql`**
+**Step 5: Construct & execute SQL via `database-query-run`**
 
 > 🛑 **HARD RULE — copy a template first, then fill placeholders**
 >
@@ -145,9 +145,9 @@ Ask the knowledge base about Cube.dev schema patterns. `database-query-sql` requ
 
 | Tool | Required? | Purpose |
 |---|---|---|
-| knowledge-base-ask | Required (first) | Consult Cube.dev schema patterns before SQL. Produces the ctx timestamp that database-query-sql requires. Skipping fails at SQL execution. |
+| database-query-ask | Required (first) | Consult Cube.dev schema patterns before SQL. Produces the ctx timestamp that database-query-run requires. Skipping fails at SQL execution. |
 | dashboard-metrics-list | Required | Validate metric / dimension field names exist on the chosen DataSet. For ads_attribution / creative_attribution with NC dimensions, pass tenantId to fan out tenant-specific propertyNames. Call before every query — never skip. |
-| database-query-sql | Required | Execute the Cube.dev SQL query. Pass the ctx from knowledge-base-ask. |
+| database-query-run | Required | Execute the Cube.dev SQL query. Pass the ctx from database-query-ask. |
 | tenant-list | Optional | Look up tenantId when needed to fan out NC dimensions on dashboard-metrics-list. |
 
 ## 6. Output format
@@ -163,7 +163,7 @@ Ask the knowledge base about Cube.dev schema patterns. `database-query-sql` requ
 ## 7. CRITICAL rules (top 8 — full list in references/failure-modes.md)
 
 1. **Always match the query to a verified SQL template in** `references/sql-examples.md` **BEFORE writing SQL** — do not write SQL from scratch. The 5 templates cover channel ROAS / Top-N campaigns / WoW comparison / creative headlines / actual store sales. If none fit, pause and ask CSM; do not improvise.
-2. **Never skip `knowledge-base-ask` before SQL** — `database-query-sql` requires the `ctx` it produces; will fail at execution
+2. **Never skip `database-query-ask` before SQL** — `database-query-run` requires the `ctx` it produces; will fail at execution
 3. **Never skip `dashboard-metrics-list`** — guessing field names causes SQL errors / wrong data
 4. **Never use raw warehouse SQL** — Cube.dev syntax only (no CTE, UNION, subqueries, LAG, window functions)
 5. **Never silently switch the attribution model** — if user said "last_click", don't replace it. Never lecture.

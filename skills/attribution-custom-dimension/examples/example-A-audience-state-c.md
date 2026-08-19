@@ -16,7 +16,7 @@ The first-time experience: a tenant that's never set up NC asks for a query that
 
 #### Step 2 — Knowledge base + sample campaign names
 
-Ask `knowledge-base-ask` for NC schema. Get `ctx`.
+Ask `database-query-ask` for NC schema. Get `ctx`.
 
 Copy `templates/01-sample-campaign-names.sql`, filter to Meta. Returns:
 

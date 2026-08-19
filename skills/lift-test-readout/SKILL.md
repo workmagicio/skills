@@ -4,7 +4,7 @@ description: Read and act on completed lift test results — interpret iROAS, co
 category: lift-test
 risk: R0
 version: 1.0.0
-last-updated: 2026-06-29
+last-updated: 2026-08-19
 references:
   - references/test-resolution.md
   - references/terminology.md
@@ -36,7 +36,7 @@ How to read and act on lift test results — interpreting incremental ROAS, conf
 | **Input pattern** | **Route to** |
 |-|-|
 | “Create a lift test for me” / “set up a Meta test” | `lift-test-creation` |
-| “What is iROAS?” / “what does PTM mean?” (concept, no specific test) | `knowledge-base-ask` |
+| “What is iROAS?” / “what does PTM mean?” (concept, no specific test) | `database-query-ask` |
 | “My test failed — can you fix it?” / “should I rerun this?” / “how do I unblock an inconclusive result” | `lift-test-diagnosis` |
 | Status / progress only (“is my test still running”, “when will it end”) — no result interpretation needed | Plain test-status query, handle inline |
 | “Compare two creatives” / “compare lift across two time periods” | Out of scope — route to CSM |
@@ -124,5 +124,5 @@ Full failure-modes catalog → references/failure-modes.md.
 |-|-|
 | `lift-test-creation` | Upstream: how the test being read was set up. Route here when the user follows up with “rerun this with adjusted parameters.” |
 | `lift-test-diagnosis` | Sideways: how to diagnose failed or inconclusive tests — implementation drift, data readiness gaps, underpowered designs. Route here when the user’s question shifts from “what does it mean” to “how do I fix / rerun it.” |
-| `knowledge-base-ask` | Upstream: PTM / LTM concepts in isolation, methodology questions |
+| `database-query-ask` | Upstream: PTM / LTM concepts in isolation, methodology questions |
 | Routes out to CSM | out-of-scope requests (creative comparison, cross-time-period lift comparison) |
