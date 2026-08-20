@@ -12,6 +12,19 @@ its `SKILL.md` frontmatter (`version:` / `last-updated:`).
   self-refreshing, and it inherits the measurement-identity/sales-platform-scope rules). Routing
   pointers in `attribution-data-query` and `attribution-weekly-report` updated accordingly.
 
+### Changed
+- **Single source of truth for shared attribution conventions.** `attribution-data-query`'s
+  `references/attribution-model.md` (model default + aliases) and `references/sales-platform-scope.md`
+  (sales-platform scope + measurement identity) are now marked **canonical** — other attribution
+  skills point here (via `skills_read`) instead of keeping divergent copies (the drift/contradiction
+  source found in review). New `scripts/check-shared-conventions.mjs` drift guard (no CI in this
+  repo — run before pushing): asserts the canonical markers exist and no SQL template regresses to
+  the Shopify-only default measure.
+- **`attribution-data-query` (1.2.0 → 1.3.0): report-shaped results become a live artifact.** A
+  single number / tiny table still answers in chat; a breakdown / trend / multi-platform / comparison
+  now builds a live-data dashboard **artifact** (the `dashboard` skill) carrying the measurement
+  identity — not a wall of table dumped in chat.
+
 ## 2026-08-14
 ### Changed
 - **Sales-platform scope is now a first-class part of the measurement identity.** Every attribution
@@ -42,7 +55,7 @@ its `SKILL.md` frontmatter (`version:` / `last-updated:`).
 ### Skill versions (current)
 | Skill | Version |
 | --- | --- |
-| attribution-data-query | 1.2.0 |
+| attribution-data-query | 1.3.0 |
 | attribution-anomaly-diagnosis | 1.0.0 |
 | attribution-custom-dimension | 1.0.0 |
 | attribution-edge-routing | 1.0.0 |

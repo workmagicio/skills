@@ -3,7 +3,7 @@ name: attribution-data-query
 description: Translate explicit data requests into Cube.dev SQL and return results. Default skill for query-type asks in the Attribution domain. No estimation, no fabrication, no proactive dashboards.
 category: attribution
 risk: R0
-version: 1.2.0
+version: 1.3.0
 last-updated: 2026-08-19
 
 references:
@@ -152,12 +152,21 @@ Ask `database-query-ask` about the warehouse's Cube.dev schema patterns. `databa
 
 ## 6. Output format
 
-- **Table first**: small result sets (≤ 20 rows) shown directly
+- **Simple pull → chat; report-shaped → a live artifact.** A single number / single
+  metric / tiny table = answer in chat (below). But if the result is a **breakdown, a
+  trend over time, multi-channel / multi-platform, or a comparison** — anything a
+  person would screenshot and send to their boss — build it as a **live-data dashboard
+  artifact** (the `dashboard` skill: an html/react view wired to the data), not a wall
+  of table dumped in chat. Carry the same measurement identity (sales-platform scope +
+  model) onto the artifact. When in doubt between the two, a clean chat table is fine —
+  don't force an artifact for a genuinely simple ask.
+- **Table first** (for the chat path): small result sets (≤ 20 rows) shown directly
 - **Top-N summary**: large sets → top 10 / 20 with "N total rows" note
 - **One-line reading**: what's high / low (≤ 2 sentences)
 - **Transparent defaults**: state which defaults applied (window, model, sales-platform scope)
 - **Cite the data source** in business language at end — **sales-platform scope + attribution model** + data-as-of window (e.g. "Source: all sales platforms, data-driven attribution, last 7 days ending Jul 20"). **State the sales-platform scope every time**, the same way the model is stated — a sales / ROAS figure is ambiguous without it (all-platform vs Shopify-only read very differently) → `references/sales-platform-scope.md`. **Never print the raw DataSet technical name** (`channel_attribution` / `ads_attribution` / `creative_attribution` / `order_sales`) — see rule 8 below; those are internal identifiers, not customer-facing labels
-- **No "save as dashboard" prompt** — UI has it
+- **Don't pad with a "save as dashboard?" prompt** — a report-shaped result just
+  becomes the live artifact above; a simple one stays in chat
 - **No long analysis** — that's `attribution-anomaly-diagnosis`
 
 ## 7. CRITICAL rules (top 8 — full list in references/failure-modes.md)

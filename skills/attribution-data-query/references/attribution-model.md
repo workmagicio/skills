@@ -1,5 +1,11 @@
 # Attribution model default + alias rules
 
+> **🔒 SINGLE SOURCE OF TRUTH — attribution model.** This file is the canonical
+> definition of the model default + aliases for the whole attribution family. Other
+> attribution skills must **point here** (read via `skills_read` if not loaded), never
+> re-state their own copy — divergent copies are how drift and contradictions creep in.
+> Change the rule here, once.
+
 Check the tenant's lift-test status to choose the default:
 
 - **Tenant has run lift tests** → default to `idda` (incrementality-adjusted DDA)
