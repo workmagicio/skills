@@ -3,8 +3,8 @@ name: attribution-intent-clarification
 description: Resolve genuinely ambiguous attribution queries by asking ONE focused clarifying question, then hand off to attribution-data-query (or another skill). Never become a wall of questions.
 category: attribution
 risk: R0
-version: 1.0.0
-last-updated: 2026-06-17
+version: 1.0.1
+last-updated: 2026-08-19
 
 references:
 - references/ambiguity-types.md
@@ -16,6 +16,8 @@ references:
 ## 1. Purpose
 
 Resolve **genuinely ambiguous** attribution queries by asking **one focused clarifying question**, then hand the resolved query off to `attribution-data-query` (or another skill). Exists so we don't silently guess on multi-meaning inputs — but it must **never become a wall of questions**.
+
+> **Shared conventions (canonical elsewhere — don't re-derive):** attribution model default + aliases and sales-platform scope + measurement identity are canonical in **`attribution-data-query`** (`references/attribution-model.md`, `references/sales-platform-scope.md`); when you state a default in an option, use those (read via `skills_read` if not loaded). Note the default **time window is task-specific and not a contradiction**: a simple query defaults to 7 days, a model comparison to 30 days (needs signal) — state whichever you're using.
 
 ## 2. When to trigger
 

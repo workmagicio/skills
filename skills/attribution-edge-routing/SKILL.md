@@ -3,7 +3,7 @@ name: attribution-edge-routing
 description: Recognize when a user request falls outside attribution's capability boundary and route it gracefully — to another WM product (MBO / Lift Test / Creative Magic / Ads Magic / Audience Magic), to a human (CSM / DS / Eng), or to a clean decline with a bridge to what attribution can answer. Last-resort fallback for all other attribution skills. Read-only.
 category: attribution
 risk: R0
-version: 1.0.0
+version: 1.0.1
 last-updated: 2026-08-19
 
 references:
@@ -26,6 +26,8 @@ examples:
 Recognize when a user request falls **outside attribution's capability boundary** and route it gracefully — either to another WM product (MBO / Lift Test / Creative Magic / Ads Magic / Audience Magic), to a human (CSM / DS / Eng), or to a clean decline with a bridge to what attribution *can* answer.
 
 Exists to **prevent fabrication** (the worst failure mode in this domain) and to keep boundary cases from feeling like a dead end. **Cold refusals destroy trust; graceful redirects preserve it.**
+
+> **Shared conventions (canonical elsewhere — don't re-derive):** when a routing message names a limit or a next step, the attribution model + sales-platform scope conventions are canonical in **`attribution-data-query`** (`references/attribution-model.md`, `references/sales-platform-scope.md`). And "create/build a dashboard" now routes to the **`dashboard` skill** (live artifact) — there is no native custom-report skill anymore.
 
 ## 2. When to trigger
 

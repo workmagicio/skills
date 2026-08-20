@@ -39,6 +39,14 @@ its `SKILL.md` frontmatter (`version:` / `last-updated:`).
     point-in-time explanation.
   - `attribution-custom-dimension` (1.0.0 → 1.1.0): its delegated answer inherits the data-query
     threshold, so a "by <label>" breakdown comes back as an artifact.
+  - **Reference/template deep-adaptation** (not just skill bodies): `model-comparison` and
+    `anomaly-diagnosis` `output-template.md` rewritten from "chat table / markdown report" to the
+    **artifact spec** (Comparison-artifact layout; static HTML diagnosis-page structure);
+    `weekly-report` `output-template.md` reframed so the live dashboard is the primary view and the
+    markdown templates are the channel-sized **snapshot** (digest+link / email HTML+PDF+link).
+  - `attribution-edge-routing` (1.0.0 → 1.0.1) and `attribution-intent-clarification` (1.0.0 → 1.0.1):
+    added the canonical-conventions pointer; noted the 7-day-vs-30-day window default is
+    task-specific (not a contradiction) and that "build a dashboard" routes to the `dashboard` skill.
 
 ## 2026-08-14
 ### Changed
@@ -73,8 +81,8 @@ its `SKILL.md` frontmatter (`version:` / `last-updated:`).
 | attribution-data-query | 1.3.0 |
 | attribution-anomaly-diagnosis | 1.1.0 |
 | attribution-custom-dimension | 1.1.0 |
-| attribution-edge-routing | 1.0.0 |
-| attribution-intent-clarification | 1.0.0 |
+| attribution-edge-routing | 1.0.1 |
+| attribution-intent-clarification | 1.0.1 |
 | attribution-model-comparison | 1.1.0 |
 | attribution-weekly-report | 1.2.0 |
 | lift-test-creation | 1.0.0 |

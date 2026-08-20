@@ -1,4 +1,18 @@
-## Output rules (all reports)
+## The primary view is a live dashboard; these templates are the *snapshot*
+
+The recurring view itself is a **live-data dashboard** built with the `dashboard` skill
+(SKILL §4) — the user opens the link and it's always fresh. The templates here are the
+**scheduled snapshot** that the Cron/Heartbeat push delivers, sized to the channel:
+
+| Delivery channel | What gets pushed | Uses |
+|-|-|-|
+| in-app / Slack | short **digest** (key numbers + WoW highlights) **+ link to the live dashboard** | a trimmed `weekly-report.md` (Core Metrics + Highlights) + the link |
+| email | a **rendered snapshot** (HTML, or PDF for executive) **+ link** — email can't embed the live view | `weekly-report.md` / `executive-report.md` rendered |
+| Heartbeat (alert) | one-line summary **+ link** — never the full layout | `heartbeat-alert.md` |
+
+Every snapshot carries the **same measurement identity as the dashboard** (sales-platform scope + attribution model), so the pushed number and the live view can never disagree.
+
+## Output rules (all snapshots)
 
 - Always include **sales-platform scope**, **attribution model**, and **data-as-of timestamp** in the header + footer — the user (or their CMO) shouldn't have to guess. The revenue/ROAS in this report are **all sales platforms** by default (`attr_all_sales`); label that scope, because it reads very differently from Shopify-only (`attribution-data-query/references/sales-platform-scope.md`)
 - WoW / period-over-period **length-aligned** — for weekly reports compare full Mon–Sun vs full Mon–Sun; never partial-vs-full
