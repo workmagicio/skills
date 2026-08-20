@@ -1,5 +1,10 @@
 # Sales-platform scope — default all platforms, always stated
 
+> **🔒 SINGLE SOURCE OF TRUTH — sales-platform scope + measurement identity.** This
+> file is the canonical definition for the whole attribution family. Other skills must
+> **point here** (read via `skills_read` if not loaded), never keep a divergent copy.
+> Change the rule here, once.
+
 Every attributed sales / ROAS number carries **two** scoping choices that define what
 it means: the **attribution model** (see `attribution-model.md`) and the
 **sales-platform scope** (this file).
