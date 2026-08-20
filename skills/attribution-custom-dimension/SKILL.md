@@ -3,7 +3,7 @@ name: attribution-custom-dimension
 description: Handle queries that slice attribution data by a business label ("by audience" / "by region" / "by brand") where the label isn't a native field — it lives in campaign names and only becomes a queryable dimension after a Naming Convention (NC) rule is configured. Detects NC state, guides config in business language, then continues the original query without the user having to leave chat.
 category: attribution
 risk: R1
-version: 1.0.0
+version: 1.1.0
 last-updated: 2026-08-19
 
 references:
@@ -26,6 +26,8 @@ examples:
 Handle queries that slice attribution data by a **business label** (e.g., "by region", "by audience", "by brand", "by product line") where the label isn't a native field — it lives inside campaign names and only becomes a real dimension once a **Naming Convention (NC)** rule is configured for the tenant.
 
 This skill detects NC state, guides configuration when needed in business language, and continues the original query after configuration. **The user should rarely (ideally never) have to leave the chat to set up NC themselves.**
+
+> **Shared conventions + output mode:** the final data answer is produced by `attribution-data-query` (handoff), so it inherits that skill's conventions and **output threshold** — a "by <label>" breakdown is report-shaped and comes back as a live **artifact**, not a wall of table. Sales-platform scope + attribution model are canonical in `attribution-data-query` (`references/attribution-model.md`, `references/sales-platform-scope.md`); don't re-derive them here.
 
 ## 2. When to trigger
 

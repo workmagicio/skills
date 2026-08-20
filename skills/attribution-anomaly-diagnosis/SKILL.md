@@ -3,7 +3,7 @@ name: attribution-anomaly-diagnosis
 description: Diagnose "why" questions about attribution anomalies — attribution=0 (no attributed orders) and attribution swings (sudden drops, spikes, or retroactive changes). 5-step diagnostic tree (scope → classify → basic checks → model routing → fallback). Produces internal report + client-facing explanation. Do NOT use for "show me numbers" — that's attribution-data-query.
 category: attribution
 risk: R0
-version: 1.0.0
+version: 1.1.0
 last-updated: 2026-08-19
 
 references:
@@ -31,6 +31,8 @@ examples:
 ## 1. Purpose
 
 Diagnose **"why" questions** about attribution anomalies — specifically **attribution = 0** (a tactic shows no attributed orders) and **attribution swings** (sudden drops / spikes / retroactive changes to historical numbers). 5-step diagnostic tree → internal report + client-facing explanation.
+
+> **Shared conventions (canonical elsewhere — don't re-derive):** attribution model default + aliases and sales-platform scope + measurement identity live in **`attribution-data-query`** (`references/attribution-model.md`, `references/sales-platform-scope.md`); follow those (read via `skills_read` if not loaded). Note this skill reads MMM-calibrated measures (`calibrated_*`) for some checks — a *different* measure from the `attr_*` the other skills use; keep them clearly labeled so a $ figure here is never confused with an attributed-sales figure. (Open question flagged to DS — see the team doc.)
 
 **Do NOT use this skill for "show me the numbers" queries** — those belong to `attribution-data-query`.
 
@@ -139,9 +141,26 @@ Step 3a is the fastest check for a reason. If spend ↓ X% and `attr_orders` ↓
 
 ## 6. Output format
 
-Diagnosis output is **customer-facing** — written for the client (or CSM relaying to client). Three sections only: **What we found / Why it happened / What you can do**. Quantify the change in the first sentence (X → Y, ±%). Pick one root-cause story, not a buffet. Action items concrete. Footer always names attribution model + data-as-of time.
+Diagnosis output is **customer-facing** — a "why did X drop" answer is a report a CSM
+forwards to the client, so **produce it as a static HTML artifact** (a shareable
+diagnosis page via the `artifacts` skill), not just a chat message.
 
-Full template + 7 reusable scenario snippets → `references/output-template.md` + `references/scenario-snippets.md`
+The page:
+
+- **Three sections only: What we found / Why it happened / What you can do.** Quantify
+  the change in the first line (X → Y, ±%). Concrete action items.
+- **One small supporting visual** of the anomaly — the metric's before→after, or the
+  evidence the diagnosis rests on (e.g. spend flat while attributed sales fell). One
+  chart, per the `artifacts` chart method.
+- **One root-cause story, not a buffet** — the decision tree + scenario snippets pick
+  it; on an unrecognized shape, say so, **never invent** a plausible cause.
+- **Measurement identity in the footer:** sales-platform scope + attribution model +
+  data-as-of. (Diagnosis is **per sales platform**.)
+- Business language only — no internal terms (`model_id`, `dws_view_*`, Branch A/B/C).
+- **Static, not live:** a diagnosis is a point-in-time explanation — don't wire it to
+  auto-refresh, the numbers that prompted it would move out from under the story.
+
+Full section template + 7 reusable scenario snippets → `references/output-template.md` + `references/scenario-snippets.md`
 
 ## 7. CRITICAL rules (top 8 — full list in references/failure-modes.md)
 

@@ -3,7 +3,7 @@ name: attribution-model-comparison
 description: Pull attribution numbers under multiple attribution models side-by-side and explain why they differ in business language. Default 4-way comparison (idda / dda / last_click / platform_reported). Includes the canonical diff-pattern playbook so the agent doesn't invent reasons.
 category: attribution
 risk: R0
-version: 1.0.0
+version: 1.1.0
 last-updated: 2026-08-19
 
 references:
@@ -23,6 +23,8 @@ examples:
 ## 1. Purpose
 
 Pull attribution numbers under **multiple attribution models side-by-side** and explain **why they differ**, using business-language interpretation grounded in how each model works. Exists because users frequently see different numbers in different places (WorkMagic dashboard vs Meta Ads Manager vs Google Ads) and want to understand the discrepancy.
+
+> **Shared conventions (canonical elsewhere — don't re-derive):** attribution model default + aliases and sales-platform scope + measurement identity live in **`attribution-data-query`** (`references/attribution-model.md`, `references/sales-platform-scope.md`); follow those (read via `skills_read` if not loaded). This skill's `references/model-reference.md` owns only the model↔`model_id` SQL mapping.
 
 **This skill is NOT**:
 
@@ -100,10 +102,12 @@ If the observed gap doesn't match any of the 10 documented patterns, **say so ex
 
 For few channels → 1-2 sentences **per row**. For many channels → cover the 2-3 most striking rows only.
 
-**Step 7: Return — table + interpretation, NO follow-up question**
+**Step 7: Return — build the comparison artifact (see §6), NO follow-up question**
 
-- Output: side-by-side table + 1-3 sentences of interpretation
-- **Don't ask** "want me to also look at X?" — UI exposes drill-down
+- Output: a live-data **Comparison artifact** (grouped bars per channel × model + the
+  diff-pattern "why they differ" readout + measurement identity). A tiny 1-channel
+  check may stay a chat table.
+- **Don't ask** "want me to also look at X?" — the artifact exposes drill-down
 - **Don't append** "which model should I use?" guidance unless user explicitly asked
 
 ## 5. Tools used
@@ -117,15 +121,27 @@ For few channels → 1-2 sentences **per row**. For many channels → cover the 
 
 ## 6. Output format
 
-One message, two parts: **side-by-side table → 1-3 sentence interpretation**. No question at the end.
+A model comparison is a report-shaped, screenshot-and-share result → **produce a
+live-data artifact** (the `dashboard` skill, **Comparison** archetype), not a wall of
+table in chat. (A quick 1-channel, single-metric check can stay a chat table — the
+simple-pull path in `attribution-data-query`; a multi-channel / multi-model comparison
+is an artifact.)
 
-- Table first, interpretation second
-- Always show **which sales platform** + **time range** (one line above table)
-- Sort by absolute delta descending if comparing multiple channels
-- Highlight the largest gap explicitly
-- One paragraph of interpretation max (\~3 sentences); link to `attribution-anomaly-diagnosis` if user wants drill-down
+The artifact:
 
-Full output template with example → `references/output-template.md`
+- **Grouped bars per channel × model** are the hero (categorical colour, one fixed
+  slot per model, never cycled — see the `artifacts` chart method). Sort channels by
+  absolute delta descending; call out the largest gap.
+- **"Why they differ"** rendered from the `references/diff-patterns.md` playbook — name
+  the cause per channel, and on an unrecognized shape fall back to "models close",
+  **never invent a reason**.
+- **Measurement identity on the view:** sales-platform scope + the models compared.
+  **One sales platform per comparison** — never mix platforms in a single comparison
+  (model validity differs by platform; run separately per platform).
+- A table view stays available underneath the chart (accessibility), but the artifact
+  is the deliverable. Link to `attribution-anomaly-diagnosis` for drill-down.
+
+Full field template + example → `references/output-template.md`
 
 <callout emoji="💡">
 **Don't take the bait — never push one model as "correct"**
