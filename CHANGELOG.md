@@ -4,6 +4,14 @@ All notable changes to the WorkMagic public skills are recorded here. This repo 
 [Agent Skills open standard](https://agentskills.io); each skill is independently versioned in
 its `SKILL.md` frontmatter (`version:` / `last-updated:`).
 
+## 2026-08-19
+### Removed
+- **`attribution-custom-report`** — the skill that built a **native platform** custom dashboard
+  (via `wms_dashboard-create`). We no longer build native custom dashboards; "create / build a
+  dashboard" now routes to the **`dashboard` skill** (a live-data html/react **artifact** — richer,
+  self-refreshing, and it inherits the measurement-identity/sales-platform-scope rules). Routing
+  pointers in `attribution-data-query` and `attribution-weekly-report` updated accordingly.
+
 ## 2026-08-14
 ### Changed
 - **Sales-platform scope is now a first-class part of the measurement identity.** Every attribution
@@ -37,7 +45,6 @@ its `SKILL.md` frontmatter (`version:` / `last-updated:`).
 | attribution-data-query | 1.2.0 |
 | attribution-anomaly-diagnosis | 1.0.0 |
 | attribution-custom-dimension | 1.0.0 |
-| attribution-custom-report | 1.0.0 |
 | attribution-edge-routing | 1.0.0 |
 | attribution-intent-clarification | 1.0.0 |
 | attribution-model-comparison | 1.0.0 |

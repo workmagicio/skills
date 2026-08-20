@@ -24,7 +24,7 @@ examples:
 
 ## 1. Purpose
 
-Create **scheduled, recurring attribution reports** delivered to the user via email, in-app message, or Slack — with a structured layout (core metrics + WoW comparison + highlights + recommendations). Different from `attribution-custom-report`: that skill creates a **persistent dashboard** the user opens; this one creates a **Cron-driven task** (or Heartbeat condition trigger) that pushes a report out on schedule.
+Create **scheduled, recurring attribution reports** delivered to the user via email, in-app message, or Slack — with a structured layout (core metrics + WoW comparison + highlights + recommendations). This skill owns the **schedule + delivery** (a Cron-driven task, or a Heartbeat condition trigger, that pushes a report out on a cadence). For the *view itself*, prefer building a live-data dashboard **artifact** (the `dashboard` skill) and scheduling a push to it — see §4; a one-time interactive dashboard with no schedule is just the `dashboard` skill on its own.
 
 R1 write at the system level (direct execute + audit log). Skill-level convention: surface a preview + confirm, and always do a one-time test run before activating.
 
@@ -41,7 +41,7 @@ Trigger when user wants something to **run on a schedule** and **be delivered**:
 **Do NOT trigger**:
 
 - User wants a one-time number in chat → `attribution-data-query`
-- User wants a persistent dashboard to open in the UI → `attribution-custom-report`
+- User wants a one-time interactive dashboard (no schedule) → build a live-data dashboard **artifact** with the `dashboard` skill
 - User just wants to know "is something wrong right now?" → `attribution-anomaly-diagnosis`
 
 ## 3. Inputs
@@ -150,7 +150,7 @@ Full edge case & routing catalog → `references/edge-cases.md`
 
 ## 9. Related skills
 
-- **Sibling**: `attribution-custom-report` (persistent dashboard, no schedule), `attribution-data-query` (one-time chat answer)
+- **Sibling**: the `dashboard` skill (live-data dashboard artifact, no schedule — the view this skill schedules a push to), `attribution-data-query` (one-time chat answer)
 - **Upstream**: `attribution-custom-dimension` (run first if NC config missing), `attribution-intent-clarification` (if the ask is too vague)
 - **Downstream**: `attribution-anomaly-diagnosis` (Heartbeat alert fires → user clicks through → diagnosis)
 - **Routes out to**: `attribution-edge-routing` for unsupported delivery channels or out-of-scope content
