@@ -4,6 +4,47 @@ All notable changes to the WorkMagic public skills are recorded here. This repo 
 [Agent Skills open standard](https://agentskills.io); each skill is independently versioned in
 its `SKILL.md` frontmatter (`version:` / `last-updated:`).
 
+## 2026-08-28 (later)
+### Changed
+- **`attribution-weekly-report` (2.0.0 → 2.1.0): the two per-cadence behaviours that were
+  documented-but-unimplemented are now shipped, and both are config rather than a code fork.**
+
+  **Trailing-window baseline (`baselineDays`).** A daily board now compares against the
+  **trailing 7 days**, not against yesterday. Day-over-day is day-of-week rhythm rather than
+  signal — measured on a real account at spend +40.7% / sales −10.3% / ROAS −36.3% between two
+  adjacent days with nothing having changed. Levels are scaled to the current window's length
+  (×1/7 for daily) so a 1-day figure is never held against a 7-day total; rates are not
+  scaled and need none, because multiplying spend and revenue by the same factor leaves ROAS
+  untouched — ratio-of-sums still holds exactly. Note this **revises** the earlier spec, which
+  called for a trailing 7-day *median*: seven consecutive days already contain each weekday
+  once, so their aggregate is deseasonalised without a median, and a median of daily ratios
+  would have broken the ratio-of-sums law for every rate on the board.
+
+  **Calendar alignment (`align: "calendar"` + `unit`).** Monthly and quarterly boards now use
+  real calendar periods instead of a rolling 30 / 91 days, which is what finance reports on.
+  A complete period is compared as raw totals (February's 28 days against January's 31 — the
+  convention), with both day counts stated on the page rather than normalised away silently.
+  An incomplete period is reported **period-to-date against the same number of days into the
+  prior period** — Mar 1–4 against Feb 1–4, never against all of February. Trend buckets
+  become real calendar periods, with a partial newest bucket when to-date.
+
+  **Both bases are stated on the page.** Normalisation and to-date switching are correct and
+  invisible, which is its own failure mode, so the status strip now carries the basis
+  ("Against the trailing 7 days, on a 1-day basis" / "Monthly to date — 4 of 31 days, against
+  the same 4 days of the prior month" / "Whole-month totals — 28 days vs 31 in the prior
+  month, compared as-is"). Recorded as a failure mode so the chip is not tidied away.
+
+- **Documented the board's naming divergence from the query tool's label dictionary.** The
+  tool returns `meta.field_labels` and asks callers to use it verbatim; the board does not,
+  and `board-spine.md` now carries the crosswalk and the reason. Adopting WM's labels verbatim
+  would give the board two different axes both called "channel" (`sales_platform` → "Sales
+  channel", `src_channel` → "Channel") and both attributed and store-actual revenue called
+  "Sales", separated only by an "(All)" that means *all sales platforms* rather than *all
+  revenue*. The crosswalk lets a customer reconcile a board figure against the WorkMagic UI.
+  🔴 Flagged as **open with the WM side** rather than settled: if WM's vocabulary is the one
+  customers should learn, the terms must change here *and* in the canonical scope file
+  together, never only on the board.
+
 ## 2026-08-28
 ### Changed
 - **`attribution-weekly-report` (1.2.0 → 2.0.0): the board is now the deliverable, the

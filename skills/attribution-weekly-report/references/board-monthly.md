@@ -19,30 +19,33 @@ const PERIOD = {
 const BUCKET_CHOICES = [6, 12, 18];
 ```
 
-## 🔴 Rolling vs calendar — pick one and label it
+## 🔴 Calendar alignment — shipped, and it changes what the comparison means
 
-The skeleton computes a **rolling** window from `PERIOD.days`: the last settled 30 days
-against the 30 before it. That is length-aligned and honest, and it needs no code change —
-but it is **not** "March".
+`align: "calendar"` + `unit: "month"` makes the windows **real calendar months**, not a
+rolling 30 days. Use it: finance reports on months, and a rolling 30-day window labelled
+"March" is wrong even when the arithmetic is right. (`align: "rolling"` remains available and
+is what the weekly and daily cadences use.)
 
-When the user means calendar months (they usually do, because that is what finance reports
-on), the window must come from calendar boundaries instead. This is a **documented
-adaptation, not shipped code**:
+Two branches, both handled by the skeleton:
 
-- derive `curStart` / `curEnd` from the month's first and last day rather than
-  `addDays(curEnd, -(PERIOD.days - 1))`;
-- set the bucket edges to month starts rather than fixed `PERIOD.days` strides;
-- keep the settling walk exactly as is — it operates on the daily series and is
-  cadence-independent.
+**The month is complete** (its last day has settled) → current month vs the whole prior
+month, **as raw totals**. February's 28 days against January's 31 are *not* normalised,
+because whole-month totals are the convention finance expects; instead the page states both
+day counts ("Whole-month totals — 28 days vs 31 in the prior month, compared as-is") so the
+~10% length difference is visible rather than silent.
 
-And the rule that makes either choice safe:
+**The month is not complete** → the board reports **month-to-date** and cuts the prior month
+to the *same number of days*:
 
-> **A calendar period is reportable only once its last day has settled.** Until then,
-> label it explicitly — "March to date (through Mar 04)" — and compare it against the
-> **same number of days** into the prior month. Never a partial month against a full one.
+> Mar 1–4 against **Feb 1–4**, never Mar 1–4 against all of February.
 
-This is the board-side form of the standing failure mode "misaligned period-over-period"
-in `failure-modes.md`; the snapshot side has the same rule.
+The page says so ("Monthly to date — 4 of 31 days, against the same 4 days of the prior
+month"). This is the board-side form of the standing failure mode "misaligned
+period-over-period" in `failure-modes.md`; the snapshot side has the same rule.
+
+The trend buckets become real calendar months too, and the newest bucket is partial when the
+board is to-date. The settling walk is untouched — it works on the daily series and is
+cadence-independent.
 
 ## Add year-over-year
 

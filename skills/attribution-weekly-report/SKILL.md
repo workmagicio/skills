@@ -3,7 +3,7 @@ name: attribution-weekly-report
 description: Build the recurring business-review board — a live, self-refreshing page covering store-actual revenue, ads-attributed revenue, the ROAS trend, the channel-to-tactic funnel, and data-derived actions — at whatever cadence the user reviews on (daily / weekly / monthly / quarterly), and optionally push a snapshot of it on a schedule to in-app / email / Slack. The board is the deliverable; the schedule is optional. Also owns condition-based alerts (Heartbeat). Use for any recurring view of attribution performance; a one-off number is attribution-data-query.
 category: attribution
 risk: R1
-version: 2.0.0
+version: 2.1.0
 last-updated: 2026-08-28
 
 references:
@@ -118,9 +118,11 @@ this account actually has, plus its spend magnitude — all three feed step 5.
 **Step 5 — Build the board.** Read `references/board-spine.md`, then the one cadence spec,
 then copy `templates/board.tsx` and follow `references/instantiation.md`. Do not rebuild
 from scratch: the skeleton already encodes the guarded bridge, per-part error boundaries,
-the settled-window walk, period bucketing, ratio-of-sums, the verdict engine and the action
-rules. It ships configured for **weekly**; other cadences change the `PERIOD` block plus the
-deltas their spec lists.
+the settled-window walk, period bucketing, length-normalised comparison, calendar alignment
+with period-to-date handling, ratio-of-sums, the verdict engine and the action rules. It
+ships configured for **weekly**; other cadences change the `PERIOD` block plus the deltas
+their spec lists (dead bands, KPI additions, what Part 5 may recommend — those are not
+config).
 
 > 🛑 **Replace the synthetic seed with values you probed in step 4.** The shipped seed is
 > fake by construction. A seed carrying a real account's figures is a data leak the moment
