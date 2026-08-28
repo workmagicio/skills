@@ -83,11 +83,14 @@ const SETTLING_MIN_SPEND_RATIO = 0.5;   // below this, the day is too small to j
 
      days      length of the reporting window, in days
      buckets   how many periods the trend charts show
-     baseline  "prior"    compare against the immediately preceding period
-               "trailing" compare against a trailing-N median — use for DAILY,
-                          where one prior day is too noisy to read as a signal
      noun / labels   the prose the page renders; a monthly board that says
                      "this week" is a defect, so these travel with `days`
+
+   🔴 The comparison baseline is HARDCODED to "the immediately preceding period" — it is
+   not a knob. A daily board must compare against a trailing median instead, and that is a
+   code change, spelled out in references/board-daily.md. There was briefly a
+   `baseline: "trailing"` field here; it was removed because nothing read it, so setting it
+   silently did nothing.
 
    Calendar-aligned cadences (monthly / quarterly) additionally need the alignment
    rule in references/board-monthly.md: a calendar period is reportable only once
@@ -97,7 +100,6 @@ const PERIOD = {
   key: "weekly",
   days: 7,
   buckets: 8,
-  baseline: "prior",
   noun: "week",
   unitPlural: "buckets",
   adjective: "Weekly",
@@ -1376,6 +1378,17 @@ export default function WeeklyBusinessOverview() {
     [movement, adsWindows]
   );
 
+  /* Part 4 rolls up a DIFFERENT view (ad-level) than Part 1 (channel-level), so the two
+     never tie exactly: attributed revenue that cannot be resolved to a specific ad has no
+     ad-level row. Measured at ~2% of revenue on a real account — so the board states the
+     coverage it actually achieved instead of claiming a magnitude that would go stale. */
+  const funnelCoverage = useMemo(() => {
+    let sales = 0;
+    funnelCur.ch.forEach((m) => { sales += num0(m.sales); });
+    const headline = num0(adsWindows.cur.sales);
+    return headline > 0 ? sales / headline : null;
+  }, [funnelCur, adsWindows]);
+
   const roasCur = ratioOfSums(adsWindows.cur.sales, adsWindows.cur.spend);
   const roasPri = ratioOfSums(adsWindows.pri.sales, adsWindows.pri.spend);
 
@@ -1543,8 +1556,12 @@ export default function WeeklyBusinessOverview() {
           <Part4Table cur={funnelCur} pri={funnelPri} />
         </Guard>
         <div style={{ marginTop: 8, fontSize: 11, color: T.muted, lineHeight: 1.5 }}>
-          "All paid channels" rolls up the ad-level table and ties to the ads-attributed revenue and ROAS
-          headline above (rows that carry no ad-platform key can leave a gap under 0.1%). NC = new customer.
+          "All paid channels" rolls up the ad-level table.{" "}
+          {funnelCoverage === null
+            ? "It is compared against the ads-attributed revenue headline above."
+            : "It accounts for " + pctf(funnelCoverage, 1) + " of the ads-attributed revenue headline above — " +
+              "the remainder is attributed revenue that cannot be resolved to a specific ad, so it has no ad-level row."}{" "}
+          NC = new customer.
         </div>
       </Section>
 

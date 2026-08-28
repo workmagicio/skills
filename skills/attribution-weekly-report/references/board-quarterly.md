@@ -10,7 +10,6 @@ const PERIOD = {
   key: "quarterly",
   days: 91,                      // rolling; calendar alignment per board-monthly.md
   buckets: 8,
-  baseline: "prior",
   noun: "quarter",
   unitPlural: "quarters",
   adjective: "Quarterly",

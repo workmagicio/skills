@@ -125,8 +125,15 @@ Channel rows, collapsed by default, expandable to tactics where a channel has mo
 one. Impressions → clicks → CTR → CPC → CPM → spend → conversions → attributed orders →
 attributed revenue → ROAS → NC orders → NC ROAS, plus a period-over-period trend pill.
 
-All rates are **ratio of sums** over the window, never the average of daily ratios. The
-total row must tie to the Part 1 headline.
+All rates are **ratio of sums** over the window, never the average of daily ratios.
+
+**The total row does NOT tie exactly to the Part 1 headline, and the board must say by how
+much.** Part 4 rolls up the ad-level view; Part 1 uses the channel-level view. Attributed
+revenue that cannot be resolved to a specific ad has no ad-level row, so the funnel is
+always a little short — measured at **~2% of revenue** on a real account, against an earlier
+claim of "under 0.1%". 🔴 Never assert a magnitude for that gap: the board **computes the
+coverage it actually achieved** and renders it, so the number cannot go stale and a customer
+reconciling the two parts finds the difference already explained.
 
 ## Part 5 — Actions
 

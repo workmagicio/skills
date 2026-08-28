@@ -10,7 +10,6 @@ const PERIOD = {
   key: "monthly",
   days: 30,                      // rolling; see the alignment rule below
   buckets: 12,
-  baseline: "prior",
   noun: "month",
   unitPlural: "months",
   adjective: "Monthly",

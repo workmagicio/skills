@@ -13,7 +13,6 @@ const PERIOD = {
   key: "weekly",
   days: 7,
   buckets: 8,
-  baseline: "prior",
   noun: "week",
   unitPlural: "weeks",
   adjective: "Weekly",

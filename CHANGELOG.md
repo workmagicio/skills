@@ -25,10 +25,14 @@ its `SKILL.md` frontmatter (`version:` / `last-updated:`).
   / `board-quarterly.md`, plus `board-alert.md` which explains why an alert is *not* a board.
   The skeleton is parameterised by a single `PERIOD` block and ships configured for weekly —
   the one cadence whose numbers are verified end to end. What changes per cadence is not just
-  the window: daily compares against a **trailing 7-day median** (day-over-day is
-  day-of-week seasonality, not signal) and may not recommend budget actions at all; monthly
-  and quarterly add year-over-year and a calendar-alignment rule; dead bands widen for daily
-  and tighten for quarterly.
+  the window: daily must compare against a **trailing 7-day median** (day-over-day is
+  day-of-week seasonality, not signal — measured on a real account at spend +40.7% / sales
+  −10.3% / ROAS −36.3% between two adjacent days, with nothing having changed) and may not
+  recommend budget actions at all; monthly and quarterly add year-over-year and a
+  calendar-alignment rule; dead bands widen for daily and tighten for quarterly. Both the
+  trailing baseline and calendar alignment are documented **code changes, not settings** —
+  a `baseline` config field was drafted and removed once it was clear nothing read it, since
+  a silently-ignored knob is worse than none.
 
   Three defects found while generalising and then verifying against a real account. (1) The
   settling walk's lower bound was tied to the period length, which skipped trimming entirely
@@ -40,7 +44,19 @@ its `SKILL.md` frontmatter (`version:` / `last-updated:`).
   median revenue but only 70.2% of median ROAS on 128.6% of median spend. That day is now
   **flagged, deliberately not trimmed**: a ROAS-based trim cannot distinguish a still-settling
   day from a genuinely bad one, and silently hiding the latter is the one thing this board
-  must not do.
+  must not do. (4) The Part 4 footnote claimed the funnel ties to the Part 1 headline "within
+  0.1%"; on a real account the gap is **1.95% of revenue**, because Part 4 reads the ad-level
+  view and Part 1 the channel-level one, and attributed revenue with no resolvable ad has no
+  ad-level row. The board now **computes and states the coverage it achieved** rather than
+  asserting a magnitude that goes stale.
+
+  Verified against a real account end to end (four queries, both settled windows): SQL needs
+  no `tenant_id` filter, numeric cells arrive as strings, the attribution model resolves
+  live, `tactic_name` really does carry `""` / `"-1"`, a third of ad-level rows are all-zero,
+  a marketplace reporting five days behind triggers the late-platform notice, a null sales
+  value and a zero-spend-with-revenue row both degrade correctly, and the material-spend
+  floor scales with the account (1% of a real week's spend, versus a fixed dollar amount that
+  would have emptied Parts 3 and 5).
 
   The board skeleton ships a deliberately synthetic seed that **must** be replaced with
   probed values at instantiation: a seed carrying a real account's figures renders as another

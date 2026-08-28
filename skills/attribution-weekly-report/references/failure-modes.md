@@ -90,6 +90,18 @@ channel, and do not invent comparisons. If the account genuinely has one channel
 efficiency verdict in Part 3 is carrying the whole board — make sure its dead bands are not
 swallowing real movement.
 
+## 5b. Claiming the funnel ties to the headline
+
+**Symptom**: a customer sums Part 4 and finds it a couple of percent short of Part 1, and
+now distrusts every number on the page.
+
+**Cause**: Part 4 and Part 1 read different views. Attributed revenue with no resolvable ad
+has no ad-level row. The gap is real and is roughly 2% of revenue, not the "under 0.1%" an
+earlier version of the board claimed.
+
+**Fix**: the board computes the coverage it achieved and states it in the Part 4 note. Never
+hardcode a magnitude, and never describe the gap as negligible.
+
 ## 6. Ratio-of-averages creeping in
 
 **Symptom**: the board's ROAS disagrees with the same window queried directly.
