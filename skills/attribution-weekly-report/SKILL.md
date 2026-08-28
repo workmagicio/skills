@@ -1,22 +1,34 @@
 ---
 name: attribution-weekly-report
-description: Create scheduled, recurring attribution reports (daily / weekly / monthly / quarterly) delivered via in-app / email / Slack. Cron or Heartbeat trigger. Always preview + test-run before activating. R1 write at system level.
+description: Build the recurring business-review board — a live, self-refreshing page covering store-actual revenue, ads-attributed revenue, the ROAS trend, the channel-to-tactic funnel, and data-derived actions — at whatever cadence the user reviews on (daily / weekly / monthly / quarterly), and optionally push a snapshot of it on a schedule to in-app / email / Slack. The board is the deliverable; the schedule is optional. Also owns condition-based alerts (Heartbeat). Use for any recurring view of attribution performance; a one-off number is attribution-data-query.
 category: attribution
 risk: R1
-version: 1.2.0
-last-updated: 2026-08-19
+version: 2.0.0
+last-updated: 2026-08-28
 
 references:
+- references/board-spine.md
+- references/board-daily.md
+- references/board-weekly.md
+- references/board-monthly.md
+- references/board-quarterly.md
+- references/board-alert.md
+- references/instantiation.md
 - references/executive-variant.md
 - references/output-template.md
 - references/edge-cases.md
 - references/failure-modes.md
 
 templates:
+- templates/board.tsx
+- templates/02-default-model.sql
+- templates/03-ads-channel-daily.sql
+- templates/04-sales-platform-daily.sql
+- templates/05-ads-ad-level.sql
+- templates/01-weekly-metrics.sql
 - templates/weekly-report.md
 - templates/executive-report.md
 - templates/heartbeat-alert.md
-- templates/01-weekly-metrics.sql
 
 examples:
 - examples/example-A-meta-google-weekly.md
@@ -24,129 +36,207 @@ examples:
 
 ## 1. Purpose
 
-Create **scheduled, recurring attribution reports** delivered to the user via email, in-app message, or Slack — with a structured layout (core metrics + WoW comparison + highlights + recommendations). This skill owns the **schedule + delivery** (a Cron-driven task, or a Heartbeat condition trigger, that pushes a report out on a cadence). For the *view itself*, prefer building a live-data dashboard **artifact** (the `dashboard` skill) and scheduling a push to it — see §4; a one-time interactive dashboard with no schedule is just the `dashboard` skill on its own.
+Own the **recurring view** of attribution performance, end to end:
 
-R1 write at the system level (direct execute + audit log). Skill-level convention: surface a preview + confirm, and always do a one-time test run before activating.
+1. **The board** — a live-data artifact the user opens whenever they want, always fresh.
+   This is the primary deliverable and it stands on its own.
+2. **The optional push** — a Cron-driven snapshot (or a Heartbeat condition alert) that
+   lands in in-app / email / Slack and links back to the board.
 
-> **Shared conventions (canonical elsewhere — don't re-derive):** attribution model default + aliases and sales-platform scope + measurement identity live in **`attribution-data-query`** (`references/attribution-model.md`, `references/sales-platform-scope.md`). Follow those (read via `skills_read` if not loaded); the numbers here default to **all sales platforms** and every snapshot states scope + model.
+**A schedule is not required to be in scope.** "Give me a page I can check every Monday"
+is this skill with step 7 answered "no". That is the common case, not an edge case.
+
+> **Shared conventions (canonical elsewhere — don't re-derive):** attribution model default
+> + aliases and sales-platform scope + measurement identity live in
+> **`attribution-data-query`** (`references/attribution-model.md`,
+> `references/sales-platform-scope.md`). Follow those (read via `skills_read` if not
+> loaded); the numbers here default to **all sales platforms** and every surface — board and
+> snapshot — states scope + model.
+
+The board's content is specified in two layers, and this split is load-bearing:
+`references/board-spine.md` holds what every cadence guarantees; `board-daily.md` /
+`board-weekly.md` / `board-monthly.md` / `board-quarterly.md` hold only that cadence's
+deltas. **Never copy spine content into a cadence file.** An alert is **not a board** —
+`board-alert.md` says why before you build one.
 
 ## 2. When to trigger
 
-Trigger when user wants something to **run on a schedule** and **be delivered**:
+Any request for a **recurring view** of attribution performance, or for something delivered
+on a cadence:
 
+- "Give me a weekly business review board" / "one page I can check every Monday" — **no
+  schedule needed**
 - "Send me a weekly Meta report every Monday 9am"
 - "Set up a daily attribution summary"
 - "I want a monthly creative performance report"
-- "Send me an alert if Meta ROAS drops below 2x" (conditional trigger — still this skill)
-- "Create a quarterly attribution report for my CMO"
+- "Build a quarterly review for my CMO"
+- "Send me an alert if Meta ROAS drops below 2x" (condition trigger — still this skill)
 
 **Do NOT trigger**:
 
-- User wants a one-time number in chat → `attribution-data-query`
-- User wants a one-time interactive dashboard (no schedule) → build a live-data dashboard **artifact** with the `dashboard` skill
-- User just wants to know "is something wrong right now?" → `attribution-anomaly-diagnosis`
+| The user wants | Use instead |
+|-|-|
+| A one-time **number** or small table in chat | `attribution-data-query` |
+| A dashboard that is **not** a periodic business review (a comparison, a funnel study, a one-off exploration) | the host's `dashboard` skill, picking the archetype that fits |
+| To know **why** a specific number looks wrong | `attribution-anomaly-diagnosis` |
+| A breakdown by a business label that needs a Naming Convention rule | `attribution-custom-dimension` first, then come back |
 
 ## 3. Inputs
 
 | **Field** | **Required?** | **Default / Notes** |
 |-|-|-|
-| `schedule` | Required | Frequency + time: daily / weekly / monthly / quarterly + delivery clock. Parse from input ("every Monday 9am" → weekly · Mon · 09:00 user tz). If only frequency given, default time = **Monday 9:00 user-local** (weekly), **1st of month 9:00** (monthly), **9:00 user-local** (daily). Ask once only if frequency is ambiguous. |
-| `trigger_type` | Detected | **Cron** (fixed schedule) or **Heartbeat** (condition-based, e.g., "alert if ROAS < 2x"). Heartbeat default check cadence = hourly. UI shows both as "scheduled tasks" — don't expose the internal distinction. |
-| `content` | Required | Metrics, dimensions, time window per report (default: prior period of the same length as cadence — last week for weekly, last day for daily). **Don't hard-code metrics** — ask once if unspecified. |
-| `delivery` | Required | **in-app message** (default), **email** (ask for recipient if not the user themselves), **Slack** (requires connector). Always confirm delivery channel; **never default to email silently**. |
-| `format` | Has default | In-app / Slack: markdown with tables + emoji highlights. Email: rendered HTML (or PDF for executive variants). |
-| `recipients` | Conditional | Required for email / Slack. Default to requesting user. For shared deliveries ("send to my CMO"), **ask for the email or Slack handle explicitly** — never guess. |
-| `attribution_model` | Do not ask | Auto-apply tenant default (iDDA if lift tests exist, else DDA). Only set if user explicitly named one. |
+| `cadence` | Required (detected) | daily / weekly / monthly / quarterly, or **alert**. Drives which board spec applies. Default **weekly** when the user says "recurring" without naming one — it is the cadence people actually review on. |
+| `push` | Asked once (step 7) | Whether to also deliver a snapshot on a schedule. **Never assumed in either direction.** |
+| `schedule` | Conditional (`push` = yes) | Frequency + delivery clock. If only frequency is given: **Mon 9:00 user-local** (weekly), **1st of month 9:00** (monthly), **9:00** (daily). |
+| `trigger_type` | Detected | **Cron** (fixed schedule) or **Heartbeat** (condition-based). UI shows both as "scheduled tasks" — don't expose the distinction. |
+| `content` | Has default | The board's own KPI set per the cadence spec. Only ask if the user narrows scope (specific channels, a specific dataset). |
+| `delivery` | Conditional (`push` = yes) | **in-app** (default), **email** (ask for recipient), **Slack** (needs connector). Always confirm; **never default to email silently**. |
+| `recipients` | Conditional | Required for email / Slack. For "send to my CMO", ask for the address explicitly — never guess. |
+| `attribution_model` | Do not ask | Auto-apply tenant default; the board resolves it live. |
 
 ## 4. SOP
 
-**Step 1: Detect intent type**
+**Step 1 — Detect cadence and intent.** Fixed time → Cron. Condition ("alert me if") →
+Heartbeat, and go read `references/board-alert.md`; an alert does not get its own board.
+Quarterly or "for my CMO" → flag the executive variant.
 
-- Fixed time ("every Monday", "monthly", "daily at 9am") → **Cron**
-- Conditional ("when X drops below Y", "alert me if") → **Heartbeat**
-- Quarterly + executive context ("for my CMO") → **Cron**, flag for executive layout
+**Step 2 — At most one clarifying question.** Lead with the one pivotal missing field —
+usually content scope. **Do not ask** about the attribution model, the comparison window
+(derive from cadence), or the snapshot format.
 
-**Step 2: Collect required parameters (at most one round)** — one question max. Lead with whichever pivotal field is missing — usually **content scope** ("which channels / metrics?") or **delivery channel** ("email or in-app?"). Use defaults for everything else.
+**Step 3 — `database-query-ask` (MANDATORY).** Confirm the Cube schema and the `ctx`
+convention before any SQL. The board itself cannot call this tool at render time, so it
+passes a load-time ISO timestamp as `ctx`, set **once per page load** — never per render.
 
-**Do not ask**: attribution model, time-window-per-report (derive from cadence), report format (derive from delivery channel).
+**Step 4 — Probe all four board queries yourself.** Run `templates/02-default-model.sql` …
+`05-ads-ad-level.sql` through `database-query-run` and read the real results: column names,
+the fact that numeric cells arrive as **strings**, and whether the row count matches the
+question (a daily, multi-week, multi-channel query returning one row is a collapsed
+aggregate, not data). Record which `sales_platform` values, ad platforms and tactic names
+this account actually has, plus its spend magnitude — all three feed step 5.
 
-**Step 3: `database-query-ask` (MANDATORY)** — required for `ctx` timestamp before any SQL (test run needs it). Also ask: scheduled-task creation schema + delivery channel constraints.
+**Step 5 — Build the board.** Read `references/board-spine.md`, then the one cadence spec,
+then copy `templates/board.tsx` and follow `references/instantiation.md`. Do not rebuild
+from scratch: the skeleton already encodes the guarded bridge, per-part error boundaries,
+the settled-window walk, period bucketing, ratio-of-sums, the verdict engine and the action
+rules. It ships configured for **weekly**; other cadences change the `PERIOD` block plus the
+deltas their spec lists.
 
-**Step 4: Build the live dashboard first (the view itself)**
+> 🛑 **Replace the synthetic seed with values you probed in step 4.** The shipped seed is
+> fake by construction. A seed carrying a real account's figures is a data leak the moment
+> the bridge is inert — the page renders another account's revenue as if it were this one's.
 
-The recurring "weekly performance" **is a live-data dashboard**, not a static table — build it with the `dashboard` skill (Overview archetype: hero + WoW, trend, breakdown; **measurement identity = sales-platform scope + attribution model**, all sales platforms by default). When the recurring view is a whole-business weekly review, use **`attribution-business-review`** — it owns the WorkMagic domain layer for exactly that board (the four warehouse queries, the settled-window rule, and a ready board skeleton) so you are not re-deriving it each time. This is the primary, self-refreshing deliverable: the user opens the link any time and it's fresh. Validate metric / dimension names via `dashboard-metrics-list`. (A one-time dashboard with no schedule ends here — that's just the `dashboard` skill.)
+**Step 6 — Self-review the running board, then save** with `bt_artifact_manage` and a
+`context` note. Re-run one query and diff it against what the page renders; if the page
+still shows seed values while the query succeeds, the mapping is wrong. Confirm the status
+strip says *Live data*. Full checklist at the end of `instantiation.md`.
 
-**Step 5: Ask whether to also push a recurring snapshot** — ONE question
+**Step 7 — Ask once whether to also push a snapshot.** *"Want me to also send you a
+{cadence} snapshot so it lands in your inbox / Slack?"* If **no** — you are done: hand over
+the board link. Do not treat that as a failure and do not re-ask. (Heartbeat/alert asks skip
+to step 8 — the trigger is the point.)
 
-The dashboard already stands on its own. Then ask: *"Want me to also send you a **{cadence}** snapshot so it lands in your inbox / Slack?"* — if **no**, you're done: hand over the dashboard link. If **yes**, continue to schedule the push. (Heartbeat/alert asks skip straight to scheduling — the trigger IS the point.)
+**Step 8 — Pick the snapshot format by delivery channel.** in-app / Slack → short digest +
+link. email → rendered HTML (PDF for executive) + link, because the live view can't embed.
+Copy from `templates/`; don't invent a layout. Details + the per-cadence table:
+`references/output-template.md`.
 
-**Step 6: Pick the snapshot format by delivery channel**
-
-<callout emoji="🛑">
-The scheduled push points at the live dashboard; how it renders depends on the channel:
-- **in-app / Slack** → a short digest (key numbers + WoW highlights) **+ link to the live dashboard**
-- **email** → the live view can't embed, so a **rendered snapshot** of the dashboard (HTML, or PDF for the executive variant) **+ link**
-For the rendered snapshot, copy from `templates/` — `weekly-report.md` (default), `executive-report.md` (quarterly / CMO), `heartbeat-alert.md` (alerts: one-line + link, never the full layout). Copy + fill; don't invent a layout (clients get inconsistent snapshots week-to-week otherwise). Every snapshot carries the same measurement identity as the dashboard.
-</callout>
-
-**Step 7: Propose the task (diff card) → test-run → activate**
+**Step 9 — Propose (diff card) → test-run → activate.**
 
 <callout emoji="💡">
 **Don't take the bait — never skip the test run**
-Activating a schedule without running once first looks faster, but the cost when it fails silently is high: the user (or their CMO) gets a broken or empty snapshot in their inbox on Monday morning, with no chance to catch it. **Always run once immediately and show the output before scheduling activates.** Catches: data gaps, broken metric names, empty filter sets, NC propertyNames not yet enabled.
+Activating a schedule without running once first looks faster, but the cost when it fails
+silently is high: the user (or their CMO) gets a broken or empty snapshot on Monday morning
+with no chance to catch it. Run once, show the output, then activate. Catches data gaps,
+broken metric names, empty filter sets, NC propertyNames not yet enabled.
 </callout>
 
-Show the settings diff-card preview → test-run (`templates/01-weekly-metrics.sql`) → on success activate via `create_scheduled_task`, and confirm with the next-fire time:
+Test-run query: `templates/01-weekly-metrics.sql`. On success, activate via
+`create_scheduled_task` and confirm with the next-fire time:
 
-> *Scheduled. Next run:* ***Monday, [date] at 09:00*** *(your timezone). You can pause or edit this in* ***Scheduled Tasks****.*
+> *Scheduled. Next run:* ***Monday, [date] at 09:00*** *(your timezone). You can pause or
+> edit this in* ***Scheduled Tasks****.*
 
-**Step 8: End the turn** — don't pad with "want to set up another?". You've already offered the snapshot in Step 5; don't re-ask.
+**Step 10 — End the turn.** You already offered the snapshot in step 7; don't re-ask.
 
 <callout emoji="💡">
 **Don't take the bait — never send to external email without explicit double-confirm**
-If the user asks to deliver to an email outside their org (e.g., a freelance agency, a partner), **sharing attribution data externally is a data-exposure event**. Use extra UX language in the confirmation: "This will share attribution data externally to [email] every [cadence]. Confirm?" — only proceed on explicit yes. Never silently route attribution data to external addresses.
+Delivering to an address outside the requester's org is a data-exposure event. Say so
+plainly — "This will share attribution data externally to [email] every [cadence]. Confirm?"
+— and proceed only on explicit yes.
 </callout>
 
 ## 5. Tools used
 
-| **Tool** | **Required?** | **Purpose** |
+Tool names are unprefixed here. Justin exposes WorkMagic tools as `wm_*`; other MCP clients
+expose them unprefixed. The board template tries both.
+
+| Tool | Required? | Purpose |
 |-|-|-|
-| `database-query-ask` | Required (first) | Schema patterns + scheduled-task conventions + `ctx` for test-run SQL |
-| `dashboard-metrics-list` | Required | Validate metric / dimension names. Pass `tenantId` for NC propertyNames. |
-| `database-query-run` | Required | Execute the test run (Step 6) before activating |
-| `create_scheduled_task` | Required | R1 at system level. Fires only after explicit user confirmation + successful test run. |
-| `list_scheduled_tasks` | Conditional | When user says "update my weekly report" — list first to find target ID |
-| `update_scheduled_task` | Conditional | Edits to existing tasks; same preview + confirm flow |
+| `database-query-ask` | Required (first) | Schema patterns + the `ctx` convention |
+| `database-query-run` | Required | Probe the four board queries (step 4); the board's only runtime data source; the snapshot test run |
+| `bt_artifact_manage` | Required | Save the board (R1). Use `action='edit'` for later revisions — the file is large and a full rewrite is expensive |
+| `bt_artifact_read` | Conditional | Read the current version (and its `context` note) before revising |
+| `dashboard-metrics-list` | Conditional | Validate metric / dimension names for the snapshot. Pass `tenantId` for NC propertyNames |
+| `create_scheduled_task` | Conditional (`push` = yes) | R1 at system level. Only after explicit confirmation + a successful test run |
+| `list_scheduled_tasks` / `update_scheduled_task` | Conditional | "Update my weekly report" — list first, then edit with the same preview + confirm flow |
 
-## 6. Output format
+**Never** call `dashboard-create` / `dashboard-section-create` — we no longer build native
+platform dashboards (`attribution-edge-routing` §7 rule 9).
 
-Three turns:
+## 6. Output
 
-1. **Clarification** (at most one round, one question — only if pivotal field is missing)
-2. **Task diff card** — table of settings + confirm / modify / cancel
-3. **Test-run result + activation** — show the actual report once + activation confirmation with next-fire time
+One `react` artifact titled `<Account> — <Cadence> Business Review`, plus — only if the user
+asked — one scheduled task. Record on save: the account, the cadence, the four queries
+wired, that the attribution model resolves live, and any account-specific thresholds you
+changed. A later edit has to honour those or it silently regresses the board.
 
-Full report layout, rules, and Heartbeat alert variant → `references/output-template.md`
+Deliver the link with one sentence on what the board says this period. Don't also paste the
+numbers into chat — the board is the artifact.
 
-## 7. CRITICAL rules (top 9 — full list in references/failure-modes.md)
+## 7. CRITICAL rules
 
-1. **Always copy a template from `templates/`** — never invent a layout; clients get inconsistent reports week-to-week otherwise
-2. **Never skip the test run** — empty / broken reports landing in inboxes is the worst possible failure mode
-3. **Never silent-activate** — every task creation needs the diff-card preview + explicit user confirmation
-4. **Never default to email silently** — always confirm delivery channel; defaulting risks unintended external sends
-5. **Never send to external email without extra confirmation** — sharing attribution data outside the requester's org is a data-exposure event
-6. **Never ask "which attribution model?"** — auto-apply tenant default
-7. **Always label the measurement identity** — sales-platform scope + attribution model in the report header AND footer. Revenue/ROAS default to **all sales platforms** (`attr_all_sales`); a report that names only the model ships unlabeled all-platform numbers to a CMO (`attribution-data-query/references/sales-platform-scope.md`)
-8. **Never expose internal labels** ("Cron job", "Heartbeat", "task_id") — user sees "scheduled task" everywhere
-9. **Never use misaligned period-over-period** — full Mon–Sun vs full Mon–Sun, not partial-vs-full
+1. **Never ship a seed containing another account's real numbers** — replace it with this
+   account's probed values, always.
+2. **Never hardcode the attribution model** — the board resolves it live from the tenant
+   default view.
+3. **Measurement identity travels with every number** — sales-platform **scope** first, then
+   **model**, on the board *and* every snapshot. The law is canonical in
+   `attribution-data-query/references/sales-platform-scope.md`.
+4. **Never present store-actual and ads-attributed revenue as the same thing** — Part 1
+   shows both precisely because they differ.
+5. **Anchor windows to the data, not the clock** — trim still-ingesting days and name them
+   on the page. Never compare a partial period against a full one.
+6. **Never carry one cadence's dead bands to another** — the weekly 3% band on a daily board
+   turns day-of-week rhythm into a verdict. Each cadence spec states its own.
+7. **Never let a daily board recommend a budget action** — one day is a watch item, not
+   evidence (`board-daily.md`).
+8. **Ratios are ratio-of-sums** — never the average of daily ratios.
+9. **Never invent an action** — "no data-backed action this period" is a correct, complete
+   Part 5.
+10. **Never assume a schedule, in either direction** — build the board, ask once, accept the
+    answer. Never withhold the board because the user declined a push.
+11. **Never skip the test run** and **never silent-activate** — diff-card preview + explicit
+    confirmation, every time.
+12. **Never default to email silently**, and never send externally without the extra confirm.
+13. **Never expose internal labels** ("Cron job", "Heartbeat", "task_id") — the user sees
+    "scheduled task".
+14. **Never let one broken part blank the page** — every part stays inside its `<Guard>`.
 
 ## 8. Edge cases
 
-Full edge case & routing catalog → `references/edge-cases.md`
+`references/edge-cases.md` (routing + tenant situations) and `references/failure-modes.md`
+(§A scheduling & delivery, §B board).
 
 ## 9. Related skills
 
-- **Sibling**: the `dashboard` skill (live-data dashboard artifact, no schedule — the view this skill schedules a push to), `attribution-data-query` (one-time chat answer)
-- **Upstream**: `attribution-custom-dimension` (run first if NC config missing), `attribution-intent-clarification` (if the ask is too vague)
-- **Downstream**: `attribution-anomaly-diagnosis` (Heartbeat alert fires → user clicks through → diagnosis)
-- **Routes out to**: `attribution-edge-routing` for unsupported delivery channels or out-of-scope content
+- **Upstream**: `attribution-custom-dimension` (run first when a requested cut needs a
+  Naming Convention rule), `attribution-intent-clarification` (ask is too vague)
+- **Builds on**: the host's `dashboard` skill (render contract, archetypes, chart
+  primitives) and its `artifacts` skill (visual design, dark mode, blank-screen checks) —
+  this skill supplies the WorkMagic domain layer they defer to
+- **Downstream**: `attribution-anomaly-diagnosis` (the board surfaces a watch item → the
+  user asks why), `mbo-create-scenario` (the board says scale → the user asks how much),
+  `lift-test-creation` (the board can't tell whether a channel is incremental)
+- **Routes out to**: `attribution-edge-routing` for unsupported delivery channels or
+  out-of-scope content

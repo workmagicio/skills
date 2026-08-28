@@ -67,6 +67,47 @@ const MATERIAL_SPEND_SHARE = 0.01;   // 1% of the week's paid spend
 const MATERIAL_SPEND_ABS = 0;
 const SETTLING_RATIO = 0.6;     // day < 60% of prior-7 median → still ingesting
 
+/* ── 0b. PERIOD — which cadence this board reports on ────────────────────
+   Everything below this block is cadence-independent. Only these values change
+   between a daily / weekly / monthly / quarterly board, and each cadence has its
+   own spec in references/board-<cadence>.md. Set this ONCE at instantiation.
+
+     days      length of the reporting window, in days
+     buckets   how many periods the trend charts show
+     baseline  "prior"    compare against the immediately preceding period
+               "trailing" compare against a trailing-N median — use for DAILY,
+                          where one prior day is too noisy to read as a signal
+     noun / labels   the prose the page renders; a monthly board that says
+                     "this week" is a defect, so these travel with `days`
+
+   Calendar-aligned cadences (monthly / quarterly) additionally need the alignment
+   rule in references/board-monthly.md: a calendar period is reportable only once
+   its last day has settled — otherwise label it explicitly as period-to-date
+   rather than silently comparing a partial period against a full one. */
+const PERIOD = {
+  key: "weekly",
+  days: 7,
+  buckets: 8,
+  baseline: "prior",
+  noun: "week",
+  unitPlural: "buckets",
+  adjective: "Weekly",
+  priorLabel: "prior 7 days",
+  priorShort: "prior 7d",
+};
+const BUCKET_CHOICES = [6, 8, 12];
+/* Trailing-day reference for deciding whether the tail is still ingesting. Stays
+   a trailing week for EVERY cadence — ingestion lag is a daily phenomenon, so the
+   settling reference does not scale with what the board reports. */
+const SETTLE_REF_DAYS = 8;
+/* Lower bound for the settling walk: keep enough days to still compute the
+   reference median. It is SETTLE_REF_DAYS and NOT anything derived from
+   PERIOD.days — tying it to the period length skips trimming entirely whenever
+   the account has less history than one period, which silently puts a
+   still-ingesting day at the end of the window (caught on a quarterly probe). */
+const SETTLE_MIN_DAYS = SETTLE_REF_DAYS;
+const BOARD_TITLE = PERIOD.adjective + " Business Review";
+
 /* ── 1. date helpers ──────────────────────────────────────────────────── */
 const pad2 = (n) => String(n).padStart(2, "0");
 function isoOf(d) {
@@ -645,22 +686,22 @@ function AxisText(props) {
   return <text {...props} style={{ fontSize: 10, fill: "var(--chart-ink-muted, #8a8d94)" }} />;
 }
 
-function AdsTrendChart({ weeks }) {
+function AdsTrendChart({ buckets }) {
   const [ref, w] = useWidth(880);
   const [hover, setHover] = useState(null);
   const padL = 56, padR = 54, padT = 12, padB = 28;
   const innerW = Math.max(60, w - padL - padR);
   const innerH = CHART_H - padT - padB;
-  const n = weeks.length || 1;
+  const n = buckets.length || 1;
   const band = innerW / n;
   const barW = Math.max(4, Math.min(22, band * 0.26));
-  const maxMoney = Math.max(1, ...weeks.map((x) => Math.max(x.sales, x.spend))) * 1.12;
-  const maxRoas = Math.max(0.5, ...weeks.map((x) => x.roas || 0)) * 1.3;
+  const maxMoney = Math.max(1, ...buckets.map((x) => Math.max(x.sales, x.spend))) * 1.12;
+  const maxRoas = Math.max(0.5, ...buckets.map((x) => x.roas || 0)) * 1.3;
   const yM = (v) => padT + innerH - (v / maxMoney) * innerH;
   const yR = (v) => padT + innerH - (v / maxRoas) * innerH;
   const cx = (i) => padL + band * i + band / 2;
-  const line = weeks.map((x, i) => (i === 0 ? "M" : "L") + cx(i) + " " + yR(x.roas || 0)).join(" ");
-  const h = hover !== null && weeks[hover] ? weeks[hover] : null;
+  const line = buckets.map((x, i) => (i === 0 ? "M" : "L") + cx(i) + " " + yR(x.roas || 0)).join(" ");
+  const h = hover !== null && buckets[hover] ? buckets[hover] : null;
 
   return (
     <div ref={ref} style={{ width: "100%" }}>
@@ -701,7 +742,7 @@ function AdsTrendChart({ weeks }) {
             </AxisText>
           </g>
         ))}
-        {weeks.map((x, i) => (
+        {buckets.map((x, i) => (
           <g key={x.label}
             onMouseEnter={() => setHover(i)} onMouseLeave={() => setHover(null)}>
             <rect x={padL + band * i} y={padT} width={band} height={innerH}
@@ -715,7 +756,7 @@ function AdsTrendChart({ weeks }) {
         ))}
         <path d={line} fill="none" stroke={T.c3} strokeWidth="2" strokeLinejoin="round"
           vectorEffect="non-scaling-stroke" />
-        {weeks.map((x, i) => (
+        {buckets.map((x, i) => (
           <circle key={"p" + x.label} cx={cx(i)} cy={yR(x.roas || 0)} r={hover === i ? 5 : 3.6}
             fill={T.c3} stroke="var(--bg-surface, #fff)" strokeWidth="2" />
         ))}
@@ -726,20 +767,20 @@ function AdsTrendChart({ weeks }) {
   );
 }
 
-function PlatformStackChart({ weeks, platforms }) {
+function PlatformStackChart({ buckets, platforms }) {
   const [ref, w] = useWidth(880);
   const [hover, setHover] = useState(null);
   const padL = 56, padR = 12, padT = 12, padB = 28;
   const innerW = Math.max(60, w - padL - padR);
   const innerH = CHART_H - padT - padB;
-  const n = weeks.length || 1;
+  const n = buckets.length || 1;
   const band = innerW / n;
   const barW = Math.max(6, Math.min(46, band * 0.52));
   const colors = [T.c1, T.c2, T.c3, T.c4, T.c5];
-  const maxV = Math.max(1, ...weeks.map((x) => x.total)) * 1.12;
+  const maxV = Math.max(1, ...buckets.map((x) => x.total)) * 1.12;
   const y = (v) => padT + innerH - (v / maxV) * innerH;
   const cx = (i) => padL + band * i + band / 2;
-  const h = hover !== null && weeks[hover] ? weeks[hover] : null;
+  const h = hover !== null && buckets[hover] ? buckets[hover] : null;
 
   return (
     <div ref={ref} style={{ width: "100%" }}>
@@ -775,7 +816,7 @@ function PlatformStackChart({ weeks, platforms }) {
             </AxisText>
           </g>
         ))}
-        {weeks.map((x, i) => {
+        {buckets.map((x, i) => {
           let acc = 0;
           return (
             <g key={x.label}
@@ -1143,11 +1184,11 @@ function ActionCard({ a }) {
 /* ── 15. main ────────────────────────────────────────────────────────── */
 export default function WeeklyBusinessOverview() {
   useHostTheme();
-  const [weeksBack, setWeeksBack] = useState(8);
+  const [bucketCount, setBucketCount] = useState(PERIOD.buckets);
   const range = useMemo(() => ({
-    start: addDays(TODAY, -(weeksBack * 7 + 8)),
+    start: addDays(TODAY, -(bucketCount * PERIOD.days + SETTLE_REF_DAYS)),
     end: addDays(TODAY, 1),
-  }), [weeksBack]);
+  }), [bucketCount]);
 
   const [modelQ, refModel] = useHostQuery(SQL_MODEL, SEED_MODEL, true);
   const model = useMemo(() => {
@@ -1178,44 +1219,45 @@ export default function WeeklyBusinessOverview() {
   const win = useMemo(() => {
     const days = adsDaily.slice();
     const excluded = [];
-    while (days.length > 8) {
+    while (days.length > SETTLE_MIN_DAYS) {
       const last = days[days.length - 1];
-      const ref = median(days.slice(-8, -1).map((x) => x.sales));
+      const ref = median(days.slice(-SETTLE_REF_DAYS, -1).map((x) => x.sales));
       if (ref && last.sales < ref * SETTLING_RATIO) { excluded.unshift(last.d); days.pop(); }
       else break;
     }
     const curEnd = days.length ? days[days.length - 1].d : addDays(TODAY, -1);
-    const curStart = addDays(curEnd, -6);
+    const curStart = addDays(curEnd, -(PERIOD.days - 1));
     const priEnd = addDays(curStart, -1);
-    const priStart = addDays(priEnd, -6);
+    const priStart = addDays(priEnd, -(PERIOD.days - 1));
     return { curStart, curEnd, priStart, priEnd, excluded, lastSettled: curEnd };
   }, [adsDaily]);
 
-  /* ── weekly buckets anchored to curEnd ── */
-  const weekEdges = useMemo(() => {
+  /* ── period buckets anchored to curEnd ── */
+  const periodEdges = useMemo(() => {
     const out = [];
-    for (let i = weeksBack - 1; i >= 0; i--) {
-      const b = addDays(win.curEnd, -7 * i);
-      out.push({ a: addDays(b, -6), b: b, label: shortDate(addDays(b, -6)) });
+    for (let i = bucketCount - 1; i >= 0; i--) {
+      const b = addDays(win.curEnd, -PERIOD.days * i);
+      const a = addDays(b, -(PERIOD.days - 1));
+      out.push({ a: a, b: b, label: shortDate(a) });
     }
     return out;
-  }, [win.curEnd, weeksBack]);
+  }, [win.curEnd, bucketCount]);
   const bucketOf = useCallback((d) => {
-    for (let i = 0; i < weekEdges.length; i++) {
-      if (d >= weekEdges[i].a && d <= weekEdges[i].b) return i;
+    for (let i = 0; i < periodEdges.length; i++) {
+      if (d >= periodEdges[i].a && d <= periodEdges[i].b) return i;
     }
     return -1;
-  }, [weekEdges]);
+  }, [periodEdges]);
 
-  const adsWeeks = useMemo(() => {
-    const arr = weekEdges.map((e) => ({ label: e.label, a: e.a, b: e.b, spend: 0, sales: 0, roas: 0 }));
+  const adsBuckets = useMemo(() => {
+    const arr = periodEdges.map((e) => ({ label: e.label, a: e.a, b: e.b, spend: 0, sales: 0, roas: 0 }));
     adsDaily.forEach((x) => {
       const i = bucketOf(x.d);
       if (i >= 0) { arr[i].spend += x.spend; arr[i].sales += x.sales; }
     });
     arr.forEach((x) => { x.roas = ratioOfSums(x.sales, x.spend) || 0; });
     return arr;
-  }, [adsDaily, weekEdges, bucketOf]);
+  }, [adsDaily, periodEdges, bucketOf]);
 
   /* ── store-actual by platform ── */
   const platDaily = useMemo(() => {
@@ -1235,8 +1277,8 @@ export default function WeeklyBusinessOverview() {
     return Array.from(tot.entries()).sort((a, b) => b[1] - a[1]).slice(0, 5).map((x) => x[0]);
   }, [platDaily]);
 
-  const platWeeks = useMemo(() => {
-    const arr = weekEdges.map((e) => ({ label: e.label, by: {}, total: 0 }));
+  const platBuckets = useMemo(() => {
+    const arr = periodEdges.map((e) => ({ label: e.label, by: {}, total: 0 }));
     platDaily.forEach((r) => {
       const i = bucketOf(r.d);
       if (i < 0) return;
@@ -1245,7 +1287,7 @@ export default function WeeklyBusinessOverview() {
       arr[i].total += r.v;
     });
     return arr;
-  }, [platDaily, weekEdges, bucketOf, platforms]);
+  }, [platDaily, periodEdges, bucketOf, platforms]);
 
   const storeTotals = useMemo(() => {
     let cur = 0, pri = 0;
@@ -1255,6 +1297,19 @@ export default function WeeklyBusinessOverview() {
     });
     return { cur: cur, pri: pri, d: delta(cur, pri) };
   }, [platDaily, win]);
+
+  /* ── history coverage: a window longer than the account's history silently
+     counts missing days as zero, which reads as a collapse. Detect and say so. ── */
+  const coverage = useMemo(() => {
+    const first = adsDaily.length ? adsDaily[0].d : null;
+    if (!first) return { ok: true, firstDay: null, curShort: false, priShort: false };
+    return {
+      ok: first <= win.priStart,
+      firstDay: first,
+      curShort: first > win.curStart,
+      priShort: first > win.priStart,
+    };
+  }, [adsDaily, win.curStart, win.priStart]);
 
   /* ── late-reporting sales platforms ── */
   const latePlatforms = useMemo(() => {
@@ -1346,18 +1401,25 @@ export default function WeeklyBusinessOverview() {
         {win.excluded.map((d) => (
           <Chip key={d} tone="warn">{shortDate(d)} excluded — still ingesting</Chip>
         ))}
+        {!coverage.ok && coverage.firstDay && (
+          <Chip tone="warn">
+            {coverage.curShort
+              ? "History starts " + shortDate(coverage.firstDay) + " — shorter than one " + PERIOD.noun
+              : "History starts " + shortDate(coverage.firstDay) + " — the " + PERIOD.priorLabel + " comparison is incomplete"}
+          </Chip>
+        )}
         {lateNotes.map((s) => <Chip key={s} tone="warn">{s}</Chip>)}
         <span style={{ flex: "1 1 auto" }} />
         <label style={{ fontSize: 11.5, color: T.muted, display: "inline-flex", alignItems: "center", gap: 6 }}>
           Trend lookback
-          <select value={weeksBack} onChange={(e) => setWeeksBack(Number(e.target.value))}
+          <select value={bucketCount} onChange={(e) => setBucketCount(Number(e.target.value))}
             style={{
               fontSize: 11.5, padding: "3px 6px", borderRadius: 7, color: T.text,
               border: "1px solid " + T.border, background: T.surface,
             }}>
-            <option value={6}>6 weeks</option>
-            <option value={8}>8 weeks</option>
-            <option value={12}>12 weeks</option>
+            {BUCKET_CHOICES.map((n) => (
+              <option key={n} value={n}>{n} {PERIOD.unitPlural}</option>
+            ))}
           </select>
         </label>
         <button type="button" onClick={refreshAll} style={{
@@ -1418,7 +1480,7 @@ export default function WeeklyBusinessOverview() {
             <div style={{ fontSize: 11, color: T.muted, marginBottom: 8 }}>
               Ads-attributed revenue and ad spend share the left $ axis; ROAS is on the labelled right axis · {identity}
             </div>
-            <AdsTrendChart weeks={adsWeeks} />
+            <AdsTrendChart buckets={adsBuckets} />
           </div>
           <div style={{
             background: T.surface, border: "1px solid " + T.border,
@@ -1428,7 +1490,7 @@ export default function WeeklyBusinessOverview() {
             <div style={{ fontSize: 11, color: T.muted, marginBottom: 8 }}>
               Store-actual total revenue, stacked — no attribution model applied
             </div>
-            <PlatformStackChart weeks={platWeeks} platforms={platforms} />
+            <PlatformStackChart buckets={platBuckets} platforms={platforms} />
           </div>
         </div>
         </Guard>

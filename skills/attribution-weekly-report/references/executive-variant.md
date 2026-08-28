@@ -1,6 +1,6 @@
 ## Executive variant (CMO / quarterly)
 
-Triggered by: quarterly cadence OR explicit "for my CMO" / "executive summary". Use `templates/executive-report.md`.
+Triggered by: quarterly cadence OR explicit "for my CMO" / "executive summary". Use `templates/executive-report.md` for the snapshot and `board-quarterly.md` for the board — that spec defers to this file for what an executive read excludes.
 
 ### Differences from default weekly
 

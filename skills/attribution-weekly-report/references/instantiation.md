@@ -1,9 +1,24 @@
 # Instantiating the board for an account
 
-`templates/weekly-board.tsx` is account-independent everywhere except four places. Make
-these four edits, in this order, then run the self-review at the bottom. Everything else in
-the file — the bridge, the settled-window walk, the verdict engine, the funnel, the action
-rules — is portable as-is and should not be rewritten.
+`templates/board.tsx` is account- and cadence-independent everywhere except the places
+below. Make these edits, in this order, then run the self-review at the bottom. Everything
+else in the file — the bridge, the settled-window walk, the verdict engine, the funnel, the
+action rules — is portable as-is and should not be rewritten.
+
+## Edit 0 · §0b — `PERIOD`, the cadence
+
+The skeleton ships configured for **weekly**, the one cadence whose numbers are verified end
+to end. For any other cadence, copy the `PERIOD` block out of that cadence's spec
+(`board-daily.md` / `board-monthly.md` / `board-quarterly.md`) and apply the deltas it
+lists — dead bands, KPI additions, and what Part 5 is allowed to recommend all change with
+the cadence, and none of them are derivable from `PERIOD.days` alone.
+
+Two things that are **not** cadence-dependent and must not be re-tuned: the settling
+reference (`SETTLE_REF_DAYS`, a trailing week at every cadence) and the material-spend share
+(already a share of the period's own spend). See `board-spine.md`.
+
+An alert / Heartbeat request is **not a board** — read `board-alert.md` before building
+anything.
 
 ## Edit 1 · §0 — `ACCOUNT`
 
@@ -31,8 +46,10 @@ Two failure modes it exists to prevent, both of which are shipped defects:
   have will be shown to the user, and will leak into what you say about their data.
 
 Keep the column names and row shape exactly as they are; only the values change. The four
-seeds map 1:1 to the four templates: `SEED_MODEL` ← 01, `SEED_ADS` ← 02, `SEED_PLAT` ← 03,
-`SEED_AD_CUR` / `SEED_AD_PRI` ← 04 run over the two windows.
+seeds map 1:1 to the board queries: `SEED_MODEL` ← `02-default-model.sql`, `SEED_ADS` ←
+`03-ads-channel-daily.sql`, `SEED_PLAT` ← `04-sales-platform-daily.sql`, `SEED_AD_CUR` /
+`SEED_AD_PRI` ← `05-ads-ad-level.sql` run over the two windows. (`01-weekly-metrics.sql` is
+the *snapshot* test-run query, not a board query.)
 
 ## Edit 3 · §7 — `PLAT_LABEL`
 
@@ -54,8 +71,9 @@ convert any of them to absolute dollars.
 
 ## What ports without any edit
 
-- All four queries. They carry no account identifier — the query tool injects tenant
-  isolation — so the SQL is identical across accounts.
+- All four board queries. They carry no account identifier — the query tool injects tenant
+  isolation — so the SQL is identical across accounts *and* across cadences; only the window
+  arguments differ.
 - The attribution model, resolved live from the tenant default view.
 - The settled-window walk: it reads the shape of the account's own data rather than assuming
   a fixed reporting lag.

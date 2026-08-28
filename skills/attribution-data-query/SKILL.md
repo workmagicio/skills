@@ -55,7 +55,7 @@ Translate the user's explicit data request into a precise Cube.dev SQL query and
 | "Why" question ("Why did sales drop?") | `attribution-anomaly-diagnosis` |
 | Comparing 2+ attribution models ("Compare iDDA vs last_click") | `attribution-model-comparison` |
 | Business-label dimension ("by region" / "by audience" / "by brand") | `attribution-custom-dimension` |
-| "Create / build a dashboard" | build a live-data dashboard **artifact** — the `dashboard` skill (an html/react live view), not a native platform dashboard |
+| "Create / build a dashboard" | build a live-data dashboard **artifact** — the `dashboard` skill (an html/react live view), not a native platform dashboard. If the ask is a **recurring business review** ("weekly overview", "monthly review"), route to `attribution-weekly-report` — it owns the board spec for each cadence |
 | "Send me a weekly/daily report" | `attribution-weekly-report` |
 
 ## 3. Inputs

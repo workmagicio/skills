@@ -5,22 +5,43 @@ All notable changes to the WorkMagic public skills are recorded here. This repo 
 its `SKILL.md` frontmatter (`version:` / `last-updated:`).
 
 ## 2026-08-28
-### Added
-- **`attribution-business-review`** — the WorkMagic domain layer for the weekly business-review
-  board. The `dashboard` skill owns the render contract but is domain-agnostic by design, so every
-  weekly board was re-deriving the same things: which warehouse views to query, how to keep
-  store-actual revenue distinct from ads-attributed revenue, and how to compare a settled week
-  against a still-ingesting one. This skill supplies them once — the four queries, a decision-layer
-  spec for the five parts (headline / trends / efficiency verdict / channel funnel / actions), an
-  instantiation checklist, the failure-mode catalog, and a working board skeleton
-  (`templates/weekly-board.tsx`, the `dashboard` Overview archetype extended with verdict, funnel
-  and actions). It follows the canonical model and sales-platform-scope references rather than
-  restating them. `attribution-weekly-report` §Step 4 now points here for whole-business reviews.
-  The board skeleton ships a deliberately synthetic seed that **must** be replaced with probed
-  values at instantiation — a seed carrying a real account's figures renders as another account's
-  data wherever the live bridge is inert.
+### Changed
+- **`attribution-weekly-report` (1.2.0 → 2.0.0): the board is now the deliverable, the
+  schedule is optional, and every cadence has its own board spec.** Three changes, one skill.
+
+  **(a) A schedule is no longer required to be in scope.** "Give me a page I can check every
+  Monday" used to fall between two skills: this one demanded a scheduled task, and the
+  `dashboard` skill had no domain knowledge of what belongs on an attribution review board.
+  The SOP now builds the board first and *asks once* whether to also push a snapshot —
+  answering "no" is the common case, not a routing failure.
+
+  **(b) The board's domain layer moved in.** The four warehouse queries, the settled-window
+  rule, the five-part decision spec, the instantiation checklist and a working board
+  skeleton (`templates/board.tsx`) now live here rather than being re-derived per board.
+  Content is split so it cannot fork: `references/board-spine.md` holds what every cadence
+  guarantees; each cadence file holds only its deltas.
+
+  **(c) Per-cadence board specs.** `board-daily.md` / `board-weekly.md` / `board-monthly.md`
+  / `board-quarterly.md`, plus `board-alert.md` which explains why an alert is *not* a board.
+  The skeleton is parameterised by a single `PERIOD` block and ships configured for weekly —
+  the one cadence whose numbers are verified end to end. What changes per cadence is not just
+  the window: daily compares against a **trailing 7-day median** (day-over-day is
+  day-of-week seasonality, not signal) and may not recommend budget actions at all; monthly
+  and quarterly add year-over-year and a calendar-alignment rule; dead bands widen for daily
+  and tighten for quarterly.
+
+  Two bugs found while generalising: the settling walk's lower bound was tied to the period
+  length, which skipped trimming entirely on any account with less history than one period
+  and put a still-ingesting day at the end of the window; and a window longer than the
+  account's history counted missing days as zero, reading as a collapse. Both fixed — the
+  second now surfaces a "history starts <date>" warning on the page.
+
+  The board skeleton ships a deliberately synthetic seed that **must** be replaced with
+  probed values at instantiation: a seed carrying a real account's figures renders as another
+  account's data anywhere the live bridge is inert.
 ### Fixed
-- README catalog still linked `attribution-custom-report`, removed on 2026-08-19 — dangling link dropped.
+- README catalog still linked `attribution-custom-report`, removed on 2026-08-19 — dangling
+  link dropped.
 
 ## 2026-08-19
 ### Removed
