@@ -1,6 +1,6 @@
 ---
 name: attribution-business-review
-description: Build a live weekly business-review board — a self-refreshing dashboard artifact covering store-actual revenue, ads-attributed revenue, ROAS trend, the channel/tactic funnel, and data-derived actions. Use when the user wants a recurring weekly read on the whole business rather than a one-off number. Different from attribution-custom-report (platform dashboard) and attribution-weekly-report (scheduled push).
+description: Build the whole-business review board — one live, self-refreshing page covering store-actual revenue, ads-attributed revenue, the ROAS trend, the channel-to-tactic funnel, and data-derived actions, over the last settled 7 days against the prior 7. Use when the user wants a page to review every week, not a report to receive on a schedule — this skill owns what is on the board; attribution-weekly-report owns pushing a snapshot of it on a cadence. Supplies the WorkMagic domain layer (views, queries, board skeleton) that the generic dashboard skill defers to.
 category: attribution
 risk: R1
 version: 1.0.0
