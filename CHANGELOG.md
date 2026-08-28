@@ -6,14 +6,64 @@ its `SKILL.md` frontmatter (`version:` / `last-updated:`).
 
 ## 2026-08-28
 ### Changed
-- **`attribution-edge-routing` (1.0.1 → 1.0.2): "build me a native platform dashboard" becomes an
-  explicit routed decline.** Removing `attribution-custom-report` on 2026-08-19 took away the
-  playbook but not the capability — `dashboard-create`, `dashboard-section-create` and
-  `dashboard-list` are still exposed by the MCP server, leaving the model with write tools and no
-  guidance, which is how an unmaintained dashboard gets created without a preview or a confirm.
-  The boundary is now stated where it binds: a new CRITICAL rule naming those three tools as
-  deliberately unused, and a routing-matrix row that answers the ask with the live self-refreshing
-  page instead. `dashboard-metrics-list` (read-only field validation) is unaffected.
+- **`attribution-weekly-report` (1.2.0 → 2.0.0): the board is now the deliverable, the
+  schedule is optional, and every cadence has its own board spec.** Three changes, one skill.
+
+  **(a) A schedule is no longer required to be in scope.** "Give me a page I can check every
+  Monday" used to fall between two skills: this one demanded a scheduled task, and the
+  `dashboard` skill had no domain knowledge of what belongs on an attribution review board.
+  The SOP now builds the board first and *asks once* whether to also push a snapshot —
+  answering "no" is the common case, not a routing failure.
+
+  **(b) The board's domain layer moved in.** The four warehouse queries, the settled-window
+  rule, the five-part decision spec, the instantiation checklist and a working board
+  skeleton (`templates/board.tsx`) now live here rather than being re-derived per board.
+  Content is split so it cannot fork: `references/board-spine.md` holds what every cadence
+  guarantees; each cadence file holds only its deltas.
+
+  **(c) Per-cadence board specs.** `board-daily.md` / `board-weekly.md` / `board-monthly.md`
+  / `board-quarterly.md`, plus `board-alert.md` which explains why an alert is *not* a board.
+  The skeleton is parameterised by a single `PERIOD` block and ships configured for weekly —
+  the one cadence whose numbers are verified end to end. What changes per cadence is not just
+  the window: daily must compare against a **trailing 7-day median** (day-over-day is
+  day-of-week seasonality, not signal — measured on a real account at spend +40.7% / sales
+  −10.3% / ROAS −36.3% between two adjacent days, with nothing having changed) and may not
+  recommend budget actions at all; monthly and quarterly add year-over-year and a
+  calendar-alignment rule; dead bands widen for daily and tighten for quarterly. Both the
+  trailing baseline and calendar alignment are documented **code changes, not settings** —
+  a `baseline` config field was drafted and removed once it was clear nothing read it, since
+  a silently-ignored knob is worse than none.
+
+  Three defects found while generalising and then verifying against a real account. (1) The
+  settling walk's lower bound was tied to the period length, which skipped trimming entirely
+  on any account with less history than one period and put a still-ingesting day at the end
+  of the window. (2) A window longer than the account's history counted missing days as zero,
+  reading as a collapse; it now surfaces a "history starts <date>" warning. (3) The trim test
+  looked only at revenue-vs-median, so a trailing day whose spend was fully recorded but
+  whose attribution was still arriving passed it — measured on a real account at 89.7% of
+  median revenue but only 70.2% of median ROAS on 128.6% of median spend. That day is now
+  **flagged, deliberately not trimmed**: a ROAS-based trim cannot distinguish a still-settling
+  day from a genuinely bad one, and silently hiding the latter is the one thing this board
+  must not do. (4) The Part 4 footnote claimed the funnel ties to the Part 1 headline "within
+  0.1%"; on a real account the gap is **1.95% of revenue**, because Part 4 reads the ad-level
+  view and Part 1 the channel-level one, and attributed revenue with no resolvable ad has no
+  ad-level row. The board now **computes and states the coverage it achieved** rather than
+  asserting a magnitude that goes stale.
+
+  Verified against a real account end to end (four queries, both settled windows): SQL needs
+  no `tenant_id` filter, numeric cells arrive as strings, the attribution model resolves
+  live, `tactic_name` really does carry `""` / `"-1"`, a third of ad-level rows are all-zero,
+  a marketplace reporting five days behind triggers the late-platform notice, a null sales
+  value and a zero-spend-with-revenue row both degrade correctly, and the material-spend
+  floor scales with the account (1% of a real week's spend, versus a fixed dollar amount that
+  would have emptied Parts 3 and 5).
+
+  The board skeleton ships a deliberately synthetic seed that **must** be replaced with
+  probed values at instantiation: a seed carrying a real account's figures renders as another
+  account's data anywhere the live bridge is inert.
+### Fixed
+- README catalog still linked `attribution-custom-report`, removed on 2026-08-19 — dangling
+  link dropped.
 
 ## 2026-08-19
 ### Removed

@@ -2,7 +2,9 @@
 
 | **Edge case** | **Handling** |
 |-|-|
-| User asks for a one-time report ("send me last week's Meta numbers") | Not this skill — route to `attribution-data-query`. No schedule = no task. |
+| User asks for a one-time **number** ("send me last week's Meta numbers") | Not this skill — route to `attribution-data-query`. |
+| User wants a page to check every week but **no push** ("just give me a dashboard I can open") | In scope. Build the board (`board-weekly.md`), ask once about a snapshot, accept "no", hand over the link. Don't route this away. |
+| User asks for a cadence other than weekly | Build at that cadence — `board-daily.md` / `board-monthly.md` / `board-quarterly.md`. Dead bands and the strength of Part 5 change with the cadence; don't ship the weekly config under a monthly title. |
 | "Set up a daily attribution summary" with no other details | Ask the most pivotal question once: "Which channels and metrics should it cover?" Don't fan out. Default everything else (in-app delivery, 9am send, iDDA model, prior-day window). |
 | "Send me an alert if Meta ROAS drops below 2x" | Detected as Heartbeat. Default check cadence: hourly. Default delivery: in-app + offer to add email. Don't expose "Heartbeat" terminology; user sees a "scheduled task". Use `templates/heartbeat-alert.md`. |
 | "For my CMO" / quarterly request | Switch to executive layout. Use `templates/executive-report.md`. Ask for the CMO's email (if email delivery) and confirm PDF vs HTML. |

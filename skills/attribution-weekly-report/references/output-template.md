@@ -1,8 +1,9 @@
 ## The primary view is a live dashboard; these templates are the *snapshot*
 
-The recurring view itself is a **live-data dashboard** built with the `dashboard` skill
-(SKILL §4) — the user opens the link and it's always fresh. The templates here are the
-**scheduled snapshot** that the Cron/Heartbeat push delivers, sized to the channel:
+The recurring view itself is the **board** — a live-data artifact built from
+`templates/board.tsx` per `board-spine.md` plus the cadence spec (SKILL §4). The user opens
+the link and it's always fresh. The templates here are the **optional scheduled snapshot** a
+Cron/Heartbeat push delivers, sized to the channel:
 
 | Delivery channel | What gets pushed | Uses |
 |-|-|-|
@@ -21,8 +22,8 @@ Every snapshot carries the **same measurement identity as the dashboard** (sales
 
 ## Per-cadence layout choice
 
-| **Cadence / Intent** | **Template** |
-|-|-|
-| Daily / weekly / monthly | `templates/weekly-report.md` |
-| Quarterly OR "for my CMO" | `templates/executive-report.md` (also see `references/executive-variant.md`) |
-| Heartbeat (conditional alert) | `templates/heartbeat-alert.md` |
+| **Cadence / Intent** | **Snapshot template** | **Board spec** |
+|-|-|-|
+| Daily / weekly / monthly | `templates/weekly-report.md` | `board-daily.md` / `board-weekly.md` / `board-monthly.md` |
+| Quarterly OR "for my CMO" | `templates/executive-report.md` (also see `executive-variant.md`) | `board-quarterly.md` |
+| Heartbeat (conditional alert) | `templates/heartbeat-alert.md` | **none** — `board-alert.md` explains why |
