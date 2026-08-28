@@ -87,6 +87,9 @@ convert any of them to absolute dollars.
 1. Re-run one query and diff it against what the page renders. A page still showing seed
    numbers while the query succeeds means the mapping is wrong.
 2. The status strip reads **Live data**, not Sample data.
+2b. Read the status strip's warnings before quoting any number: a "partially settled" flag
+   means the period's revenue and ROAS are understated, and a "history starts" flag means the
+   prior-period comparison is incomplete.
 3. The headline window is recent — if the board's latest week is weeks old while the
    warehouse runs to yesterday, it is still on seed.
 4. Store-actual revenue exceeds ads-attributed revenue. If it does not, the scope labels are

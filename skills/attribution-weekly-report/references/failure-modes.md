@@ -45,6 +45,20 @@ account's weekly spend.
 
 **Fix**: keep it at 0 and let the share floor scale. See `instantiation.md` Edit 4.
 
+## 2b. Reading a partially-settled trailing day as a real decline
+
+**Symptom**: the current period's revenue and ROAS look worse than they are, and recover
+tomorrow.
+
+**Cause**: the last day in the window has its spend fully recorded but its attribution still
+arriving. It passes the revenue trim test (it is only ~10% light on revenue) yet its ROAS is
+30% below the trailing median.
+
+**Handling**: the board flags it ("may be partially settled — spend is in, attribution lands
+6–24h later"). Do **not** "fix" this by trimming the day: a ROAS-based trim cannot tell a
+still-settling day from a genuinely bad one, and hiding the latter is worse than labelling
+the former. Never quote the period's ROAS as final while that flag is showing.
+
 ## 3. Clock-anchored comparison against a partial week
 
 **Symptom**: a dramatic week-over-week collapse that vanishes the next day.

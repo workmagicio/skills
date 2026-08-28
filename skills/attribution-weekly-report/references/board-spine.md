@@ -52,6 +52,15 @@ on the page**. Two consequences that hold at every cadence:
   deliberately not derived from the period length: tying it to the period skips trimming
   entirely on any account with less history than one period, which puts a still-ingesting
   day at the end of the window.
+- **A trailing day can clear the revenue test and still be unsettled.** Spend lands
+  immediately; attribution lands 6–24h later. So the last kept day can sit at ~90% of median
+  revenue — comfortably above the trim threshold — while its ROAS is far below the trailing
+  median, because its spend is fully in and its attribution is not. Verified on a real
+  account: a trailing day at **89.7% of median revenue** but only **70.2% of median ROAS**,
+  on **128.6% of median spend**. The board **flags** that day; it does **not** trim it.
+  🔴 Trimming on a ROAS signal would silently hide a day when efficiency genuinely
+  collapsed, which is the one thing this board must never do — so the reader is told the
+  window may understate revenue and gets to decide.
 - **A window longer than the account's history is a defect, not a zero.** Missing days
   count as zero and read as a collapse. The board detects it and says so ("History starts
   <date> — the prior-period comparison is incomplete"). Bites hardest on monthly and

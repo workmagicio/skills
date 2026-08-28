@@ -30,11 +30,17 @@ its `SKILL.md` frontmatter (`version:` / `last-updated:`).
   and quarterly add year-over-year and a calendar-alignment rule; dead bands widen for daily
   and tighten for quarterly.
 
-  Two bugs found while generalising: the settling walk's lower bound was tied to the period
-  length, which skipped trimming entirely on any account with less history than one period
-  and put a still-ingesting day at the end of the window; and a window longer than the
-  account's history counted missing days as zero, reading as a collapse. Both fixed — the
-  second now surfaces a "history starts <date>" warning on the page.
+  Three defects found while generalising and then verifying against a real account. (1) The
+  settling walk's lower bound was tied to the period length, which skipped trimming entirely
+  on any account with less history than one period and put a still-ingesting day at the end
+  of the window. (2) A window longer than the account's history counted missing days as zero,
+  reading as a collapse; it now surfaces a "history starts <date>" warning. (3) The trim test
+  looked only at revenue-vs-median, so a trailing day whose spend was fully recorded but
+  whose attribution was still arriving passed it — measured on a real account at 89.7% of
+  median revenue but only 70.2% of median ROAS on 128.6% of median spend. That day is now
+  **flagged, deliberately not trimmed**: a ROAS-based trim cannot distinguish a still-settling
+  day from a genuinely bad one, and silently hiding the latter is the one thing this board
+  must not do.
 
   The board skeleton ships a deliberately synthetic seed that **must** be replaced with
   probed values at instantiation: a seed carrying a real account's figures renders as another

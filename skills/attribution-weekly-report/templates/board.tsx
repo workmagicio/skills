@@ -65,7 +65,16 @@ const MATERIAL_SPEND_SHARE = 0.01;   // 1% of the week's paid spend
    silently empties Parts 3 and 5 on any account whose weekly spend is small
    enough that 1% sits below it. Raise it only if Part 5 is actually noisy. */
 const MATERIAL_SPEND_ABS = 0;
-const SETTLING_RATIO = 0.6;     // day < 60% of prior-7 median → still ingesting
+const SETTLING_RATIO = 0.6;     // day < 60% of prior-7 median revenue → trim it
+/* Advisory threshold, NOT a trim threshold. Spend lands immediately; attribution lands
+   6–24h later. So a trailing day can sit at ~90% of median revenue — comfortably clearing
+   SETTLING_RATIO — while its ROAS is far below the trailing median, because its spend is
+   fully in and its attribution is not. Verified on real data: a trailing day at 89.7% of
+   median revenue but only 70.2% of median ROAS, on 128.6% of median spend.
+   🔴 We FLAG that day, we do not trim it. Trimming on a ROAS signal would silently hide a
+   day when efficiency genuinely collapsed — the single thing this board must never do. */
+const SETTLING_ROAS_RATIO = 0.8;
+const SETTLING_MIN_SPEND_RATIO = 0.5;   // below this, the day is too small to judge by ROAS
 
 /* ── 0b. PERIOD — which cadence this board reports on ────────────────────
    Everything below this block is cadence-independent. Only these values change
@@ -1225,11 +1234,28 @@ export default function WeeklyBusinessOverview() {
       if (ref && last.sales < ref * SETTLING_RATIO) { excluded.unshift(last.d); days.pop(); }
       else break;
     }
+    /* Advisory on the last KEPT day (see SETTLING_ROAS_RATIO): spend in, attribution not
+       yet. Flagged on the page, never trimmed. */
+    let partiallySettled = null;
+    if (days.length > SETTLE_REF_DAYS) {
+      const last = days[days.length - 1];
+      const ref = days.slice(-SETTLE_REF_DAYS, -1);
+      const refSpend = median(ref.map((x) => x.spend));
+      const refRoas = median(ref.map((x) => (x.spend ? x.sales / x.spend : NaN)));
+      const lastRoas = last.spend ? last.sales / last.spend : null;
+      if (
+        lastRoas !== null && refRoas && refSpend &&
+        last.spend >= refSpend * SETTLING_MIN_SPEND_RATIO &&
+        lastRoas < refRoas * SETTLING_ROAS_RATIO
+      ) {
+        partiallySettled = last.d;
+      }
+    }
     const curEnd = days.length ? days[days.length - 1].d : addDays(TODAY, -1);
     const curStart = addDays(curEnd, -(PERIOD.days - 1));
     const priEnd = addDays(curStart, -1);
     const priStart = addDays(priEnd, -(PERIOD.days - 1));
-    return { curStart, curEnd, priStart, priEnd, excluded, lastSettled: curEnd };
+    return { curStart, curEnd, priStart, priEnd, excluded, partiallySettled, lastSettled: curEnd };
   }, [adsDaily]);
 
   /* ── period buckets anchored to curEnd ── */
@@ -1401,6 +1427,11 @@ export default function WeeklyBusinessOverview() {
         {win.excluded.map((d) => (
           <Chip key={d} tone="warn">{shortDate(d)} excluded — still ingesting</Chip>
         ))}
+        {win.partiallySettled && (
+          <Chip tone="warn">
+            {shortDate(win.partiallySettled)} may be partially settled — spend is in, attribution lands 6–24h later
+          </Chip>
+        )}
         {!coverage.ok && coverage.firstDay && (
           <Chip tone="warn">
             {coverage.curShort
