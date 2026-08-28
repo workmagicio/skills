@@ -74,7 +74,7 @@ Trigger when user wants something to **run on a schedule** and **be delivered**:
 
 **Step 4: Build the live dashboard first (the view itself)**
 
-The recurring "weekly performance" **is a live-data dashboard**, not a static table — build it with the `dashboard` skill (Overview archetype: hero + WoW, trend, breakdown; **measurement identity = sales-platform scope + attribution model**, all sales platforms by default). This is the primary, self-refreshing deliverable: the user opens the link any time and it's fresh. Validate metric / dimension names via `dashboard-metrics-list`. (A one-time dashboard with no schedule ends here — that's just the `dashboard` skill.)
+The recurring "weekly performance" **is a live-data dashboard**, not a static table — build it with the `dashboard` skill (Overview archetype: hero + WoW, trend, breakdown; **measurement identity = sales-platform scope + attribution model**, all sales platforms by default). When the recurring view is a whole-business weekly review, use **`attribution-business-review`** — it owns the WorkMagic domain layer for exactly that board (the four warehouse queries, the settled-window rule, and a ready board skeleton) so you are not re-deriving it each time. This is the primary, self-refreshing deliverable: the user opens the link any time and it's fresh. Validate metric / dimension names via `dashboard-metrics-list`. (A one-time dashboard with no schedule ends here — that's just the `dashboard` skill.)
 
 **Step 5: Ask whether to also push a recurring snapshot** — ONE question
 

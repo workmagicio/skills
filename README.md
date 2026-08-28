@@ -37,8 +37,8 @@ Chat apps can't install GitHub skills — they get them through the MCP. CLI age
 - **[attribution-intent-clarification](skills/attribution-intent-clarification/SKILL.md)** — Ask one focused question to resolve an ambiguous query, then hand it off.
 - **[attribution-anomaly-diagnosis](skills/attribution-anomaly-diagnosis/SKILL.md)** — Diagnose "why" anomalies: attribution = 0 and sudden swings.
 - **[attribution-model-comparison](skills/attribution-model-comparison/SKILL.md)** — Compare attribution across models side-by-side and explain the differences.
-- **[attribution-custom-report](skills/attribution-custom-report/SKILL.md)** — Persist a data request as a WorkMagic dashboard or a shareable HTML report.
 - **[attribution-weekly-report](skills/attribution-weekly-report/SKILL.md)** — Schedule attribution reports and alerts that are delivered automatically.
+- **[attribution-business-review](skills/attribution-business-review/SKILL.md)** — Build the weekly business review as a live board: revenue, spend, ROAS trend, channel funnel, efficiency verdict, and data-derived actions on one self-refreshing page.
 - **[attribution-custom-dimension](skills/attribution-custom-dimension/SKILL.md)** — Slice by a business label (region, audience, brand) via Naming Convention rules.
 - **[attribution-edge-routing](skills/attribution-edge-routing/SKILL.md)** — Route requests that fall outside attribution's capability boundary.
 

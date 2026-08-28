@@ -4,6 +4,24 @@ All notable changes to the WorkMagic public skills are recorded here. This repo 
 [Agent Skills open standard](https://agentskills.io); each skill is independently versioned in
 its `SKILL.md` frontmatter (`version:` / `last-updated:`).
 
+## 2026-08-28
+### Added
+- **`attribution-business-review`** — the WorkMagic domain layer for the weekly business-review
+  board. The `dashboard` skill owns the render contract but is domain-agnostic by design, so every
+  weekly board was re-deriving the same things: which warehouse views to query, how to keep
+  store-actual revenue distinct from ads-attributed revenue, and how to compare a settled week
+  against a still-ingesting one. This skill supplies them once — the four queries, a decision-layer
+  spec for the five parts (headline / trends / efficiency verdict / channel funnel / actions), an
+  instantiation checklist, the failure-mode catalog, and a working board skeleton
+  (`templates/weekly-board.tsx`, the `dashboard` Overview archetype extended with verdict, funnel
+  and actions). It follows the canonical model and sales-platform-scope references rather than
+  restating them. `attribution-weekly-report` §Step 4 now points here for whole-business reviews.
+  The board skeleton ships a deliberately synthetic seed that **must** be replaced with probed
+  values at instantiation — a seed carrying a real account's figures renders as another account's
+  data wherever the live bridge is inert.
+### Fixed
+- README catalog still linked `attribution-custom-report`, removed on 2026-08-19 — dangling link dropped.
+
 ## 2026-08-19
 ### Removed
 - **`attribution-custom-report`** — the skill that built a **native platform** custom dashboard
