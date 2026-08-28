@@ -4,6 +4,17 @@ All notable changes to the WorkMagic public skills are recorded here. This repo 
 [Agent Skills open standard](https://agentskills.io); each skill is independently versioned in
 its `SKILL.md` frontmatter (`version:` / `last-updated:`).
 
+## 2026-08-28
+### Changed
+- **`attribution-edge-routing` (1.0.1 → 1.0.2): "build me a native platform dashboard" becomes an
+  explicit routed decline.** Removing `attribution-custom-report` on 2026-08-19 took away the
+  playbook but not the capability — `dashboard-create`, `dashboard-section-create` and
+  `dashboard-list` are still exposed by the MCP server, leaving the model with write tools and no
+  guidance, which is how an unmaintained dashboard gets created without a preview or a confirm.
+  The boundary is now stated where it binds: a new CRITICAL rule naming those three tools as
+  deliberately unused, and a routing-matrix row that answers the ask with the live self-refreshing
+  page instead. `dashboard-metrics-list` (read-only field validation) is unaffected.
+
 ## 2026-08-19
 ### Removed
 - **`attribution-custom-report`** — the skill that built a **native platform** custom dashboard

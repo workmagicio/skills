@@ -3,8 +3,8 @@ name: attribution-edge-routing
 description: Recognize when a user request falls outside attribution's capability boundary and route it gracefully — to another WM product (MBO / Lift Test / Creative Magic / Ads Magic / Audience Magic), to a human (CSM / DS / Eng), or to a clean decline with a bridge to what attribution can answer. Last-resort fallback for all other attribution skills. Read-only.
 category: attribution
 risk: R0
-version: 1.0.1
-last-updated: 2026-08-19
+version: 1.0.2
+last-updated: 2026-08-28
 
 references:
 - references/boundary-types.md
@@ -27,7 +27,7 @@ Recognize when a user request falls **outside attribution's capability boundary*
 
 Exists to **prevent fabrication** (the worst failure mode in this domain) and to keep boundary cases from feeling like a dead end. **Cold refusals destroy trust; graceful redirects preserve it.**
 
-> **Shared conventions (canonical elsewhere — don't re-derive):** when a routing message names a limit or a next step, the attribution model + sales-platform scope conventions are canonical in **`attribution-data-query`** (`references/attribution-model.md`, `references/sales-platform-scope.md`). And "create/build a dashboard" now routes to the **`dashboard` skill** (live artifact) — there is no native custom-report skill anymore.
+> **Shared conventions (canonical elsewhere — don't re-derive):** when a routing message names a limit or a next step, the attribution model + sales-platform scope conventions are canonical in **`attribution-data-query`** (`references/attribution-model.md`, `references/sales-platform-scope.md`). And "create/build a dashboard" now routes to the **`dashboard` skill** (live artifact) — there is no native custom-report skill anymore, and the platform's dashboard **write** tools are deliberately unused (§7 rule 9).
 
 ## 2. When to trigger
 
@@ -136,6 +136,7 @@ Type-specific callout examples (A / B / C / D) + full output rules → `referenc
 6. **Never promise other products do things they don't** — verify via `database-query-ask` before claiming "MBO can answer that"
 7. **Never expose internal terminology** — "out-of-scope dataset", "T+1 lag with PPS backfill" — rewrite in business language
 8. **Never refuse a multi-part ask wholesale because one part is edge** — split; answer what you can, route what you can't
+9. **Never build a native platform dashboard** — `dashboard-create`, `dashboard-section-create` and `dashboard-list` are still exposed by the MCP server but are **deliberately unused**: we no longer ship native custom dashboards. Calling them creates something nobody maintains and that the user can't get help with. A "save this as a dashboard / add a section to my dashboard" ask is a **deprecated-capability route**, not a build request — say plainly that the dashboard we build now is a live, self-refreshing page, then build that with the `dashboard` skill. `dashboard-metrics-list` (read-only field validation) stays in normal use.
 
 ## 8. Edge cases
 
