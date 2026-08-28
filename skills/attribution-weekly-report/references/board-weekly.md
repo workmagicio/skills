@@ -12,6 +12,9 @@ numbers have been verified end to end. Every other cadence is that skeleton with
 const PERIOD = {
   key: "weekly",
   days: 7,
+  baselineDays: 7,
+  unit: "week",
+  align: "rolling",
   buckets: 8,
   noun: "week",
   unitPlural: "weeks",

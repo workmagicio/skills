@@ -8,7 +8,10 @@ always read by an executive, and that file already owns what an executive read e
 ```js
 const PERIOD = {
   key: "quarterly",
-  days: 91,                      // rolling; calendar alignment per board-monthly.md
+  days: 91,
+  baselineDays: 91,
+  unit: "quarter",
+  align: "calendar",
   buckets: 8,
   noun: "quarter",
   unitPlural: "quarters",
@@ -20,8 +23,11 @@ const BUCKET_CHOICES = [4, 8, 12];
 ```
 
 Calendar alignment matters more here than anywhere else — "Q1" is a fixed thing to the
-reader. Apply the alignment rule from `board-monthly.md`; a rolling 91-day window labelled
-"Q1" is wrong even when the arithmetic is right.
+reader, so `align: "calendar"` is not optional at this cadence. Both branches described in
+`board-monthly.md` apply unchanged: a complete quarter is compared as raw totals with both
+day counts stated, and an incomplete one is reported quarter-to-date against the same number
+of days into the prior quarter. A rolling 91-day window labelled "Q1" is wrong even when the
+arithmetic is right.
 
 ## Show QoQ and YoY together, and lead with YoY
 

@@ -7,11 +7,16 @@ action rules — is portable as-is and should not be rewritten.
 
 ## Edit 0 · §0b — `PERIOD`, the cadence
 
-The skeleton ships configured for **weekly**, the one cadence whose numbers are verified end
-to end. For any other cadence, copy the `PERIOD` block out of that cadence's spec
-(`board-daily.md` / `board-monthly.md` / `board-quarterly.md`) and apply the deltas it
-lists — dead bands, KPI additions, and what Part 5 is allowed to recommend all change with
-the cadence, and none of them are derivable from `PERIOD.days` alone.
+The skeleton ships configured for **weekly**, the one cadence whose numbers are verified
+against a real account. For any other cadence, copy the `PERIOD` block out of that cadence's
+spec (`board-daily.md` / `board-monthly.md` / `board-quarterly.md`).
+
+`PERIOD` is now the whole switch — window length, comparison-window length
+(`baselineDays`), rolling vs calendar alignment (`align` / `unit`) and bucket count are all
+config, and the skeleton handles length-normalisation and calendar to-date on its own. What
+`PERIOD` does **not** carry, and what you must still take from the cadence spec by hand:
+dead bands, KPI additions, and what Part 5 is allowed to recommend. None of those are
+derivable from `PERIOD.days`.
 
 Two things that are **not** cadence-dependent and must not be re-tuned: the settling
 reference (`SETTLE_REF_DAYS`, a trailing week at every cadence) and the material-spend share

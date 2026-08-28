@@ -102,6 +102,22 @@ earlier version of the board claimed.
 **Fix**: the board computes the coverage it achieved and states it in the Part 4 note. Never
 hardcode a magnitude, and never describe the gap as negligible.
 
+## 5c. A comparison basis the page does not state
+
+**Symptom**: the reader compares a daily figure against what they assume is yesterday, or a
+month-to-date figure against what they assume is the whole prior month, and draws a
+conclusion the numbers do not support.
+
+**Cause**: the board normalises different-length windows (daily vs its trailing week) and
+switches to period-to-date on an incomplete calendar period. Both are correct and both are
+**invisible** unless the page says so.
+
+**Fix**: the status strip carries the basis ("Against the trailing 7 days, on a 1-day basis"
+/ "Monthly to date — 4 of 31 days, against the same 4 days of the prior month" /
+"Whole-month totals — 28 days vs 31 in the prior month, compared as-is"). Never remove that
+chip to tidy the header, and never quote a period-over-period number from this board without
+carrying its basis with it.
+
 ## 6. Ratio-of-averages creeping in
 
 **Symptom**: the board's ROAS disagrees with the same window queried directly.

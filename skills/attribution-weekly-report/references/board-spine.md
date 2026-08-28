@@ -69,6 +69,54 @@ on the page**. Two consequences that hold at every cadence:
 Sales platforms whose own reporting lags further behind are called out separately on the
 revenue card, because their lag understates total revenue rather than the window.
 
+## Comparing windows of different lengths
+
+Two cadences deliberately compare windows that are not the same length: a daily board reads
+against the trailing 7 days (`baselineDays`), and a calendar board can be reporting
+period-to-date. The rule that keeps both honest:
+
+- **Levels** (spend, revenue) are scaled to the current window's length before any
+  comparison. A 1-day figure is never held against a 7-day total.
+- **Rates** are not scaled and need no scaling — multiplying spend and revenue by the same
+  factor leaves ROAS untouched, so ratio-of-sums holds exactly.
+- **One exception, stated on the page**: a *complete* calendar period is compared as raw
+  totals (February's 28 days against January's 31), because whole-period totals are the
+  convention finance expects. The board then shows both day counts rather than normalising
+  the difference away silently.
+- Whichever applies, the page names the basis in the status strip. An unexplained comparison
+  basis is how a reader draws the wrong conclusion.
+
+## Naming: what the board calls things vs what the WorkMagic UI calls them
+
+The query tool returns a `meta.field_labels` dictionary and asks callers to use it verbatim.
+The board **deliberately does not**, and this is a divergence worth understanding before
+anyone "fixes" it:
+
+| Board term | WM field | WM's own label |
+|-|-|-|
+| Sales platform (Shopify / Amazon / TikTok Shop) | `sales_platform` | **Sales channel** |
+| Marketing channel (ads / email / organic) | `src_channel` | **Channel** |
+| Ads-attributed revenue | `attr_all_sales` | **Sales (All)** |
+| Total revenue (store-actual) | `order_total_sales` | **Sales** |
+| Ad platform (Meta / Google / …) | `ads_platform` | Ad platform |
+
+Adopting those labels verbatim would produce exactly the confusion this file forbids
+elsewhere: two different axes both called "channel", and attributed revenue and store-actual
+revenue both called "Sales", separated only by an "(All)" that means *all sales platforms*
+rather than *all revenue*. A board that defines its own axes has to be internally consistent
+to be readable.
+
+So the board keeps the clearer terms and **publishes this crosswalk** so a customer
+reconciling a figure against the WorkMagic UI can see which label maps to which. The
+verbatim-label rule the tool states is aimed at ad-hoc table dumps in chat, where the reader
+has no other context to go on.
+
+🔴 **Open with the WM side**: this is a divergence from another team's stated rendering
+contract, not a settled question. If WM's user-facing vocabulary is the one customers are
+expected to learn, the right fix is to change the terms *here and in the canonical scope
+file together* — never only on the board, which would put the board at odds with every other
+attribution surface.
+
 ## Part 1 — Headline numbers
 
 Four figures, and the distinction between the first two is the point of the part:

@@ -81,24 +81,34 @@ const SETTLING_MIN_SPEND_RATIO = 0.5;   // below this, the day is too small to j
    between a daily / weekly / monthly / quarterly board, and each cadence has its
    own spec in references/board-<cadence>.md. Set this ONCE at instantiation.
 
-     days      length of the reporting window, in days
+     days      length of the reporting window, in days. Under align: "calendar" the
+               window comes from the calendar unit instead, and `days` is used only as
+               the NOMINAL period length that sizes how much history to fetch
+               (bucketCount x days). Keep it roughly right — 30 for months, 91 for
+               quarters — or the trend charts run short of data.
      buckets   how many periods the trend charts show
      noun / labels   the prose the page renders; a monthly board that says
                      "this week" is a defect, so these travel with `days`
 
-   🔴 The comparison baseline is HARDCODED to "the immediately preceding period" — it is
-   not a knob. A daily board must compare against a trailing median instead, and that is a
-   code change, spelled out in references/board-daily.md. There was briefly a
-   `baseline: "trailing"` field here; it was removed because nothing read it, so setting it
-   silently did nothing.
-
-   Calendar-aligned cadences (monthly / quarterly) additionally need the alignment
-   rule in references/board-monthly.md: a calendar period is reportable only once
-   its last day has settled — otherwise label it explicitly as period-to-date
-   rather than silently comparing a partial period against a full one. */
+     baselineDays  length of the COMPARISON window. Defaults to `days`. Set it LONGER
+               than `days` when one period is too noisy to compare against — a daily
+               board compares against the trailing 7 days, because day-over-day is
+               day-of-week rhythm, not signal. Levels are then normalised to the
+               current window's length (see `priScale`); rates are untouched by that
+               normalisation, so ratio-of-sums still holds exactly.
+     unit      calendar unit for `align: "calendar"` — "month" | "quarter"
+     align     "rolling"  windows are N days ending on the last settled day
+               "calendar" windows are real calendar months / quarters. A calendar
+                          period is only reportable once its last day has SETTLED;
+                          until then the board reports period-TO-DATE and compares
+                          against the same number of days into the prior period, so a
+                          partial period is never held against a full one. */
 const PERIOD = {
   key: "weekly",
   days: 7,
+  baselineDays: 7,
+  unit: "week",
+  align: "rolling",
   buckets: 8,
   noun: "week",
   unitPlural: "buckets",
@@ -128,6 +138,29 @@ function addDays(s, n) {
   const d = new Date(s + "T00:00:00Z");
   d.setUTCDate(d.getUTCDate() + n);
   return isoOf(d);
+}
+function daysBetween(a, b) {          // inclusive count, a <= b
+  const ms = new Date(b + "T00:00:00Z") - new Date(a + "T00:00:00Z");
+  return Math.round(ms / 86400000) + 1;
+}
+/* Calendar-unit arithmetic for the month / quarter cadences. Pure UTC so it never
+   drifts with the viewer's timezone, and month-length aware by construction:
+   endOfUnit("2026-02-14","month") is Feb 28 without a leap-year table. */
+function startOfUnit(iso, unit) {
+  const d = new Date(iso + "T00:00:00Z");
+  if (unit === "month") return isoOf(new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 1)));
+  if (unit === "quarter") {
+    return isoOf(new Date(Date.UTC(d.getUTCFullYear(), Math.floor(d.getUTCMonth() / 3) * 3, 1)));
+  }
+  return iso;
+}
+function addUnits(iso, unit, n) {       // shift by n units, returning that unit's START
+  const d = new Date(startOfUnit(iso, unit) + "T00:00:00Z");
+  const step = unit === "quarter" ? 3 * n : n;
+  return isoOf(new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + step, 1)));
+}
+function endOfUnit(iso, unit) {
+  return addDays(addUnits(iso, unit, 1), -1);
 }
 const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 function shortDate(s) {
@@ -461,7 +494,7 @@ const tacticLabel = (t) => {
 const entityLabel = (p, t) => (t === "All activity" ? p : p + " · " + t);
 
 /* ── 8. Part 3 — efficiency-verdict engine ───────────────────────────── */
-function tacticRollup(result) {
+function tacticRollup(result, scale) {
   const out = new Map();
   toRows(result).forEach((r) => {
     const platform = String(r.ads_platform === null || r.ads_platform === undefined ? "—" : r.ads_platform).trim() || "—";
@@ -470,14 +503,14 @@ function tacticRollup(result) {
     const spend = num0(r.ad_spend), sales = num0(r.attr_all_sales), imp = num0(r.impressions);
     if (spend === 0 && sales === 0 && imp === 0) return;
     const prev = out.get(key) || { key: key, platform: platform, tactic: tactic, spend: 0, sales: 0 };
-    prev.spend += spend;
-    prev.sales += sales;
+    prev.spend += spend * (scale === undefined ? 1 : scale);
+    prev.sales += sales * (scale === undefined ? 1 : scale);
     out.set(key, prev);
   });
   return out;
 }
 
-function buildMovement(cur, pri, tacCurResult, tacPriResult) {
+function buildMovement(cur, pri, tacCurResult, tacPriResult, priScale) {
   const spendDelta = delta(cur.spend, pri.spend);
   const salesDelta = delta(cur.sales, pri.sales);
   const roasCur = ratioOfSums(cur.sales, cur.spend);
@@ -520,7 +553,7 @@ function buildMovement(cur, pri, tacCurResult, tacPriResult) {
   }
 
   const curMap = tacticRollup(tacCurResult);
-  const priMap = tacticRollup(tacPriResult);
+  const priMap = tacticRollup(tacPriResult, priScale);
   const materialFloor = Math.max(MATERIAL_SPEND_ABS, num0(cur.spend) * MATERIAL_SPEND_SHARE);
 
   let watch = null;
@@ -1253,23 +1286,65 @@ export default function WeeklyBusinessOverview() {
         partiallySettled = last.d;
       }
     }
-    const curEnd = days.length ? days[days.length - 1].d : addDays(TODAY, -1);
-    const curStart = addDays(curEnd, -(PERIOD.days - 1));
-    const priEnd = addDays(curStart, -1);
-    const priStart = addDays(priEnd, -(PERIOD.days - 1));
-    return { curStart, curEnd, priStart, priEnd, excluded, partiallySettled, lastSettled: curEnd };
+    const lastSettled = days.length ? days[days.length - 1].d : addDays(TODAY, -1);
+
+    let curStart, curEnd, priStart, priEnd, toDate = false;
+    if (PERIOD.align === "calendar") {
+      /* Real calendar periods. The current one is reportable only once its last day has
+         settled; until then we report period-TO-DATE and cut the prior period to the SAME
+         number of days, so a partial period is never held against a full one. */
+      const unit = PERIOD.unit;
+      const pStart = startOfUnit(lastSettled, unit);
+      const pEnd = endOfUnit(lastSettled, unit);
+      curStart = pStart;
+      if (lastSettled >= pEnd) {
+        curEnd = pEnd;                                   // period complete
+        priStart = addUnits(pStart, unit, -1);
+        priEnd = endOfUnit(priStart, unit);
+      } else {
+        curEnd = lastSettled;                            // period to date
+        toDate = true;
+        priStart = addUnits(pStart, unit, -1);
+        priEnd = addDays(priStart, daysBetween(pStart, lastSettled) - 1);
+      }
+    } else {
+      curEnd = lastSettled;
+      curStart = addDays(curEnd, -(PERIOD.days - 1));
+      priEnd = addDays(curStart, -1);
+      priStart = addDays(priEnd, -((PERIOD.baselineDays || PERIOD.days) - 1));
+    }
+
+    const curDays = daysBetween(curStart, curEnd);
+    const priDays = daysBetween(priStart, priEnd);
+    /* Scale the prior window's LEVELS to the current window's length. Rates are immune:
+       scaling spend and sales by the same factor leaves ROAS untouched, so ratio-of-sums
+       still holds exactly. Skipped for a COMPLETE calendar comparison, where the
+       convention is raw period totals (March vs February, 31 days vs 28) — there the day
+       counts are shown on the page instead of being silently normalised away. */
+    const rawTotals = PERIOD.align === "calendar" && !toDate;
+    const priScale = rawTotals || !priDays ? 1 : curDays / priDays;
+
+    return { curStart, curEnd, priStart, priEnd, curDays, priDays, priScale, rawTotals,
+             toDate, excluded, partiallySettled, lastSettled };
   }, [adsDaily]);
 
   /* ── period buckets anchored to curEnd ── */
   const periodEdges = useMemo(() => {
     const out = [];
     for (let i = bucketCount - 1; i >= 0; i--) {
-      const b = addDays(win.curEnd, -PERIOD.days * i);
-      const a = addDays(b, -(PERIOD.days - 1));
-      out.push({ a: a, b: b, label: shortDate(a) });
+      if (PERIOD.align === "calendar") {
+        const a = addUnits(win.curStart, PERIOD.unit, -i);
+        // the newest bucket ends where the current window ends (partial when to-date)
+        const b = i === 0 ? win.curEnd : endOfUnit(a, PERIOD.unit);
+        out.push({ a: a, b: b, label: shortDate(a) });
+      } else {
+        const b = addDays(win.curEnd, -PERIOD.days * i);
+        const a = addDays(b, -(PERIOD.days - 1));
+        out.push({ a: a, b: b, label: shortDate(a) });
+      }
     }
     return out;
-  }, [win.curEnd, bucketCount]);
+  }, [win.curStart, win.curEnd, bucketCount]);
   const bucketOf = useCallback((d) => {
     for (let i = 0; i < periodEdges.length; i++) {
       if (d >= periodEdges[i].a && d <= periodEdges[i].b) return i;
@@ -1323,8 +1398,29 @@ export default function WeeklyBusinessOverview() {
       if (r.d >= win.curStart && r.d <= win.curEnd) cur += r.v;
       else if (r.d >= win.priStart && r.d <= win.priEnd) pri += r.v;
     });
+    pri *= win.priScale;
     return { cur: cur, pri: pri, d: delta(cur, pri) };
   }, [platDaily, win]);
+
+  /* ── how the window and its baseline were actually chosen. Normalisation and
+     calendar to-date are invisible unless the page says so, and an unexplained
+     comparison basis is exactly how a reader draws the wrong conclusion. ── */
+  const windowNote = useMemo(() => {
+    if (win.toDate) {
+      const full = daysBetween(win.curStart, endOfUnit(win.curStart, PERIOD.unit));
+      return PERIOD.adjective + " to date — " + win.curDays + " of " + full +
+        " days, against the same " + win.curDays + " days of the prior " + PERIOD.noun;
+    }
+    if (win.rawTotals && win.curDays !== win.priDays) {
+      return "Whole-" + PERIOD.noun + " totals — " + win.curDays + " days vs " +
+        win.priDays + " in the prior " + PERIOD.noun + ", compared as-is";
+    }
+    if (win.priDays !== win.curDays) {
+      return "Against the trailing " + win.priDays + " days, on a " + win.curDays +
+        "-day basis";
+    }
+    return null;
+  }, [win]);
 
   /* ── history coverage: a window longer than the account's history silently
      counts missing days as zero, which reads as a collapse. Detect and say so. ── */
@@ -1359,6 +1455,8 @@ export default function WeeklyBusinessOverview() {
       if (x.d >= win.curStart && x.d <= win.curEnd) { acc.cur.spend += x.spend; acc.cur.sales += x.sales; }
       else if (x.d >= win.priStart && x.d <= win.priEnd) { acc.pri.spend += x.spend; acc.pri.sales += x.sales; }
     });
+    acc.pri.spend *= win.priScale;      // length-normalise levels; ROAS is unaffected
+    acc.pri.sales *= win.priScale;
     return acc;
   }, [adsDaily, win]);
 
@@ -1370,8 +1468,8 @@ export default function WeeklyBusinessOverview() {
   const funnelPri = useMemo(() => rollupFunnel(adPriQ.data), [adPriQ.data]);
 
   const movement = useMemo(
-    () => buildMovement(adsWindows.cur, adsWindows.pri, adCurQ.data, adPriQ.data),
-    [adsWindows, adCurQ.data, adPriQ.data]
+    () => buildMovement(adsWindows.cur, adsWindows.pri, adCurQ.data, adPriQ.data, win.priScale),
+    [adsWindows, adCurQ.data, adPriQ.data, win.priScale]
   );
   const actions = useMemo(
     () => buildActions(movement.curMap, movement.priMap, adsWindows.cur.spend),
@@ -1440,6 +1538,7 @@ export default function WeeklyBusinessOverview() {
         {win.excluded.map((d) => (
           <Chip key={d} tone="warn">{shortDate(d)} excluded — still ingesting</Chip>
         ))}
+        {windowNote && <Chip tone="neutral">{windowNote}</Chip>}
         {win.partiallySettled && (
           <Chip tone="warn">
             {shortDate(win.partiallySettled)} may be partially settled — spend is in, attribution lands 6–24h later
