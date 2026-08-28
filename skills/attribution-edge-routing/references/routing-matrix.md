@@ -15,5 +15,6 @@
 | "Show me Shopify orders" — only Amazon Store integrated | C | Tell user only Amazon is connected; route to **Integrations**. |
 | "What was yesterday's ROAS?" at 9am on T+1 lag data | D | Tell user yesterday's data lands by [time]; offer to run for the day before yesterday, or to set up a scheduled report that fires after data is ready. |
 | "Why does my last week's data keep changing?" — PPS backfill | D | Not actually edge-routing — route to `attribution-anomaly-diagnosis` (retroactive change explanation). Caught here only if misclassified. |
+| "Save this as a dashboard in WorkMagic" / "add a section to my dashboard" | Deprecated | We no longer build native custom dashboards. Don't call `dashboard-create` / `dashboard-section-create` even though the tools respond. Offer the live self-refreshing page instead (`dashboard` skill) — richer and always current. Only escalate to CSM if the user specifically needs it inside the WorkMagic UI. |
 | "How do I set up my account?" / "How do I add a user?" | B (or product-onboarding) | Route to CSM or product docs; not attribution. |
 | "My iDDA numbers seem wrong — can you check?" | Not edge-routing | Route to `attribution-anomaly-diagnosis` — it's the right tool, not an edge case. |
