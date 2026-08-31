@@ -321,6 +321,13 @@ asking about.
 - NEVER (silent): describing the action and letting the customer assume no rationale was recorded.
 - NEVER (raw): quoting the note as-is because "it's what the record says".
 
+**Prose and configuration are two separate records, and the prose can be wrong about the
+configuration.** A `reason` is what got written down when the action ran; `settings-get` is what the
+account is set to, read live. They are produced separately and they do drift — a note citing "the
+account floor" on a tenant whose goals are configured per channel is describing a setup that does not
+exist there, and the number it quotes belongs to one channel rather than the account. The customer
+has usually read that same sentence, so it is often where their question came from.
+
 The action is still ours either way. An unusable note is a problem with our own writing, never a
 reason to hedge on whose action it was — see the three actors above.
 
