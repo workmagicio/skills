@@ -2,6 +2,7 @@
 name: media-buyer-read
 description: Explain the AI Media Buyer managed service to a non-technical brand owner. Use whenever the customer asks about actions taken on their ad accounts, whether an action worked, how the managed accounts are performing, or how the service is configured. Governs cross-tool routing, causal claims, and what may never be promised.
 category: media-buyer
+requires: wm_media-buyer-action-list, wm_media-buyer-performance-get
 risk: R0
 version: 1.1.0
 last-updated: 2026-08-27

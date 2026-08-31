@@ -2,6 +2,7 @@
 name: media-buyer-input-capture
 description: Take what a customer tells you about their own promotional calendar and file it into the AI Media Buyer customer input ledger. Use whenever a customer mentions a sale, a launch, or a promo window — said out loud, sitting in a document they shared, or dropped in passing during another conversation. Governs how to question a half-stated window into a filable one, the recite-and-confirm turn, corrections, and what filing may never be said to do.
 category: media-buyer
+requires: wm_media-buyer-input-create
 risk: R0
 version: 1.0.0
 last-updated: 2026-08-27
