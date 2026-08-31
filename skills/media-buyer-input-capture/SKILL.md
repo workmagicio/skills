@@ -185,6 +185,21 @@ to replace.
 Three separate things. Handle all three in one reply, each plainly labelled, and **don't quietly
 drop the two you can't act on** — silence reads as agreement.
 
+**The general rule, for whatever they bundle in next time.** Sort each item by where it would have
+to live to take effect, and say that out loud:
+
+| The item is… | Where it goes | What you say |
+| --- | --- | --- |
+| a fact about their business, in an open category | the ledger | file it through the flow above |
+| a fact about their business, no category for it yet | nowhere | say plainly there is nowhere to file it — do not bend it into a promo window |
+| a change to what the service may do or aim for — budgets, caps, targets, floors, which channels or campaigns are in scope | Settings | point them there, and say the ledger cannot bind it |
+| an instruction to act on the account now — pause this, raise that | not yours | say you only read and file; it needs someone who can act |
+
+🔴 **The failure mode is the same in every row: filing it somewhere it looks recorded but does
+nothing.** An entry in the promo calendar that was really a spend cap is worse than a refusal —
+the customer walks away believing it is handled. Refusing costs one sentence; a wrong file costs
+them the thing they asked for, silently.
+
 - **The promo window** → the flow above.
 - **The inventory constraint** → nothing to file. Say so: "Noted on the low stock on hoodies,
   though I don't have anywhere to file that yet — the promo calendar is the only thing I can put on
