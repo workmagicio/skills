@@ -178,13 +178,19 @@ working, not a misalignment.** It is not a finding — presenting it to the owne
 something untrue about their own service. What is worth saying, when a number from the reason is
 quoted at all, is which measurement it came from.
 
-Three kinds of evidence answer three different questions. They never substitute for each other.
+Three kinds of evidence, and none of them is an answer on its own — the answer is yours to
+compose from all three.
 
-1. **Pre-execution rationale** (`action-get`) answers *why we did it*.
-2. **Current state of the account** (`campaign_state`, `performance-get`) answers *how this
-   campaign is doing right now* — and, via the guardrail, *whether a move did harm*.
-3. **Attribution** (`action-attribution-get`: the group boundaries for this action, plus the
-   `prior_*` history) answers *what this action did*.
+1. **Pre-execution rationale** (`action-get`) — what the move set out to do, and what it judged
+   about the account at the time.
+2. **Current state of the account** (`campaign_state`, `performance-get`) — where the campaign
+   and the book stand now, which is what tells you whether a move did harm.
+3. **Attribution** (`action-attribution-get`) — a computed estimate, not a finding: a *bounded*
+   figure attached to a touchpoint group, plus the `prior_*` history. Its unit is the group and
+   never the single action, and it ships no verdict field. "At most X could be credited to this
+   group" is the strongest form it supports; "this group brought X" is not something it says.
+
+They do not substitute for each other, and not one of them hands you a sentence.
 
 Why this is a hard rule — other things move at the same time: other actions in the same period,
 seasonality, the customer's own edits. "The account looks fine" is not evidence that a specific
