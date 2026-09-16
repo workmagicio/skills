@@ -4,6 +4,22 @@ All notable changes to the WorkMagic public skills are recorded here. This repo 
 [Agent Skills open standard](https://agentskills.io); each skill is independently versioned in
 its `SKILL.md` frontmatter (`version:` / `last-updated:`).
 
+## 2026-09-14
+
+### Changed
+
+- **跟随平台的工具名 kebab 化（`attribution-weekly-report` 2.1.1 · `media-buyer-input-capture` 1.0.1 ·
+  `media-buyer-read` 1.1.1）。** Justin 平台把**自有**工具名从下划线统一成中划线
+  （`bt_artifact_manage` → `bt-artifact-manage`、`wm_media-buyer-input-create` →
+  `wm-media-buyer-input-create`）。本次把这三个 skill 里的 7 处引用同步过去：**2 行 frontmatter `requires:` 门（共 3 个工具名）**
+  + **4 处正文指令**（正文会注入 prompt，模型会照着念名字）。
+
+  **行为没有任何变化**，纯粹是跟随上游重命名。上游 leaf 原样不动
+  （`media-buyer-input-create` 本来就是连字符），改的只有我方前缀那一段。
+
+  **两仓不必同时合并**：平台侧的 `requires` 匹配器已改成折叠匹配（`wm_x` 与 `wm-x` 等价），
+  所以本 PR 与平台 PR 任意顺序落地都不会出现「skill 被判工具缺失而静默关闭」的窗口期。
+
 ## 2026-08-28 (later)
 ### Changed
 - **`attribution-weekly-report` (2.0.0 → 2.1.0): the two per-cadence behaviours that were

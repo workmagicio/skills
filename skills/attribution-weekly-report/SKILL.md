@@ -3,8 +3,8 @@ name: attribution-weekly-report
 description: Build the recurring business-review board — a live, self-refreshing page covering store-actual revenue, ads-attributed revenue, the ROAS trend, the channel-to-tactic funnel, and data-derived actions — at whatever cadence the user reviews on (daily / weekly / monthly / quarterly), and optionally push a snapshot of it on a schedule to in-app / email / Slack. The board is the deliverable; the schedule is optional. Also owns condition-based alerts (Heartbeat). Use for any recurring view of attribution performance; a one-off number is attribution-data-query.
 category: attribution
 risk: R1
-version: 2.1.0
-last-updated: 2026-08-28
+version: 2.1.1
+last-updated: 2026-09-14
 
 references:
 - references/board-spine.md
@@ -128,7 +128,7 @@ config).
 > fake by construction. A seed carrying a real account's figures is a data leak the moment
 > the bridge is inert — the page renders another account's revenue as if it were this one's.
 
-**Step 6 — Self-review the running board, then save** with `bt_artifact_manage` and a
+**Step 6 — Self-review the running board, then save** with `bt-artifact-manage` and a
 `context` note. Re-run one query and diff it against what the page renders; if the page
 still shows seed values while the query succeeds, the mapping is wrong. Confirm the status
 strip says *Live data*. Full checklist at the end of `instantiation.md`.
@@ -177,8 +177,8 @@ expose them unprefixed. The board template tries both.
 |-|-|-|
 | `database-query-ask` | Required (first) | Schema patterns + the `ctx` convention |
 | `database-query-run` | Required | Probe the four board queries (step 4); the board's only runtime data source; the snapshot test run |
-| `bt_artifact_manage` | Required | Save the board (R1). Use `action='edit'` for later revisions — the file is large and a full rewrite is expensive |
-| `bt_artifact_read` | Conditional | Read the current version (and its `context` note) before revising |
+| `bt-artifact-manage` | Required | Save the board (R1). Use `action='edit'` for later revisions — the file is large and a full rewrite is expensive |
+| `bt-artifact-read` | Conditional | Read the current version (and its `context` note) before revising |
 | `dashboard-metrics-list` | Conditional | Validate metric / dimension names for the snapshot. Pass `tenantId` for NC propertyNames |
 | `create_scheduled_task` | Conditional (`push` = yes) | R1 at system level. Only after explicit confirmation + a successful test run |
 | `list_scheduled_tasks` / `update_scheduled_task` | Conditional | "Update my weekly report" — list first, then edit with the same preview + confirm flow |

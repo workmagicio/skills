@@ -161,6 +161,6 @@ that is a different board, not a change to this one.
 
 **Cause**: the file is large; a full rewrite is expensive and error-prone.
 
-**Fix**: revise with `bt_artifact_manage` `action='edit'` (targeted replacements) rather than
+**Fix**: revise with `bt-artifact-manage` `action='edit'` (targeted replacements) rather than
 re-saving the whole document, and read the saved `context` note first so the edit honours the
 account-specific thresholds already chosen.
