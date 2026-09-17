@@ -15,6 +15,26 @@ funnel, the action rules — is portable as-is and must not be rewritten.
 > rewrite costs minutes of generation and loses every guard above; adapting the copy costs
 > a handful of small edits.
 
+## The `old_string` for every edit, verbatim
+
+`action='edit'` matches on an exact, unique string. Those strings are below, copied from
+the skeleton as it ships — **do not go read the artifact to find them.** A measured run
+spent 11 follow-up reads hunting for exactly these anchors; every one of them is a full
+round trip. Send the edits you need in ONE call, each `old_string` taken from this list.
+
+| Edit | `old_string` (exact) |
+|-|-|
+| 0 · cadence | `const PERIOD = {` … through the closing `};` — replace the WHOLE block when the cadence is not weekly. Its first line is `  key: "weekly",`, its last `  priorShort: "prior 7d",`. |
+| 1 · account | `const ACCOUNT = "Acme Co";                  /* ← REPLACE: real account name */` |
+| 2 · seed end | `const SEED_END = "2026-03-05";   // fixed, in the past — makes "sample" obvious` |
+| 2 · seed model | `const SEED_MODEL = seedResult(["default_attr_model"], [[MODEL_FALLBACK]]);` |
+| 2 · seed ads / platforms / ad level | the `const SEED_ADS = seedResult(` / `const SEED_PLAT = seedResult(` / `const SEED_AD_CUR = seedResult(AD_COLS, SEED_AD_ROWS);` / `const SEED_AD_PRI = seedResult(` blocks — keep the column names and row shape, change only the values. |
+| 2 · platform mix | `const SEED_PLAT_SPLIT = [["shopify", 0.62], ["amazon", 0.24], ["tiktok", 0.14]];` |
+| 3 · platform labels | `const PLAT_LABEL = {\n  shopify: "Shopify", amazon: "Amazon", tiktok: "TikTok Shop",\n};` |
+
+If an anchor ever fails to match, the skeleton moved on: read **that one string** back with
+`bt-artifact-read`'s `search` and re-issue. That is one read, not a survey of the file.
+
 ## Edit 0 · §0b — `PERIOD`, the cadence
 
 The skeleton ships configured for **weekly**, the one cadence whose numbers are verified
