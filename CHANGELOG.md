@@ -4,6 +4,27 @@ All notable changes to the WorkMagic public skills are recorded here. This repo 
 [Agent Skills open standard](https://agentskills.io); each skill is independently versioned in
 its `SKILL.md` frontmatter (`version:` / `last-updated:`).
 
+## 2026-09-17
+
+### Changed
+
+- **`attribution-weekly-report` (2.1.1 → 2.2.0): 看板改为「宿主实例化模板 + 小改」，不再由模型复述骨架。**
+  Justin 平台给 `bt-artifact-manage` 加了 `template: {skill, file}`：保存时由**服务端**把 skill 里的
+  `templates/board.tsx`（77k 字符）原样写进 artifact，模型既不读回、也不重打。SOP step 5 与
+  `references/instantiation.md` 相应改写——先实例化，再用 `action='edit'` 逐处替换
+  （`ACCOUNT` / `PERIOD` / seed / `PLAT_LABEL`…）。
+
+  **为什么改**：线上一轮实测（2026-09-17），模型分 3 页读完模板（85k 字符进上下文），再花 4 次生成、
+  52k output token、480 秒手打出一个 22.6k 字符的缩水版——占该 13 分钟 turn 的 61%，而骨架本就躺在磁盘上。
+  本文档此前已写「should not be rewritten」，但那只是劝告；现在有机制承载。
+
+- **取数从 5 次往返压到 1 次。** step 3 的 `database-query-ask` 由 **MANDATORY** 改为**仅在探测报
+  schema 错时才调**（四条 SQL 模板本身就是确认过的 schema，`ctx` 约定写在 SOP 里）；step 4 要求把四条
+  board 查询**放在同一条消息里发**，它们相互独立、并行执行，一次往返即可。
+
+- **自检不再包含截图。** 宿主已把「截图自己的作品」默认关闭（`bt-artifact-capture` 仅用于用户
+  索要的图片），故 step 6 与 `instantiation.md` 的 self-review 明确写成**代码 + 数据**核对。
+
 ## 2026-09-14
 
 ### Changed
