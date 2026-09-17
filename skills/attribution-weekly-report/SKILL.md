@@ -3,8 +3,8 @@ name: attribution-weekly-report
 description: Build the recurring business-review board — a live, self-refreshing page covering store-actual revenue, ads-attributed revenue, the ROAS trend, the channel-to-tactic funnel, and data-derived actions — at whatever cadence the user reviews on (daily / weekly / monthly / quarterly), and optionally push a snapshot of it on a schedule to in-app / email / Slack. The board is the deliverable; the schedule is optional. Also owns condition-based alerts (Heartbeat). Use for any recurring view of attribution performance; a one-off number is attribution-data-query.
 category: attribution
 risk: R1
-version: 2.1.1
-last-updated: 2026-09-14
+version: 2.2.0
+last-updated: 2026-09-17
 
 references:
 - references/board-spine.md
@@ -104,20 +104,33 @@ Quarterly or "for my CMO" → flag the executive variant.
 usually content scope. **Do not ask** about the attribution model, the comparison window
 (derive from cadence), or the snapshot format.
 
-**Step 3 — `database-query-ask` (MANDATORY).** Confirm the Cube schema and the `ctx`
-convention before any SQL. The board itself cannot call this tool at render time, so it
+**Step 3 — Skip the schema round trip.** The four board queries in `templates/` are the
+confirmed schema — run them (step 4) instead of asking what to run. The `ctx` convention is
+fixed and stated here: the board cannot call `database-query-ask` at render time, so it
 passes a load-time ISO timestamp as `ctx`, set **once per page load** — never per render.
+Call `database-query-ask` ONLY if a probe comes back with a schema error you cannot read
+off the failure itself. It is a slow call whose answer you already have.
 
-**Step 4 — Probe all four board queries yourself.** Run `templates/02-default-model.sql` …
-`05-ads-ad-level.sql` through `database-query-run` and read the real results: column names,
+**Step 4 — Probe all four board queries yourself, in ONE message.** Run
+`templates/02-default-model.sql` … `05-ads-ad-level.sql` through `database-query-run` as
+four calls issued **together** — they are independent, so they execute in parallel and cost
+one round trip instead of four. Read the real results: column names,
 the fact that numeric cells arrive as **strings**, and whether the row count matches the
 question (a daily, multi-week, multi-channel query returning one row is a collapsed
 aggregate, not data). Record which `sales_platform` values, ad platforms and tactic names
 this account actually has, plus its spend magnitude — all three feed step 5.
 
-**Step 5 — Build the board.** Read `references/board-spine.md`, then the one cadence spec,
-then copy `templates/board.tsx` and follow `references/instantiation.md`. Do not rebuild
-from scratch: the skeleton already encodes the guarded bridge, per-part error boundaries,
+**Step 5 — Instantiate the board, then adapt it.** Create the artifact FROM the skeleton —
+`bt-artifact-manage` with `action='save'`, `type='react'`, a title, and
+`template: {skill, file: "templates/board.tsx"}`, where `skill` is this skill's name as
+the host lists it in its skill directory (on Justin: `workmagic.attribution-weekly-report`).
+The host copies those 77k characters into the artifact itself. 🔴 Do **not** read
+`templates/board.tsx` back, and do **not** re-type, paraphrase or "improve on" it: one
+prod turn spent eight minutes writing a worse copy of a page that was already on disk.
+Then read `references/board-spine.md`, the one cadence spec, and
+`references/instantiation.md`, and apply that guide's edits to the saved artifact with
+`action='edit'` (exact-string replacements — you send only what changes).
+The skeleton already encodes the guarded bridge, per-part error boundaries,
 the settled-window walk, period bucketing, length-normalised comparison, calendar alignment
 with period-to-date handling, ratio-of-sums, the verdict engine and the action rules. It
 ships configured for **weekly**; other cadences change the `PERIOD` block plus the deltas
@@ -128,10 +141,11 @@ config).
 > fake by construction. A seed carrying a real account's figures is a data leak the moment
 > the bridge is inert — the page renders another account's revenue as if it were this one's.
 
-**Step 6 — Self-review the running board, then save** with `bt-artifact-manage` and a
-`context` note. Re-run one query and diff it against what the page renders; if the page
-still shows seed values while the query succeeds, the mapping is wrong. Confirm the status
-strip says *Live data*. Full checklist at the end of `instantiation.md`.
+**Step 6 — Self-review in code, and set the `context` note.** Re-run one query and diff it
+against what your edits map into the page; if the page would still show seed values while
+the query succeeds, the mapping is wrong. Confirm the status strip says *Live data*. This
+is a code + data review: screenshotting your own board is refused by the host, so do not
+plan a look. Full checklist at the end of `instantiation.md`.
 
 **Step 7 — Ask once whether to also push a snapshot.** *"Want me to also send you a
 {cadence} snapshot so it lands in your inbox / Slack?"* If **no** — you are done: hand over

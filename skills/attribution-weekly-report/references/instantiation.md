@@ -1,9 +1,19 @@
 # Instantiating the board for an account
 
-`templates/board.tsx` is account- and cadence-independent everywhere except the places
-below. Make these edits, in this order, then run the self-review at the bottom. Everything
-else in the file — the bridge, the settled-window walk, the verdict engine, the funnel, the
-action rules — is portable as-is and should not be rewritten.
+The skeleton reaches the artifact **without passing through you**: save it with
+`bt-artifact-manage` + `template: {skill: "workmagic.attribution-weekly-report", file:
+"templates/board.tsx"}` and the host writes those bytes itself (SOP step 5). You never read
+the file back, and you never re-type it.
+
+What follows are the only account- and cadence-dependent spots. Apply each one to the SAVED
+artifact with `action='edit'` — exact-string replacements, so you send the changed lines
+rather than the page. Do them in this order, then run the self-review at the bottom.
+Everything else in the file — the bridge, the settled-window walk, the verdict engine, the
+funnel, the action rules — is portable as-is and must not be rewritten.
+
+> Reach for a hand-written page only if the account genuinely cannot use the skeleton. A
+> rewrite costs minutes of generation and loses every guard above; adapting the copy costs
+> a handful of small edits.
 
 ## Edit 0 · §0b — `PERIOD`, the cadence
 
@@ -88,6 +98,9 @@ convert any of them to absolute dollars.
   returns, with the remainder grouped as "other".
 
 ## Self-review before handing over
+
+This review is done by reading your edits and the query results — the host refuses a
+screenshot of your own board, so there is no look to plan.
 
 1. Re-run one query and diff it against what the page renders. A page still showing seed
    numbers while the query succeeds means the mapping is wrong.
