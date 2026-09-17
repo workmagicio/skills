@@ -4,6 +4,15 @@ All notable changes to the WorkMagic public skills are recorded here. This repo 
 [Agent Skills open standard](https://agentskills.io); each skill is independently versioned in
 its `SKILL.md` frontmatter (`version:` / `last-updated:`).
 
+## 2026-09-17 (later)
+
+### Changed
+
+- **`attribution-weekly-report` (2.2.0 → 2.2.1)：`instantiation.md` 直接给出每个编辑点的
+  `old_string` 原文。** 2.2.0 让宿主实例化模板后，实测一轮（Justin session 19287）仍花了
+  **11 次 `bt-artifact-read`** 去逐个查找「要改的那一行现在长什么样」——每次都是一轮完整往返。
+  锚串本来就是固定的，写进文档即可省掉这一整段：现按编辑点列成表，并写明「匹配不上再回读那一条」。
+
 ## 2026-09-17
 
 ### Changed

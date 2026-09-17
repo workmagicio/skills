@@ -3,7 +3,7 @@ name: attribution-weekly-report
 description: Build the recurring business-review board — a live, self-refreshing page covering store-actual revenue, ads-attributed revenue, the ROAS trend, the channel-to-tactic funnel, and data-derived actions — at whatever cadence the user reviews on (daily / weekly / monthly / quarterly), and optionally push a snapshot of it on a schedule to in-app / email / Slack. The board is the deliverable; the schedule is optional. Also owns condition-based alerts (Heartbeat). Use for any recurring view of attribution performance; a one-off number is attribution-data-query.
 category: attribution
 risk: R1
-version: 2.2.0
+version: 2.2.1
 last-updated: 2026-09-17
 
 references:
