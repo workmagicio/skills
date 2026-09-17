@@ -3,7 +3,7 @@ name: attribution-weekly-report
 description: Build the recurring business-review board — a live, self-refreshing page covering store-actual revenue, ads-attributed revenue, the ROAS trend, the channel-to-tactic funnel, and data-derived actions — at whatever cadence the user reviews on (daily / weekly / monthly / quarterly), and optionally push a snapshot of it on a schedule to in-app / email / Slack. The board is the deliverable; the schedule is optional. Also owns condition-based alerts (Heartbeat). Use for any recurring view of attribution performance; a one-off number is attribution-data-query.
 category: attribution
 risk: R1
-version: 2.2.1
+version: 2.2.2
 last-updated: 2026-09-17
 
 references:
@@ -111,10 +111,13 @@ passes a load-time ISO timestamp as `ctx`, set **once per page load** — never 
 Call `database-query-ask` ONLY if a probe comes back with a schema error you cannot read
 off the failure itself. It is a slow call whose answer you already have.
 
-**Step 4 — Probe all four board queries yourself, in ONE message.** Run
-`templates/02-default-model.sql` … `05-ads-ad-level.sql` through `database-query-run` as
-four calls issued **together** — they are independent, so they execute in parallel and cost
-one round trip instead of four. Read the real results: column names,
+**Step 4 — Probe EVERY query you will need, in ONE message.** That means
+`templates/02-default-model.sql` … `05-ads-ad-level.sql` **and** the prior-window runs of
+the same SQL — both windows go out together, typically 8 calls in a single message. They
+are independent, so the host executes them in parallel: one round trip for all of them,
+versus one per batch if you discover the prior window later. 🔴 Do not probe the current
+period first and "then see if I need the comparison" — the board ALWAYS compares against
+the prior window, so you already know you need it. Read the real results: column names,
 the fact that numeric cells arrive as **strings**, and whether the row count matches the
 question (a daily, multi-week, multi-channel query returning one row is a collapsed
 aggregate, not data). Record which `sales_platform` values, ad platforms and tactic names

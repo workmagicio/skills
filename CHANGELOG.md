@@ -4,6 +4,15 @@ All notable changes to the WorkMagic public skills are recorded here. This repo 
 [Agent Skills open standard](https://agentskills.io); each skill is independently versioned in
 its `SKILL.md` frontmatter (`version:` / `last-updated:`).
 
+## 2026-09-17 (3)
+
+### Changed
+
+- **`attribution-weekly-report` (2.2.1 → 2.2.2)：step 4 改为「两个窗口的查询一次发完」。**
+  实测一轮（Justin session 19296）把 8 条查询拆成 3 条消息发，多出的两次模型往返净耗
+  **25.4 秒**——而这些查询彼此独立、宿主本就并行执行。看板恒定要跟上一周期比，
+  所以「先探当期、再看要不要探上期」是明知故问，现明令两窗口同批发出。
+
 ## 2026-09-17 (later)
 
 ### Changed
