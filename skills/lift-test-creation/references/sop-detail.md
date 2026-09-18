@@ -1,62 +1,47 @@
-- Step 2 — Asking rules (full)
+## Step 2 — Asking rules (full)
 
-  - At most 1–2 questions per turn.
-  - Use business language — never expose numberOfCells, holdoutPct, MDL, experiment_days.
-  - Don’t ask for country / salesChannel / primaryMetric / timezone / coolingPeriod — these have defaults or can be inferred. Let user confirm in Step 4.
-  - testLevel asked in business language: “Test the entire Meta account, a specific tactic, or just a few campaigns?”
-- Step 3 — Default-resolution detail
+- At most **1–2 questions per turn** — in practice, zero or one is the norm.
+- Business language — never expose holdoutPct, MDL, experiment_days.
+- **Don't ask for**: country, salesChannel, primaryMetric, coolingPeriod, **start date**. These have defaults or are unset by design. The user confirms them in Step 4.
+- **Don't ask for a cell count when the user named a scope**, and **don't ask for a scope when the user named a cell count** — a cell count is a complete request on its own.
+- testLevel is asked in business language: "Test the entire Meta account, a specific tactic, or just a few campaigns?"
+- **Don't front-load constraint questions. **No budget / deadline / geo questions in Step 2 — the single open constraint ask belongs at the end of the Step 4 summary, where the user can see the config it would modify.
 
-  - **salesChannel** — query DB for tenant’s connected channels (Ready / Not optimal only), default all selected.
-  - **country** — query trailing-90-day sales share, auto-pick dominant country.
-  - **geoLevel** — derive from country (US → DMA, others → postcode).
-  - **approach** — derive from liftTestAdsPlatformList (whether platform supports automatic).
-  - **method** — call lift-test-scan to check if current ad spend makes PTM Sufficient. Honor explicit user choice; ask once if recommendation differs.
-  - **timezone** — query dwd_view_analytics_tenant_timezone.
-  - **locationSetting** — call lift-test-scan to fetch currently scheduled + active tests, auto-exclude union of their control + test geos.
-  - **holdoutPct** — default 0.05.
-  - **status** — default draft.
-- Step 5 — Design failures (full table)
+## Step 3 — Default-resolution detail
 
-  | Failure | Handle |
-  |-|-|
-  | holdoutPct too low, not enough data | Don’t silently raise — ask: “We’d need a larger holdout (more geos in the holdout side) — OK?” |
-  | Too many locationSetting excludes | “Too many geos excluded — the engine can’t form enough candidate pairs.” Recommend loosening. |
-  | Sales-channel readiness insufficient | Name the channel + which readiness check is failing; suggest removing or fixing in Settings. |
-  | Country not supported / data volume too low | Name the limit; offer ≥ 2 next steps. |
-- Step 6 — Insufficient: the 4 levers
+- **salesChannel** — query connected channels (Ready / Not optimal only); default all selected.
+- **country** — trailing-90-day sales share; auto-pick the dominant country.
+- **geoLevel** — derive from country (US → DMA; others → postcode).
+- **locationSetting** — lift-test-scan for scheduled + active tests; auto-exclude the union of their geos, then layer user geo constraints on top → references/constraints.md
+- **status** — draft.
 
-When lift-test-design-analyze returns Insufficient (expected daily spend > current daily spend):
+## Step 4 — What the summary must contain
 
-1. **Raise daily spend** to \$Y (keep current geo size + test period).
-2. **Increase geo size** — re-run lift-test-design with a higher geo-size bracket (Minimum → 5% → 10% → 15%). More orders per geo lowers the feasibility threshold; current daily spend may already clear it.
-3. **Extend test period** to N+2 weeks (longer tests reduce the daily-spend requirement).
-4. **Proceed with current config** (result may come back inconclusive).
+The Step 4 confirmation is a **two-column table** — label on the left, value on the right — followed by the closing line. Not a bullet list, not a paragraph.
 
-Only #2 requires a new design call. Surface concrete numbers, not vague language.
+|**Row label**|**Value**|**Shown when**|
+|---|---|---|
+|**Test scope**|Platform + level + the named tactics / campaigns. When the user gave only a cell count: "left open — you'll set each cell's scope in the draft"|Always|
+|**Shape**|"N-cell — [N−1] test cells measured against one shared reference group"|Always|
+|**Country**|Country + geo level, e.g. "United States (DMA level)"|Always|
+|**Sales channels**|The channel list, noting "all your connected channels" when it's all of them|Always|
+|**Primary metric**|Orders, or New customers|Always|
+|**Your constraints**|One line, every stated constraint in the user's own terms, separated by ·|Always, if there is none, display "none"|
+|**Also**|The concurrency note — which running test's geos are being avoided, and through what date|Only if the geo pool was reduced|
 
-- Step 7 — Active-test collision logic
+## Step 5 — Design failures
 
-Before suggesting testStartTime, call lift-test-scan to check for currently scheduled / active tests in the same channel. If found:
+All of these now route into the solve loop rather than terminating:
 
-1. “Another test is running through [end date] — suggest starting after that.”
-2. For active tests in different channels: typically OK to overlap; only flag if user’s locationSetting collides with their geos (already handled in Step 3 location auto-exclude).
+|Failure|Round-1 framing|
+|---|---|
+|Geo size too low for the data volume|"We'd need more geos on the holdout side than your current setting allows" — then the geo-size lever|
+|Too many locationSetting excludes|Name the count and the share of orders removed; offer the geo-exclusion lever|
+|Sales-channel readiness insufficient|Name the channel + the failing check; offer to drop it or fix it in Settings (not a solve-loop lever — a prerequisite)|
+|Country not supported / data volume too low|Name the limit. Unsupported country is a hard stop, not a loop.|
 
-- Step 8 — Create payload field mapping
+## Step 7 — Create / update payload field mapping
 
-| API field | Source |
-|-|-|
-| adPlatform | user input / alias-mapped |
-| testLevel | user input |
-| impactCampaignInfos | selected tactic / campaign IDs |
-| testChannel | derived from ad platform + cell config (multi-platform → multi-cell) |
-| salesChannel, primaryMetric, country, geoLevel | confirmed in Step 4 |
-| method | confirmed in Step 4 |
-| approach | confirmed in Step 4 |
-| locationSetting | auto-resolved + user overrides from Step 4 |
-| testStartTime | from Step 7 |
-| testPeriod | from design (Step 5) |
-| coolingPeriod | default 7d unless user-specified |
-| holdoutPct | from design — never shown to user |
-| numberOfCells | system-determined — never shown |
-| timezone | auto |
-| status | draft (unless user explicitly asked to schedule) |
+**One call, one draft** — a multi-cell test is not split into one draft per cell. Create a new draft by default; pass the existing draft ID instead when the user is iterating on a draft they already have (they named one, or the flow started from lift-test-get). When updating, say which draft was updated rather than implying a new one was made.
+
+The payload is: the collected fields from SKILL.md §4, the design outputs exactly as returned (method, holdoutPct, testPeriod, coolingPeriod, and the final locationSetting), testChannel derived from the platform + cell config, and status = draft unless the user explicitly asked to schedule.
