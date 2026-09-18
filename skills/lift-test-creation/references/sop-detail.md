@@ -42,6 +42,7 @@ All of these now route into the solve loop rather than terminating:
 
 ## Step 7 — Create / update payload field mapping
 
-**One call, one draft** — a multi-cell test is not split into one draft per cell. Create a new draft by default; pass the existing draft ID instead when the user is iterating on a draft they already have (they named one, or the flow started from lift-test-get). When updating, say which draft was updated rather than implying a new one was made.
+**One draft per test** — a multi-cell test is not split into one draft per cell.
 
-The payload is: the collected fields from SKILL.md §4, the design outputs exactly as returned (method, holdoutPct, testPeriod, coolingPeriod, and the final locationSetting), testChannel derived from the platform + cell config, and status = draft unless the user explicitly asked to schedule.
+- **New test → lift-test-create (default).** Pass the structured fields, not a hand-built body: the collected fields from SKILL.md §4 plus the design outputs (method, the geoGroup and design IDs from analyze, testPeriod, coolingPeriod, and the final locationSetting), testChannel derived from the platform + cell config, and status = draft unless the user explicitly asked to schedule. The tool assembles the payload (incl. timezone conversion) and returns the draft.
+- **Modifying an existing draft → lift-test-create-or-update.** Pull it with lift-test-get, change the fields, and push the full `body` back **with its `id`** (the tool forwards the body as-is, so the caller owns its shape). Say which draft was updated rather than implying a new one was made.
