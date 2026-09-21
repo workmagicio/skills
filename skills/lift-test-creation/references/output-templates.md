@@ -81,6 +81,32 @@ The same shape extends to 4- and 5-cell tests: one column per cell, shared facts
 
 **Labeling note**: method-specific labels — "Holdout group" in the PTM column, "Exposed group" in the LTM column. Never reuse "Holdout group" for LTM. Never invent "Treatment group."
 
+## Step 5 — Test period × feasibility threshold (second table)
+
+Show this **in addition** to the design result / comparison table above — the first table keeps its native (~21-day) test period and feasibility threshold; this second table shows how the threshold moves with the test length so the user can pick the shortest sufficient length.
+
+Derive each period's threshold from the design's native one with the same formula the product uses — no re-run:
+
+> threshold(N) = (feasibility threshold at the design's own length) × √(design length / N)
+
+Rows: 14 / 21 / 28 days (21 = the design's native length). "Clears it?" = current spend ≥ threshold × 0.95.
+
+> Test-length options — how the daily threshold moves with duration:
+
+|Test period|Feasibility threshold|Your $933 / day|
+|---|---|---|
+|14 days|$1,530 / day|✗|
+|21 days|$1,250 / day|✗|
+|28 days|$1,080 / day|✗ — closest|
+
+> ★ Recommended = the **shortest length that clears**, chosen from **21 / 28 days** only. **14 days is shown for reference but is never the recommendation** (matches the product). If neither 21 nor 28 clears, a longer **custom length** lowers the threshold further — offer it.
+
+**Rules**:
+- 14 days is displayed but **never** the ★ recommendation — pick ★ from {21, 28, and a custom length if set}, shortest that clears.
+- Custom length = any integer 14–60 except {14, 21, 28}, with test period + cooling ≤ 60 days.
+- Threshold uses √(design length / N) — an estimate scaled from the single design, not a re-solve (same as the product UI).
+- Never show MDL in this table.
+
 ## Step 6 — Solve loop, round 1
 
 > At your current spend (~$1.8k/day), 4 weeks won't be enough to detect a meaningful result — we'd need about $2.5k/day, so you're roughly $700/day short.

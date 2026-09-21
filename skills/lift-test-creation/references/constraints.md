@@ -118,7 +118,7 @@ Call lift-test-scan. Auto-exclude the union of the **treatment + reference geos*
 
 > "Steering clear of the geos in your Google test that runs through Apr 18."
 
-**Drafts are not auto-excluded** — a draft isn't running. Only exclude a draft's geos if the user names it.
+**Drafts are not surfaced by lift-test-scan and are never auto-excluded** — a draft isn't running. Exclude a draft's geos only if the user names it (pull it with lift-test-get).
 
 ### When the user states a concurrency constraint
 
