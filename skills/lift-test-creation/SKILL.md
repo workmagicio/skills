@@ -3,13 +3,14 @@ name: lift-test-creation
 description: Turn a natural-language request — a scope or just a cell count, plus any constraints — into an executable lift test draft.
 category: lift-test
 risk: R0
-version: 2.0.0
-last-updated: 2026-09-14
+version: 2.1.0
+last-updated: 2026-09-23
 
 references:
   - references/input-parsing.md
   - references/constraints.md
   - references/solve-loop.md
+  - references/auto-solve.md
   - references/sop-detail.md
   - references/create-update-params.md
   - references/output-templates.md
@@ -155,6 +156,7 @@ These are two ways of describing the same thing. The user supplies **one side**;
 4. **Confirm — the ONLY full-config confirmation gate.** Echo all collected + resolved fields in business language: scope or **cell shape**, **sales channels**, **primary metric**, **country + geo level**, method, and a **read-back of every constraint** the user stated. Surface override conflicts once; don't lecture. → references/output-templates.md
 5. **Run the design: lift-test-design-prepare → lift-test-design → lift-test-design-result → lift-test-design-analyze.** prepare packages the inputs; design submits the solve and returns a `task_id`; design-result polls that token until the ~3–4 min PTM + LTM solve settles into design IDs; design-analyze turns those IDs into the decision — geo pair, test period, geo size, feasibility threshold, expected daily spend, **Sufficient / Insufficient**, and the **PTM / LTM recommendation**. Present **two tables**: (1) the PTM vs LTM comparison (keeps the native ~21-day test period + feasibility threshold), and (2) a test-period × feasibility-threshold table across 14 / 21 / 28 days (thresholds scaled by √(design length / N), same formula as the product) with ★ on the shortest sufficient length chosen from 21 / 28 (14 is reference-only; a custom 14–60 length is allowed). → references/output-templates.md. Sufficient and every stated constraint honored → Step 7. Anything else — no viable pair, Insufficient, or a violated constraint — is **not** an error message; it enters the solve loop → Step 6.
 6. **Solve loop — max 3 rounds.** Insufficient, or a Step 5 failure: quantify the gap in concrete numbers → present the levers, each with the number it moves and the constraint it would break → **the user picks** → re-solve. Three rounds without a feasible design → stop and route to DS with the handoff summary. "Proceed as-is" exits the loop at any round. → references/solve-loop.md
+   - **Auto-solve branch.** When the failure is budget-related and auto-solve's inputs are complete (a budget target — stated or inferable from scan spend — and a CPA resolvable via database-query-run), offer to search for a fitting design automatically: **one consent question**; the user says yes → the skill runs the geo-size × test-period search itself (instead of one manual lever per round) and takes the result to Step 7. One auto-solve run **is** the loop — it replaces the manual rounds, doesn't stack on them. → references/auto-solve.md
 7. **Push the test as a draft.** A brand-new test → **lift-test-create** (default): one draft per test, whatever the cell count — a 3-, 4- or 5-cell test is one draft carrying all its cells, assembled from the chosen analyzed design. Modifying a draft the user already has → **lift-test-create-or-update** with its `id`. No second full-config confirmation. Return the draft link, plus the start-date note and any "proceed as-is" caveat. → references/sop-detail.md
 8. **Build the design deck — only when asked.** When the user wants a client-facing test plan ("design deck", "test plan deck", "slides I can walk the client through"), don't narrate the design in chat — run the deck skill on the Step 7 draft: a 2-cell draft → 2-cell-test-design-deck; a 3-cell or larger draft → multicell-design-deck, which expands the cells from that one draft. Two intake answers before building: show the feasibility threshold on the deck (yes / no), and for 3 cells or more, add the PTM-vs-LTM comparison page (yes / no). Output: two editable Google Slides in the client's Partnership-drive folder › Lift Test Design — the client design deck and an INTERNAL validation deck. If the skill refuses the draft, relay its reason and the choice the user has to make. Never rebuild the deck by hand, and never paste its MDL or geo lists into chat (§7). → references/output-templates.md, Step 8
 
@@ -168,6 +170,7 @@ Multi-step SOP — the agent must pause and surface at these gates, never autopi
 |Step 4|Full-config summary in business language, incl. cell shape + constraint read-back. **This is the only full-config confirmation gate.**|
 |Step 5 (design back, Sufficient)|Progress update only: the method comparison table + the test-period × feasibility-threshold table (★ = shortest sufficient length among 21 / 28; 14 reference-only). Do **not** restate full config, and do **not** ask for start date.|
 |Step 6 (each round)|Quantified gap + levers with numbers. User picks; **never pick for them**. Say which round this is when on round 2 or 3.|
+|Step 6 (auto-solve offer)|When budget-related and auto-solve inputs are complete: **one** consent question ("want me to search automatically?"). Yes → run the search (no second full-config gate); No → manual levers. → references/auto-solve.md|
 |Step 6 (exhausted)|DS handoff summary. Nothing gets built.|
 |Step 7|Draft link. Done. No final-confirm table.|
 
@@ -198,9 +201,10 @@ Multi-step SOP — the agent must pause and surface at these gates, never autopi
 |lift-test-design-result|Required|Poll the `task_id` from lift-test-design until the solve settles; returns the PTM / LTM design IDs (or a failed / running state)|
 |lift-test-design-analyze|Required|Turn the design IDs into the decision: geo pair, test period, geo size, feasibility threshold, expected daily spend, **Sufficient / Insufficient**, and the **PTM / LTM recommendation**. Can re-evaluate estimator feasibility + recommendation when CPA or daily-spend inputs change (via `platformSpend`); budget ceilings are compared outside this tool.|
 |lift-test-create|Required (final step — new draft)|**Default for a brand-new test.** Create the single draft from the chosen analyzed design — all cells in one draft. Takes the structured fields (§4) + the design IDs / geoGroup from analyze and assembles the payload for you (incl. timezone conversion).|
-|lift-test-create-or-update|Optional (update / edit)|Update an existing draft the user is modifying — pull it with lift-test-get, change fields, push the `body` back **with its `id`**. Forwards the body as-is (the caller assembles it), so prefer lift-test-create for new drafts.|
+|lift-test-create-or-update|Optional (update / edit)|Update an existing draft the user is modifying — pull it with lift-test-get, change fields, push the `body` back **with its `id`**. Before saving it runs the same gates as lift-test-create on whatever the body carries — geoGroup / testChannel shape, account-level geo limitation, concurrent geo-conflict, past start date (a body with no design still saves). The caller assembles the body, so prefer lift-test-create for new drafts.|
 |lift-test-list|Optional|"What tests have I created before"; resolving a named draft in a concurrency constraint|
 |lift-test-get|Optional|Pull an existing draft — mid-flow modification, or reading the geos of a draft named in a concurrency constraint|
+|database-query-run|Required (auto-solve only)|Compute the per-platform CPA for the Step 6 auto-solve branch — one unified Cube.dev query (`attr_all_orders` / `attr_all_sales`, DDA vs iDDA by `attr_model_name`). Analyze's auto-CPA is too low; never use it as the fit CPA. → references/auto-solve.md|
 
 **Design-deck skills (Step 8).** 2-cell-test-design-deck and multicell-design-deck are Claude Code / Cowork skills, not MCP tools. They read the warehouse through the workmagic_query connector, need Python 3.10+ and Google Chrome, render an editable .pptx, run their own verification, and publish to Google Drive with a bundled service account. Input is the Step 7 draft link plus the two intake answers — nothing else.
 
