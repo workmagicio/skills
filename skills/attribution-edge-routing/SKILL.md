@@ -1,10 +1,10 @@
 ---
 name: attribution-edge-routing
-description: Recognize when a user request falls outside attribution's capability boundary and route it gracefully — to another WM product (MBO / Lift Test / Creative Magic / Ads Magic / Audience Magic), to a human (CSM / DS / Eng), or to a clean decline with a bridge to what attribution can answer. Last-resort fallback for all other attribution skills. Read-only.
+description: Recognize when a user request falls outside attribution's capability boundary and route it gracefully — to another WM product (MBO / Lift Test / Creative Magic / Ads Magic / Audience Magic), to a human (CSM / DS / Eng), or to a clean decline that bridges back to what attribution can answer.
 category: attribution
 risk: R0
-version: 1.0.2
-last-updated: 2026-08-28
+version: 1.1.0
+last-updated: 2026-09-23
 
 references:
 - references/boundary-types.md
@@ -109,7 +109,7 @@ If user asks for TikTok and you show Meta because TikTok isn't integrated, that'
 | **Tool** | **Required?** | **Purpose** |
 |-|-|-|
 | `database-query-ask` | Required | Confirm what other WM products do + their activation paths; check data-freshness conventions for Type D |
-| `tenant-list` | Required for Type C | Verify which integrations / sales platforms are connected, what data window exists. Don't claim "TikTok isn't integrated" without checking. |
+| `tenant-list` | Required for Type C | Verify which integrations / sales platforms are connected, what data window exists. |
 | `lift-test-list` | Conditional | For incrementality asks routed to Lift Test — show what tests already exist or how to start one |
 | `budget-optimizer-list` / `budget-optimizer-reference-data` | Conditional | For forecasting asks routed to MBO — check whether tenant is provisioned |
 

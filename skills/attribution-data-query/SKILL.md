@@ -3,8 +3,8 @@ name: attribution-data-query
 description: Translate explicit data requests into Cube.dev SQL and return results. Default skill for query-type asks in the Attribution domain. No estimation, no fabrication, no proactive dashboards.
 category: attribution
 risk: R0
-version: 1.3.0
-last-updated: 2026-08-19
+version: 1.4.0
+last-updated: 2026-09-23
 
 references:
   - references/time-range-resolution.md
@@ -40,12 +40,6 @@ Translate the user's explicit data request into a precise Cube.dev SQL query and
 - A specific dimension (channel, campaign, creative, sales_channel)
 - A time range (explicit or common phrasing like "last week", "last 30 days")
 - Optional: filters, attribution model, sort order
-
-**Examples that should trigger**:
-
-- "Show me ROAS by channel for the last 30 days"
-- "Which campaigns spent the most last week?"
-- "Pull total sales of TikTok Shop for last week"
 
 **Examples that should NOT trigger — route to another skill instead**:
 
@@ -145,9 +139,9 @@ Ask `database-query-ask` about the warehouse's Cube.dev schema patterns. `databa
 
 | Tool | Required? | Purpose |
 |---|---|---|
-| database-query-ask | Required (first) | Consult Cube.dev schema patterns before SQL. Produces the ctx timestamp that database-query-run requires. Skipping fails at SQL execution. |
-| dashboard-metrics-list | Required | Validate metric / dimension field names exist on the chosen DataSet. For ads_attribution / creative_attribution with NC dimensions, pass tenantId to fan out tenant-specific propertyNames. Call before every query — never skip. |
-| database-query-run | Required | Execute the Cube.dev SQL query. Pass the ctx from database-query-ask. |
+| database-query-ask | Required (first) | Consult Cube.dev schema patterns before SQL. |
+| dashboard-metrics-list | Required | Validate metric / dimension field names exist on the chosen DataSet. |
+| database-query-run | Required | Execute the Cube.dev SQL query. |
 | tenant-list | Optional | Look up tenantId when needed to fan out NC dimensions on dashboard-metrics-list. |
 
 ## 6. Output format

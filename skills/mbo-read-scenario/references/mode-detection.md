@@ -18,3 +18,11 @@
    - "Build a new scenario for [period]" — route to create
    - "Actual historical spend on the attribution dashboard" — route to data-query
 2. **If user picks "existing"** → continue with mode detection. If "build new" → route to `mbo-create-scenario`. If "actual" → route to `attribution-data-query`.
+
+## What each mode covers (from SKILL.md §1)
+
+1. **basic_read** — explain a single scenario's recommended allocation: direction / reason / magnitude / impact for the top channels, plus marginal-vs-average ROAS, baseline vs paid media, special states
+2. **scenario_compare** — diff two scenarios and explain why recommendations shifted (input changes vs underlying-data drift)
+3. **mbo_vs_attribution** — when user asks "why is MBO showing different ROAS than my dashboard?", pull both numbers, explain the methodology gap, advise against direct comparison
+4. **mbo_vs_lift_test** — when user asks "lift test showed 1.5x but MBO shows 3x marginal ROAS, which is right?", explain that lift test calibrates MBO and these measure different things (incremental vs marginal)
+5. **mbo_vs_actual** — when user asks "why didn't actual results match the forecast?", compare forecast vs realized actuals and diagnose at a high level

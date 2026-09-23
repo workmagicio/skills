@@ -1,10 +1,10 @@
 ---
 name: mbo-create-scenario
-description: Turn a natural-language ask about media budget optimization into a properly configured MBO scenario — collect required settings, parse budget/goal/constraints, validate provisioning + scope, propose saturation locks, and create via budget-optimizer-create. Also handles modify (rename, edit, delete) on existing scenarios.
+description: Turn a natural-language ask about media budget optimization into a configured MBO scenario — "how should I split my budget", "how much should I spend on X". Also handles rename, edit and delete on existing scenarios.
 category: mbo
 risk: R1
-version: 1.0.0
-last-updated: 2026-08-19
+version: 1.1.0
+last-updated: 2026-09-23
 
 references:
   - references/inputs-detail.md
@@ -35,12 +35,7 @@ Different from `mbo-read-scenario` (interpret existing results) and from attribu
 
 ## 2. When to trigger
 
-Trigger when the user wants **forward-looking budget allocation guidance** or wants to **modify an existing scenario's inputs**. Common phrasings:
-
-- "How should I split next month's \$500K across channels?"
-- "Build me a budget scenario for Q3"
-- "How much should I spend on Meta next month?" (recommendation question — must run a scenario to answer)
-- "If I want to hit 3.5x ROAS next month, how much should I spend?"
+Trigger when the user wants **forward-looking budget allocation guidance** or wants to **modify an existing scenario's inputs**.
 
 ## 3. Inputs
 
@@ -96,11 +91,7 @@ Required before any data lookup or scenario creation. `ctx` timestamp for SQL pl
 
 ### Step 5: Parse what user already gave
 
-From the raw ask, extract everything implicit using the Budget parsing + Goal parsing rules (see references/budget-parsing.md):
-
-- "\$500K for next month" → budget=500000, budgetChangeType=amount, period=next month, scenario_type=Outcome Max
-- "Hit 3.5x ROAS in Q3" → goal=roas, method=target, target=3.5, period=Q3, scenario_type=Target Achievement
-- "Optimize Meta only" → scope = Meta (filter to Meta channels only, not all)
+From the raw ask, extract everything implicit using the Budget parsing + Goal parsing rules, incl. the worked parse examples (see references/budget-parsing.md).
 
 Fewer fields you ask about, the better.
 
@@ -119,54 +110,24 @@ Lead with the most pivotal missing field. Order:
 - If user named a channel that **isn't connected** → tell them explicitly, list what is available, don't silently drop
 - If user named a channel that's not **Ready** → tell them, point to Settings → Platform Integrations, offer to proceed without it (held fixed by the model)
 
-**For everything not explicitly mentioned by the user, apply the UI defaults silently** and surface them in the Step 11 preview with *(default)* annotation so user can override:
-
-- `level=tactic`
-- `channels` = all available under the selected outcome + level
-- `sales_platform` = all Ready platforms
-- `period=week`
-- `outcome` = `totalSalesHalo` if Halo model available (Amazon / TikTok Shop integrated), else `totalSales`
-- `goal=sales`, `goalMethod=maximum`
-- `budget=100` with `budgetChangeType=percentage` (= keep current spend flat)
-- `budget_constraints` = none
-- `perChannelBudgetChecked=false`
+**For everything not explicitly mentioned by the user, apply the UI defaults silently** and surface them in the Step 11 preview with *(default)* annotation so user can override. Default values → §3 Inputs table (full per-field semantics in references/inputs-detail.md).
 
 ### Step 7: Saturation-prone tactic lock proposal (MANDATORY)
 
-Some tactics are **inherently saturation-prone** — adding budget produces little or no incremental return because they've already captured the available demand or audience. Common examples: branded search, retargeting, loyalty / returning-customer campaigns, brand DPA. If MBO runs without locking these, the optimizer may waste budget on them or under-recommend channels that actually have headroom.
-
-Detection rules (≥ 1 match flags the tactic) and Lock / Adjust / Skip behavior live in references/saturation-tactics.md. Use the template at templates/saturation-proposal.md for the user message.
-
-<callout emoji="💡">
-**Don't take the bait — saturation lock vs user scale intent.** If user explicitly named a flagged tactic as something they want to scale ("aggressive on retargeting"), **skip the lock proposal for that tactic**. Respect the user's scale intent. Don't push back with "but it's saturated" — recommend a custom max instead of a full lock if the curve is genuinely flat.
-</callout>
+What counts as saturation-prone, the detection rules (≥ 1 match flags the tactic), the Lock / Adjust / Skip behavior and the user-scale-intent caveat live in references/saturation-tactics.md. Use the template at templates/saturation-proposal.md for the user message.
 
 ### Step 8: Check constraint conflicts BEFORE building
 
 If user voiced any budget constraints ("Meta at least \$30K", "TikTok flat", "Pinterest cap \$5K"):
 
 1. **Parse each constraint** into lock_budget / min / max format. **Don't miss any.**
-2. **Sum the constraints** against the total budget:
-
-   - If sum of **minimums** > total budget → conflict (total too low)
-   - If sum of **locked + minimums** > total budget → conflict
-   - If sum of **maximums** < total budget and all channels constrained → conflict (total too high)
+2. **Sum the constraints** against the total budget. Conflict conditions → references/constraint-conflicts.md.
 3. **If conflict** — tell user where + by how much, give 3 concrete options. Full resolution wording in references/constraint-conflicts.md.
 4. **NEVER silently adjust constraint numbers to make the scenario build.** If user said "Meta at least \$30K" and that conflicts, you cannot lower it to \$25K to fit — that's the worst possible failure.
 
 ### Step 9: Validate against MBO scope
 
-Before showing preview, check for out-of-scope inputs:
-
-| **Invalid input** | **Action** |
-|-|-|
-| Past optimization period | Reject. Start date must be in future; propose next-week start. |
-| Optimization period > supported max (e.g., beyond model data range) | Reject. Tell user the max horizon + suggest shortening. |
-| Reference period outside MMM model window | Reject. Tell user the supported window `[hyp.model_window.start → hyp.model_window.end]`; propose clamped period. |
-| Reference period length wildly different from optimization period without explicit user confirmation | Push back. Tell user MBO prorates and the proration math; ask if they still want to proceed. |
-| Non-existent channel in tenant | Reject. Don't silently drop. List available. Offer to proceed without it. |
-| Negative budget | Reject. |
-| User questions the model itself ("why is MMM wrong?") | Don't explain MMM internals; route to CSM. |
+Before showing preview, check for out-of-scope inputs — the reject / push-back table (past period, over-long horizon, reference period outside the MMM model window, mismatched reference length, non-existent channel, negative budget, questions about the model itself) lives in references/edge-cases.md.
 
 ### Step 10: Get reference period baseline budget
 
@@ -176,10 +137,8 @@ Before showing preview, check for out-of-scope inputs:
 ### Step 11: Show preview + confirm (skill-level UX)
 
 <callout emoji="🛑">
-**HARD RULE.** Every single `budget-optimizer-create` call MUST be immediately preceded by a Step 11 preview-and-confirm in the SAME turn. No exceptions. `budget-optimizer-create` is R1 (direct execute + audit, no system block) — skill-level convention is preview + confirm because mis-parsed intent on a multi-minute scenario wastes user time.
+**HARD RULE.** Every single `budget-optimizer-create` call MUST be immediately preceded by a Step 11 preview-and-confirm in the SAME turn. No exceptions.
 </callout>
-
-The preview MUST surface **all auto-applied defaults** (level=tactic, period=week, goal=sales, method=maximum, budget=100% flat if user didn't say, outcome=totalSalesHalo for Halo customers, etc.) so the user can override before running.
 
 Use the template at templates/scenario-preview.md. Full preview format spec lives in references/preview-format.md.
 
@@ -191,13 +150,9 @@ Use the template at templates/scenario-preview.md. Full preview format spec live
 
 ### Step 13: Deliver
 
-After Step 12 (create) succeeds, **wait \~1 minute** then auto-call `budget-optimizer-forecast` to fetch the completed scenario. Then summarize the result for the user (top 2-3 reallocations + expected delta vs baseline + any excluded channels). **The summary is an interpretation — run the goal-vs-projection sanity check and baseline / paid-media decomposition per references/deliver-flow.md before writing it** (same discipline as mbo-read-scenario): if total sales projected drops under a maximize-sales goal, the cause is almost always the baseline (organic / non-media) component, NOT the reallocation — do not call it "trading sales for efficiency" and do not blame the users locks without decomposing first.
+After Step 12 (create) succeeds, **wait \~1 minute** then auto-call `budget-optimizer-forecast` to fetch the completed scenario. Then summarize the result for the user (top 2-3 reallocations + expected delta vs baseline + any excluded channels). **The summary is an interpretation — run the goal-vs-projection sanity check and baseline / paid-media decomposition per references/deliver-flow.md before writing it** (same discipline as mbo-read-scenario).
 
-Forecast `status` handling (ready / running / error) lives in references/deliver-flow.md.
-
-Example: "Scenario created — \[Open in MBO →\](link). Recommended allocation: Meta \$310K (+12%), Google \$190K (−15%). Expected sales lift: \~+\$240K vs reference allocation. Click the link to open the scenario in MBO — saturation curves, full per-tactic breakdown, and downloadable spreadsheet are there."
-
-Don't pad. End the turn.
+Forecast `status` handling (ready / running / error) and the result-message wording live in references/deliver-flow.md.
 
 ## 5. Tools used
 
@@ -209,8 +164,8 @@ Don't pad. End the turn.
 | `tenant-list` | Optional | R0 | Verify sales platform setup if needed |
 | `lift-test-list` | Optional | R0 | Reference if user asks "is this channel calibrated"; not used for eligibility (backend-gated) |
 | `database-query-run` | Optional | R0 | Check reference window for anomalies |
-| `budget-optimizer-create` | Required | R1 | Create the scenario. R1 system-level; skill-level preview+confirm before firing. |
-| `budget-optimizer-update-or-delete` | Conditional (modify intent) | R1 | Update fields or delete scenario. Delete requires explicit second confirmation. |
+| `budget-optimizer-create` | Required | R1 | Create the scenario. |
+| `budget-optimizer-update-or-delete` | Conditional (modify intent) | R1 | Update fields or delete scenario. |
 | `budget-optimizer-forecast` | Required | R0 | Fetch completed scenario in Step 13 |
 
 ## 6. Output format

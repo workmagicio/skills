@@ -1,10 +1,10 @@
 ---
 name: attribution-weekly-report
-description: Build the recurring business-review board — a live, self-refreshing page covering store-actual revenue, ads-attributed revenue, the ROAS trend, the channel-to-tactic funnel, and data-derived actions — at whatever cadence the user reviews on (daily / weekly / monthly / quarterly), and optionally push a snapshot of it on a schedule to in-app / email / Slack. The board is the deliverable; the schedule is optional. Also owns condition-based alerts (Heartbeat). Use for any recurring view of attribution performance; a one-off number is attribution-data-query.
+description: Build or schedule a recurring attribution performance board — a business-review page at whatever cadence the user reviews on (daily / weekly / monthly / quarterly), optionally delivered on a schedule, plus condition-based alerts (Heartbeat). A one-off number is attribution-data-query.
 category: attribution
 risk: R1
-version: 2.2.2
-last-updated: 2026-09-17
+version: 2.3.0
+last-updated: 2026-09-23
 
 references:
 - references/board-spine.md
@@ -62,15 +62,7 @@ deltas. **Never copy spine content into a cadence file.** An alert is **not a bo
 ## 2. When to trigger
 
 Any request for a **recurring view** of attribution performance, or for something delivered
-on a cadence:
-
-- "Give me a weekly business review board" / "one page I can check every Monday" — **no
-  schedule needed**
-- "Send me a weekly Meta report every Monday 9am"
-- "Set up a daily attribution summary"
-- "I want a monthly creative performance report"
-- "Build a quarterly review for my CMO"
-- "Send me an alert if Meta ROAS drops below 2x" (condition trigger — still this skill)
+on a cadence.
 
 **Do NOT trigger**:
 
@@ -194,10 +186,10 @@ expose them unprefixed. The board template tries both.
 |-|-|-|
 | `database-query-ask` | Required (first) | Schema patterns + the `ctx` convention |
 | `database-query-run` | Required | Probe the four board queries (step 4); the board's only runtime data source; the snapshot test run |
-| `bt-artifact-manage` | Required | Save the board (R1). Use `action='edit'` for later revisions — the file is large and a full rewrite is expensive |
+| `bt-artifact-manage` | Required | Save the board (R1) |
 | `bt-artifact-read` | Conditional | Read the current version (and its `context` note) before revising |
-| `dashboard-metrics-list` | Conditional | Validate metric / dimension names for the snapshot. Pass `tenantId` for NC propertyNames |
-| `create_scheduled_task` | Conditional (`push` = yes) | R1 at system level. Only after explicit confirmation + a successful test run |
+| `dashboard-metrics-list` | Conditional | Validate metric / dimension names for the snapshot |
+| `create_scheduled_task` | Conditional (`push` = yes) | R1 at system level |
 | `list_scheduled_tasks` / `update_scheduled_task` | Conditional | "Update my weekly report" — list first, then edit with the same preview + confirm flow |
 
 **Never** call `dashboard-create` / `dashboard-section-create` — we no longer build native

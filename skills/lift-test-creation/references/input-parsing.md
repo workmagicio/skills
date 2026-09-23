@@ -39,3 +39,19 @@ Distinguish three semantics:
 | “exclude Texas, Florida, and Arizona” | locationSetting = exclude + [TX, FL, AZ] |
 | “only run in California” | locationSetting = include + [CA] |
 | User names a geo not in the geo reference | Error out, list closest candidates |
+
+- Field-level resolution rules (moved verbatim out of SKILL.md §Inputs)
+
+| Field | Rule |
+|-|-|
+| adPlatform | The ad platform the user named (Meta, Google, TikTok, etc.). **Apply alias mapping silently** (FB→Meta, GA→Google Ads, IG→Meta). |
+| testLevel | Ask in business language: “Test the entire account, a specific tactic, or particular campaigns?” |
+| impactCampaignInfos | Use lift-test-impact-campaigns to fetch the candidate list. |
+| testStartTime | Ask last — other fields can be resolved first. |
+| salesChannel | Query DB for the tenant’s connected sales channels, show them to the user for confirmation. |
+| primaryMetric | Switch to new_customers when the user says “acquisition / new customer.” |
+| country | Only **7 countries supported**: US / AU / CA / FR / DE / UK. **Other countries error out** — never hard-build. |
+| geoLevel | **US state only when the user explicitly says so.** |
+| method | **Honor explicit user choice exactly** — do not silently switch. |
+| approach | **MNTN / Walmart Connect / Roku / Universal Ads / Vibe / TikTok GMV Max** are manual-only. |
+| coolingPeriod | Suggest 14–28 when the user mentions long-consideration categories (furniture, electronics, etc.). |
