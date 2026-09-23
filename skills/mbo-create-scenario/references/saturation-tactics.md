@@ -23,3 +23,7 @@ Some tactics are **inherently saturation-prone** — adding budget produces litt
 ### Caveats
 
 - If user explicitly named a flagged tactic as something they want to scale ("aggressive on retargeting"), **skip the lock proposal for that tactic** — respect the user's scale intent, don't push back.
+
+<callout emoji="💡">
+**Don't take the bait — saturation lock vs user scale intent.** If user explicitly named a flagged tactic as something they want to scale ("aggressive on retargeting"), **skip the lock proposal for that tactic**. Respect the user's scale intent. Don't push back with "but it's saturated" — recommend a custom max instead of a full lock if the curve is genuinely flat.
+</callout>

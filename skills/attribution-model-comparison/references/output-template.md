@@ -49,6 +49,9 @@ present, we don't declare a "right" model (see SKILL §6).
 - Grouped bars: **one fixed slot per model, categorical colour, never cycled**; a model
   keeps its colour across channels.
 - Sort channels by absolute delta; flag the largest gap so the user doesn't scan.
+- **"Why they differ"** rendered from the `references/diff-patterns.md` playbook — name
+  the cause per channel, and on an unrecognized shape fall back to "models close",
+  **never invent a reason**.
 - **Never push one model as "correct"** — situational guidance only if asked (SKILL §6).
 - Link to `attribution-anomaly-diagnosis` for a single-model drill-down.
 - Shared conventions (model aliases, sales-platform scope, measurement identity) are

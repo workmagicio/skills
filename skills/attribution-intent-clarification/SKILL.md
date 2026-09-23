@@ -3,8 +3,8 @@ name: attribution-intent-clarification
 description: Resolve genuinely ambiguous attribution queries by asking ONE focused clarifying question, then hand off to attribution-data-query (or another skill). Never become a wall of questions.
 category: attribution
 risk: R0
-version: 1.0.1
-last-updated: 2026-08-19
+version: 1.1.0
+last-updated: 2026-09-23
 
 references:
 - references/ambiguity-types.md
@@ -75,7 +75,7 @@ Resolve **genuinely ambiguous** attribution queries by asking **one focused clar
 
 | **Tool** | **Required?** | **Purpose** |
 |-|-|-|
-| `dashboard-metrics-list` | Optional | Only if you need to check whether a user-supplied alias maps to a real field before showing it as an option. Most of the time you don't need this. |
+| `dashboard-metrics-list` | Optional | Only if you need to check whether a user-supplied alias maps to a real field before showing it as an option. |
 
 ## 6. Output format
 

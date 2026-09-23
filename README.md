@@ -46,6 +46,11 @@ Chat apps can't install GitHub skills — they get them through the MCP. CLI age
 - **[mbo-create-scenario](skills/mbo-create-scenario/SKILL.md)** — Turn a budget-allocation ask into a forward-looking MBO (Media Budget Optimizer) scenario; also handles modifications.
 - **[mbo-read-scenario](skills/mbo-read-scenario/SKILL.md)** — Interpret the results of an existing MBO scenario.
 
+### AI Media Buyer
+
+- **[media-buyer-read](skills/media-buyer-read/SKILL.md)** — Explain the managed service to a brand owner: what was done on their ad accounts, whether it worked, and how far a causal claim may go.
+- **[media-buyer-input-capture](skills/media-buyer-input-capture/SKILL.md)** — File what a customer says about their own promo calendar into the AI Media Buyer customer input ledger.
+
 ---
 
 ## Install

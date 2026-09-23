@@ -1,10 +1,10 @@
 ---
 name: lift-test-creation
-description: Turn a natural-language request into an executable lift test draft.
+description: Turn a natural-language request into an executable lift test draft — geo lift tests, holdout and incrementality tests, and the PTM / LTM market split they need. Use when someone asks to set up, design or run a test to measure incrementality.
 category: lift-test
 risk: R0
-version: 1.0.0
-last-updated: 2026-08-19
+version: 1.1.0
+last-updated: 2026-09-23
 
 references:
   - references/input-parsing.md
@@ -22,15 +22,6 @@ Turn the user’s natural-language request into a **well-configured, executable 
 
 **Trigger condition**: The user’s request contains a verb like “create / set up / run / launch / start” plus an object that points to “experiment / lift test / incrementality test / measure incrementality.”
 
-**Examples that should trigger this skill**:
-
-- “Create a lift test for me”
-- “Run a Meta lift test”
-- “Set up a lift test on Meta at the tactic level”
-- “Create a Meta lift test that finishes before July 15”
-- “Run a lift test on both Meta and Google”
-- “Run a Meta lift test in the US but exclude New York and California”
-
 **Examples that should NOT trigger this skill — route to another skill instead**:
 
 | **Input pattern** | **Route to** |
@@ -44,23 +35,25 @@ Turn the user’s natural-language request into a **well-configured, executable 
 
 | **Field** | **Required?** | **Description / default** |
 |-|-|-|
-| adPlatform | Required | The ad platform the user named (Meta, Google, TikTok, etc.). **Apply alias mapping silently** (FB→Meta, GA→Google Ads, IG→Meta). If the user didn’t name one, **ask**. |
-| testLevel | Required | platform / tactic / campaign. If the user didn’t say, **ask in business language** (“Test the entire account, a specific tactic, or particular campaigns?”). |
-| impactCampaignInfos | Required | Tactic ID(s) when testLevel = tactic; campaign ID(s) when testLevel = campaign. **Must ask** (unless the user already named specific tactics/campaigns). Use lift-test-impact-campaigns to fetch the candidate list. |
-| testStartTime | Required | If the user didn’t say, **ask last** — other fields can be resolved first. **Never** accept a past date. |
-| salesChannel | Has default | Query DB for the tenant’s connected sales channels, show them to the user for confirmation. Default to all selected (every channel in **Ready** or **Not optimal** state). |
-| primaryMetric | Has default | Default orders. Switch to new_customers when the user says “acquisition / new customer.” |
+| adPlatform | Required | If the user didn’t name one, **ask**. |
+| testLevel | Required | platform / tactic / campaign. If the user didn’t say, **ask in business language**. |
+| impactCampaignInfos | Required | Tactic ID(s) when testLevel = tactic; campaign ID(s) when testLevel = campaign. **Must ask** (unless the user already named specific tactics/campaigns). |
+| testStartTime | Required | If the user didn’t say, **ask last**. **Never** accept a past date. |
+| salesChannel | Has default | Default to all selected (every channel in **Ready** or **Not optimal** state). |
+| primaryMetric | Has default | Default orders. |
 | country | Has default | Query trailing-90-day sales share, auto-pick the dominant country. Only **7 countries supported**: US / AU / CA / FR / DE / UK. **Other countries error out** — never hard-build. |
-| geoLevel | Has default | Derive from country: US → DMA; others → postcode. **US state only when the user explicitly says so.** |
-| method | Has default | Derive from ad spend: if PTM is Sufficient → PTM; otherwise LTM. **Honor explicit user choice exactly** — do not silently switch. |
-| approach | Has default | Derive from liftTestAdsPlatformList: if the platform supports automatic → automatic; otherwise manual. **MNTN / Walmart Connect / Roku / Universal Ads / Vibe / TikTok GMV Max** are manual-only. |
+| geoLevel | Has default | Derive from country: US → DMA; others → postcode. |
+| method | Has default | Derive from ad spend: if PTM is Sufficient → PTM; otherwise LTM. |
+| approach | Has default | Derive from liftTestAdsPlatformList: if the platform supports automatic → automatic; otherwise manual. |
 | timezone | Auto | Query dwd_view_analytics_tenant_timezone. Don’t ask the user. |
 | locationSetting | Auto + user override | By default, query the tenant’s currently scheduled + active tests and auto-exclude the union of their control + test geos (**to avoid colliding with running tests**). Layer the user’s explicit exclude / include on top. |
-| numberOfCells | Auto | When the user names multiple platforms, automatically split into multiple 2-cell tests. **Don’t ask the user to pick this.** Explain in the summary in business language: “I’ll split this into N separate 2-cell tests, one per platform.” |
+| numberOfCells | Auto | When the user names multiple platforms, automatically split into multiple 2-cell tests. **Don’t ask the user to pick this.** |
 | holdoutPct | Has default | Default 0.05. **The user should never see this field name**, unless design fails and the value needs adjusting. |
 | testPeriod | Design output | Computed by the design engine, 14–60 days. When the user states a constraint like “4 weeks,” check whether it’s feasible. |
-| coolingPeriod | Has default | Default 7 days. Range 1–28. Suggest 14–28 when the user mentions long-consideration categories (furniture, electronics, etc.). |
+| coolingPeriod | Has default | Default 7 days. Range 1–28. |
 | status | Default | Default draft. Don’t go straight to schedule unless the user explicitly says so. |
+
+Per-field parsing and resolution rules (alias mapping, time direction, geo parsing, supported countries, manual-only platforms) → references/input-parsing.md.
 
 ## SOP
 
