@@ -4,6 +4,18 @@ All notable changes to the WorkMagic public skills are recorded here. This repo 
 [Agent Skills open standard](https://agentskills.io); each skill is independently versioned in
 its `SKILL.md` frontmatter (`version:` / `last-updated:`).
 
+## 2026-09-28
+
+### Changed
+
+- **`attribution-custom-dimension` 1.2.1：读分隔符改调 `naming-convention-separators-get`。**
+  platform-mcp 把读写合一的 `naming-convention-separators`（不传 `separators` 是读、传了是覆盖写）拆成
+  `-get`（只读）/ `-set`（[workmagicio/platform-mcp#360](https://github.com/workmagicio/platform-mcp/pull/360)），
+  旧名双注册弃用、sunset 2026-12-07。这个 skill 只在 State C 读分隔符，4 处全部是读取用法，全部改成 `-get`。
+  **为什么要改**：Justin 对 WorkMagic 工具按工具级 `readOnlyHint` 定风险等级、不看入参，读写合一的旧名
+  只能标非只读，于是「先读一下分隔符」也要用户点确认——在会话挂起式的界面里用户直接拿不到回答。
+  **上线顺序**：必须在 #360 部署之后再发布本条，否则新名在服务端还不存在。
+
 ## 2026-09-23
 
 ### Changed

@@ -25,6 +25,6 @@ Tenant has existing NC rules but not for the term the user just asked about. The
 Tenant has never set up NC. First-time experience — explain the concept briefly.
 
 - Lead with 2-sentence explanation in business language: "Your campaign names contain a lot of information but WorkMagic doesn't know how to read them yet. I'll set up a one-time rule so you can slice data by [user's term]."
-- Detect separators with `naming-convention-separators`
+- Detect separators with `naming-convention-separators-get`
 - Propose the **first property only** — don't try to set up Region + Audience + Brand all at once. Note: "Other properties can be added later when you ask for them."
 - One confirmation, then apply, then continue the original query

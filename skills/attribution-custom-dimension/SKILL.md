@@ -3,8 +3,8 @@ name: attribution-custom-dimension
 description: Handle attribution queries sliced by a business label ("by audience" / "by region" / "by brand") that is not a native field — it lives in campaign names and only becomes queryable once a Naming Convention (NC) rule is configured.
 category: attribution
 risk: R1
-version: 1.2.0
-last-updated: 2026-09-23
+version: 1.2.1
+last-updated: 2026-09-28
 
 references:
 - references/state-routing.md
@@ -84,7 +84,7 @@ Before proposing any extraction rule, copy `templates/01-sample-campaign-names.s
 
 1. **Explain in business language** (max 2 sentences): "Your campaign names contain a lot of information — region, audience, product — but WorkMagic doesn't know how to read them yet. I'll set up a one-time rule so you can slice data by any of those tags."
 2. **Look at real ad names** (same as Step 2)
-3. **Detect separators** via `naming-convention-separators` (often `_`, `|`, `-`). Surface this in the confirmation.
+3. **Detect separators** via `naming-convention-separators-get` (often `_`, `|`, `-`). Surface this in the confirmation.
 4. **Propose the first property ONLY** — don't try to set up all properties at once; focus on the term the user just asked about. "Other properties can be added later when you ask for them."
 5. **One confirmation question**
 6. **Apply via `naming-convention-create`**
@@ -104,7 +104,7 @@ If most rows resolve to NULL, the rule is wrong and the user will get an empty d
 | `database-query-ask` | Required (first) | NC schema patterns + Cube.dev syntax + `ctx` timestamp for any SQL (sample pull + sanity check) |
 | `dashboard-metrics-list` | Required | List propertyNames for this tenant (built-in + NC). |
 | `naming-convention-list` | Required | Read existing NC rules to determine State A / B / C |
-| `naming-convention-separators` | Conditional (State C) | Detect what separators the tenant's campaign names use, before proposing a rule |
+| `naming-convention-separators-get` | Conditional (State C) | Detect what separators the tenant's campaign names use, before proposing a rule |
 | `naming-convention-create` | Conditional (B + C) | Create NC rule after user confirmation. |
 | `naming-convention-update-or-delete` | Conditional (State B) | Update existing NC ruleset to add the new property |
 | `database-query-run` | Required | (a) Pull sample real campaign names; (b) sanity-check the new propertyName resolves; (c) execute the original query at the end via `attribution-data-query` |
