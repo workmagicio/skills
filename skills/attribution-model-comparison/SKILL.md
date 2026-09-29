@@ -1,10 +1,10 @@
 ---
 name: attribution-model-comparison
-description: Pull attribution numbers under multiple attribution models side-by-side and explain why they differ in business language. Default 4-way comparison (idda / dda / last_click / platform_reported). Includes the canonical diff-pattern playbook so the agent doesn't invent reasons.
+description: Pull attribution numbers under multiple attribution models side-by-side and explain why they differ in business language. Default 4-way comparison (idda / dda / last_click / platform_reported).
 category: attribution
 risk: R0
-version: 1.1.0
-last-updated: 2026-08-19
+version: 1.2.0
+last-updated: 2026-09-23
 
 references:
 - references/model-reference.md
@@ -34,13 +34,7 @@ Pull attribution numbers under **multiple attribution models side-by-side** and 
 
 ## 2. When to trigger
 
-Trigger when user wants to **compare attribution under different models**:
-
-- "Compare Meta under last_click vs iDDA"
-- "Why is WorkMagic showing lower ROAS than Meta Ads Manager?"
-- "Show me the difference between data_driven and first_click for all channels"
-- "How do my channels look across all attribution models?"
-- "Which attribution model should I trust for Meta?" (educational variant — answer + optionally pull data)
+Trigger when user wants to **compare attribution under different models**.
 
 **Do NOT trigger**:
 
@@ -114,34 +108,19 @@ For few channels → 1-2 sentences **per row**. For many channels → cover the 
 
 | **Tool** | **Required?** | **Purpose** |
 |-|-|-|
-| `database-query-ask` | Required (first) | Model mechanism explanations + Cube.dev schema patterns + `ctx` timestamp. **This skill especially depends on KB for interpretation** — never invent model behavior. |
+| `database-query-ask` | Required (first) | Model mechanism explanations + Cube.dev schema patterns + `ctx` timestamp. |
 | `dashboard-metrics-list` | Required | Validate `attr_orders`, `attr_roas`, `attr_model_name` and other field names |
 | `database-query-run` | Required | Execute the multi-model CASE WHEN SQL in one shot |
-| `lift-test-list` | Conditional | Optional context for grounding the dda-vs-idda interpretation (e.g., "iDDA dropped after this lift test"). **Do NOT use to check iDDA availability** — probe model 32 data via `dashboard-metrics-list` instead. |
+| `lift-test-list` | Conditional | Optional context for grounding the dda-vs-idda interpretation (e.g., "iDDA dropped after this lift test"). |
 
 ## 6. Output format
 
 A model comparison is a report-shaped, screenshot-and-share result → **produce a
 live-data artifact** (the `dashboard` skill, **Comparison** archetype), not a wall of
-table in chat. (A quick 1-channel, single-metric check can stay a chat table — the
-simple-pull path in `attribution-data-query`; a multi-channel / multi-model comparison
-is an artifact.)
+table in chat.
 
-The artifact:
-
-- **Grouped bars per channel × model** are the hero (categorical colour, one fixed
-  slot per model, never cycled — see the `artifacts` chart method). Sort channels by
-  absolute delta descending; call out the largest gap.
-- **"Why they differ"** rendered from the `references/diff-patterns.md` playbook — name
-  the cause per channel, and on an unrecognized shape fall back to "models close",
-  **never invent a reason**.
-- **Measurement identity on the view:** sales-platform scope + the models compared.
-  **One sales platform per comparison** — never mix platforms in a single comparison
-  (model validity differs by platform; run separately per platform).
-- A table view stays available underneath the chart (accessibility), but the artifact
-  is the deliverable. Link to `attribution-anomaly-diagnosis` for drill-down.
-
-Full field template + example → `references/output-template.md`
+Full artifact spec (layout, chart rules, measurement identity, one-platform-per-comparison)
++ example → `references/output-template.md`
 
 <callout emoji="💡">
 **Don't take the bait — never push one model as "correct"**

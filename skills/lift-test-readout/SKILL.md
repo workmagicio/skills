@@ -3,8 +3,8 @@ name: lift-test-readout
 description: Read and act on completed lift test results — interpret iROAS, confidence scores, and turn the data into a post-test decision.
 category: lift-test
 risk: R0
-version: 1.0.0
-last-updated: 2026-08-19
+version: 1.1.0
+last-updated: 2026-09-23
 references:
   - references/test-resolution.md
   - references/terminology.md
@@ -21,15 +21,6 @@ How to read and act on lift test results — interpreting incremental ROAS, conf
 ## When to trigger
 
 **Trigger condition**: The user is asking about results, performance, or implications of one or more completed lift tests.
-
-**Examples that should trigger this skill**:
-
-- “How did my Meta lift test do?”
-- “What were the results of test 20260320-Meta?”
-- “Should I scale Meta based on this test?”
-- “What’s the iROAS on my last TikTok test?”
-- “How did my last 3 lift tests perform?”
-- “Why is the Amazon row not significant in my Meta test?”
 
 **Examples that should NOT trigger this skill — route to another skill instead**:
 

@@ -1,10 +1,10 @@
 ---
 name: mbo-read-scenario
-description: Interpret existing MBO scenario results across five modes — basic_read (single scenario), scenario_compare (diff two), mbo_vs_attribution / mbo_vs_lift_test / mbo_vs_actual (reconcile MBO against other measurement sources). Routes "how much should I spend" to mbo-create-scenario; this skill is read-only.
+description: Interpret existing MBO scenario results — read one, compare two, or reconcile MBO against attribution, lift tests, or actual spend. Read-only; "how much should I spend" goes to mbo-create-scenario.
 category: mbo
 risk: R0
-version: 1.0.0
-last-updated: 2026-08-19
+version: 1.1.0
+last-updated: 2026-09-23
 
 references:
   - references/inputs-detail.md
@@ -33,27 +33,13 @@ examples:
 
 ## 1. Purpose
 
-Help users **interpret existing MBO scenario results** — five modes:
-
-1. **basic_read** — explain a single scenario's recommended allocation: direction / reason / magnitude / impact for the top channels, plus marginal-vs-average ROAS, baseline vs paid media, special states
-2. **scenario_compare** — diff two scenarios and explain why recommendations shifted (input changes vs underlying-data drift)
-3. **mbo_vs_attribution** — when user asks "why is MBO showing different ROAS than my dashboard?", pull both numbers, explain the methodology gap, advise against direct comparison
-4. **mbo_vs_lift_test** — when user asks "lift test showed 1.5x but MBO shows 3x marginal ROAS, which is right?", explain that lift test calibrates MBO and these measure different things (incremental vs marginal)
-5. **mbo_vs_actual** — when user asks "why didn't actual results match the forecast?", compare forecast vs realized actuals and diagnose at a high level
+Help users **interpret existing MBO scenario results** — five modes: **basic_read** / **scenario_compare** / **mbo_vs_attribution** / **mbo_vs_lift_test** / **mbo_vs_actual**. What each mode covers → references/mode-detection.md; detection in §4 Step 3, branch references in §4 Step 7.
 
 Different from `mbo-create-scenario` (creates / modifies a scenario) and from `attribution-anomaly-diagnosis` (diagnoses historical attribution swings). This skill is purely interpretation — no writes.
 
 ## 2. When to trigger
 
-Trigger when the user wants to **understand existing MBO results**. Common phrasings:
-
-- "Explain my Q3 MBO scenario" / "Walk me through what's changing in this scenario"
-- "Why is MBO recommending I cut Pinterest?" / "Why should Meta get more budget?"
-- "What changed between the scenario I ran last week and this week?"
-- "What's the biggest move the model is making?"
-- "Why does MBO show Meta ROAS as 2.1x when my dashboard says 3.5x?"
-- "My lift test showed 1.5x but MBO shows marginal ROAS of 3x — why?"
-- "Why didn't actual results match the forecast?"
+Trigger when the user wants to **understand existing MBO results**.
 
 **Do NOT trigger** when:
 
@@ -85,14 +71,7 @@ Call `budget-optimizer-list`. Not provisioned → exit with CSM bridge, don't at
 
 ### Step 2: Handle ambiguous "show me my budget" asks (2-step disambiguation)
 
-"What's my budget?" / "Show me my budget" / "Check my budget for Q3" — these are ambiguous. Don't silently pick.
-
-1. **Clarify type**: give 2-4 options that match user's phrasing context:
-
-   - "Existing scenario recommendations (you have N saved)" — if list has scenarios
-   - "Build a new scenario for [period]" — route to create
-   - "Actual historical spend on the attribution dashboard" — route to data-query
-2. **If user picks "existing"** → continue with mode detection. If "build new" → route to `mbo-create-scenario`. If "actual" → route to `attribution-data-query`.
+"What's my budget?" / "Show me my budget" / "Check my budget for Q3" — these are ambiguous. Don't silently pick. The two steps (clarify type with 2-4 options → route or continue) live in references/mode-detection.md.
 
 ### Step 3: Detect mode
 

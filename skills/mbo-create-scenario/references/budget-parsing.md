@@ -39,3 +39,9 @@
 <callout emoji="💡">
 **Don't take the bait — maximize vs target.** If user said "hit X target", you must use `goalMethod=target` with `goalTarget=X` populated. Dropping the target value and building "maximize" is a critical failure — the scenario will not converge on what the user asked for.
 </callout>
+
+## Worked parse examples (Step 5, from SKILL.md)
+
+- "\$500K for next month" → budget=500000, budgetChangeType=amount, period=next month, scenario_type=Outcome Max
+- "Hit 3.5x ROAS in Q3" → goal=roas, method=target, target=3.5, period=Q3, scenario_type=Target Achievement
+- "Optimize Meta only" → scope = Meta (filter to Meta channels only, not all)

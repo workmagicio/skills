@@ -1,10 +1,10 @@
 ---
 name: attribution-custom-dimension
-description: Handle queries that slice attribution data by a business label ("by audience" / "by region" / "by brand") where the label isn't a native field — it lives in campaign names and only becomes a queryable dimension after a Naming Convention (NC) rule is configured. Detects NC state, guides config in business language, then continues the original query without the user having to leave chat.
+description: Handle attribution queries sliced by a business label ("by audience" / "by region" / "by brand") that is not a native field — it lives in campaign names and only becomes queryable once a Naming Convention (NC) rule is configured.
 category: attribution
 risk: R1
-version: 1.1.0
-last-updated: 2026-08-19
+version: 1.2.0
+last-updated: 2026-09-23
 
 references:
 - references/state-routing.md
@@ -31,13 +31,7 @@ This skill detects NC state, guides configuration when needed in business langua
 
 ## 2. When to trigger
 
-Trigger when the user asks for data **"by <business term>"** where the term isn't a built-in WM dimension:
-
-- "Show me spend by audience"
-- "ROAS by product line"
-- "How are my brand campaigns doing?"
-- "Compare paid social by region"
-- "Break down Meta by creator"
+Trigger when the user asks for data **"by <business term>"** where the term isn't a built-in WM dimension.
 
 **Detection rule**: after `dashboard-metrics-list` with the tenant's `tenantId`, if the requested dimension term isn't in the returned property list (built-in or NC-derived), this skill takes over.
 
@@ -108,10 +102,10 @@ If most rows resolve to NULL, the rule is wrong and the user will get an empty d
 | **Tool** | **Required?** | **Purpose** |
 |-|-|-|
 | `database-query-ask` | Required (first) | NC schema patterns + Cube.dev syntax + `ctx` timestamp for any SQL (sample pull + sanity check) |
-| `dashboard-metrics-list` | Required | List propertyNames for this tenant (built-in + NC). **Always pass `tenantId`** — NC properties are tenant-scoped. |
+| `dashboard-metrics-list` | Required | List propertyNames for this tenant (built-in + NC). |
 | `naming-convention-list` | Required | Read existing NC rules to determine State A / B / C |
 | `naming-convention-separators` | Conditional (State C) | Detect what separators the tenant's campaign names use, before proposing a rule |
-| `naming-convention-create` | Conditional (B + C) | Create NC rule after user confirmation. **R1 write (system direct-execute + audit log)**; skill-level requires one explicit confirm before firing. |
+| `naming-convention-create` | Conditional (B + C) | Create NC rule after user confirmation. |
 | `naming-convention-update-or-delete` | Conditional (State B) | Update existing NC ruleset to add the new property |
 | `database-query-run` | Required | (a) Pull sample real campaign names; (b) sanity-check the new propertyName resolves; (c) execute the original query at the end via `attribution-data-query` |
 

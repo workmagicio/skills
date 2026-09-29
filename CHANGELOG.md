@@ -4,6 +4,49 @@ All notable changes to the WorkMagic public skills are recorded here. This repo 
 [Agent Skills open standard](https://agentskills.io); each skill is independently versioned in
 its `SKILL.md` frontmatter (`version:` / `last-updated:`).
 
+## 2026-09-23
+
+### Changed
+
+- **全部 13 个 skill：正文按「每轮都要在场 / 只在某个分支才要」重切，合计 165,283 → 151,693 字符（−8.2%）。**
+  skill 正文在被 enable 之后**整篇**进对话，并在该会话后续**每一次**模型调用里重复计费；`references/`
+  只被列成一行索引，模型显式取用才拉。据此删掉三类内容：① `When to trigger` 里的**正向触发例句**
+  —— skill 被 enable 的那一刻路由已经发生，这些例句之后一个字都用不上；② 只在某个分支才用得到的长块；
+  ③ 与另一处正文或自己的 reference **逐字重复**的段落。
+  **反向路由（"Do NOT trigger → 改用 X skill"）、约束白名单、必填与默认值、CRITICAL rules、SOP 步骤骨架
+  一律保留** —— 执行到一半才发现该换 skill 时要靠它们。全程只做「整段删 / 整段逐字移 + 留指针」，
+  没有重述任何一条规则。
+  单个降幅：`mbo-create-scenario` −20.5%（SOP 9,825 → ~6,000）、`attribution-model-comparison` −14.1%、
+  `mbo-read-scenario` −12.8%、`media-buyer-read` −9.9%、`lift-test-creation` −9.3%。
+
+- **13 条 frontmatter `description` 压缩：3,902 → 2,914 字符（−988）。**
+  `description` 是唯一**每一轮**都在宿主系统 prompt 里的部分，且是**全部 skill 一起**列出，所以它只该回答
+  「该不该启用我」——触发词 + 反向路由，方法论归正文（正文本来就是「答案是该」之后才加载的）。
+  压得最多的是 `attribution-weekly-report`（559 → 285）与 `media-buyer-input-capture`（446 → 288）。
+  **反向修了一条**：`lift-test-creation` 原本只有 67 字符、连 geo test / holdout / incrementality 这些
+  触发词都没有，是**漏召**风险，已加长到 241。
+
+- **`media-buyer-read` / `media-buyer-input-capture` 首次有了 `references/`。**
+  这两个此前是全仓仅有的单文件 skill（合计 45.5K 字符、0% 按需加载）。拆出
+  `media-buyer-read/references/engine-words.md`（引擎原话不可转述时怎么办）与
+  `media-buyer-input-capture/references/rejections.md`（工具拒绝时按「是谁的问题」分类处理），
+  正文各留一段「什么时候去读它 + 那条不可协商的判据」。
+
+- **两处「拆了没搬」补上**：`lift-test-creation` 的逐字段解析规则并入既有
+  `references/input-parsing.md`（正文只留字段 / 必填 / 默认值表）；`attribution-model-comparison`
+  的 `## 6. Output format` 并入既有 `references/output-template.md`。
+  **`country` 的 7 国白名单在复核时被搬回正文** —— 那是每轮都要拿来判断的校验约束，
+  放进 reference 等于赌模型会先去读。
+
+### Known issues
+
+- **`lift-test-diagnosis` 这个 skill 从不存在，却有 4 条路由指向它**（`lift-test-readout` 与
+  `lift-test-creation` 各两处：反向路由表 + Related skills 表）。`git log --all` 零命中。
+  后果是「我的测试失败了怎么办 / 为什么 inconclusive」会被路由到一个不存在的 skill。
+  需要决定补建它还是改指向。本次未动。
+- **`lift-test-creation` 的国家白名单自相矛盾**：写的是 "Only **7 countries supported**:
+  US / AU / CA / FR / DE / UK" —— 只列了 6 个。此问题早于本次改动。
+
 ## 2026-09-17 (3)
 
 ### Changed

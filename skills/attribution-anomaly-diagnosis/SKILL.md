@@ -1,10 +1,10 @@
 ---
 name: attribution-anomaly-diagnosis
-description: Diagnose "why" questions about attribution anomalies — attribution=0 (no attributed orders) and attribution swings (sudden drops, spikes, or retroactive changes). 5-step diagnostic tree (scope → classify → basic checks → model routing → fallback). Produces internal report + client-facing explanation. Do NOT use for "show me numbers" — that's attribution-data-query.
+description: Diagnose "why" questions about attribution anomalies — attribution=0 (no attributed orders), and sudden drops, spikes or retroactive changes in attributed numbers. Do NOT use for "show me numbers" — that's attribution-data-query.
 category: attribution
 risk: R0
-version: 1.1.0
-last-updated: 2026-08-19
+version: 1.2.0
+last-updated: 2026-09-23
 
 references:
 - references/basic-checks.md
@@ -38,13 +38,7 @@ Diagnose **"why" questions** about attribution anomalies — specifically **attr
 
 ## 2. When to trigger
 
-Trigger when user is asking **why** attribution looks wrong, not just **what** the numbers are:
-
-- "Why did Meta ROAS drop last week?"
-- "Why is my [tactic] attribution showing 0?"
-- "The numbers I pulled last week are different from this week for the same date range — why?" (**retroactive change**)
-- "Something looks wrong with my Google attribution"
-- "Why is my new-customer count so low this quarter?"
+Trigger when user is asking **why** attribution looks wrong, not just **what** the numbers are.
 
 **Do NOT trigger**:
 
@@ -136,7 +130,7 @@ Step 3a is the fastest check for a reason. If spend ↓ X% and `attr_orders` ↓
 |-|-|-|
 | `database-query-ask` | Required (first) | Cube.dev schema patterns + `ctx` timestamp |
 | `dashboard-metrics-list` | Required | Validate field names (e.g., `attr_model_name`, `calibrated_orders`) |
-| `database-query-run` | Required | Execute Cube.dev SQL. Pass `ctx` from `database-query-ask`. Tenant isolation is injected — do not add `tenant_id` filters. |
+| `database-query-run` | Required | Execute Cube.dev SQL. |
 | `lift-test-list` / `lift-test-get` | Conditional | Branch C / C3 — pull lift test metadata when iDDA retroactive change is suspected |
 
 ## 6. Output format
