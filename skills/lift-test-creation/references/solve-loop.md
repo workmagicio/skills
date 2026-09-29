@@ -25,10 +25,9 @@ Every round, in order:
 |Lever|When it applies|Requires re-solve?|
 |---|---|---|
 |Raise daily spend to $X|Insufficient, no budget ceiling stated|No — re-check with lift-test-design-analyze|
-|Increase geo size (Minimum → 5% → 10% → 15%)|Geo-size headroom remains|**Yes**|
+|Increase geo size (Minimum → 5% → 10% → 15% -> 20% -> 25% -> 30%)|Geo-size headroom remains|**Yes**|
 |Extend test period to N weeks|Period not pinned, or user willing to break it|**Yes**|
 |Relax a geo exclusion (name the specific geos and what they give back)|User-stated exclusions exist|**Yes**|
-|Let a concurrent test's geos into the reference group (never the treatment side)|Auto- or user-excluded tests exist|**Yes**|
 |Reuse a concurrent test's geos fully, starting after its end date|Auto- or user-excluded tests exist, and the user can wait|**Yes**|
 |Revise the CPA assumption — **only if the user says their real CPA differs**|A CPA estimate is driving the threshold|No — re-check with lift-test-design-analyze|
 |Drop a cell (5→4, 4→3, 3→2)|numberOfCells ≥ 3|**Yes**|

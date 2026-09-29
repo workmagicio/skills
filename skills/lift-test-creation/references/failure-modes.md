@@ -71,9 +71,7 @@ Complete catalog. The top 7 most-violated are inline in SKILL.md §9 CRITICAL; t
 ❌ **Exposing internal field labels** ("Test DMAs", "Control DMAs") — use "Holdout group" / "Reference group"
 ❌ **Using "Geo coverage" or "Expected daily spend"** — use "Geo size" and "Feasibility threshold"
 ❌ **Reporting the design result as prose** instead of the table — or omitting the treatment geo list, the geo count, or the spend comparison
-❌ **A feasibility threshold without a specific number** ("auto-calculated", "within range", "~$2k-ish")
-❌ **Listing the reference group's geos** — it's the remainder, not something the user manages
-❌ **Including MDL in design output**
+❌ **A feasibility threshold without a specific number** ("auto-calculated", "within range", "~$2k-ish") ❌ **Listing the reference group's geos** — it's the remainder, not something the user manages ❌ **Including MDL in design output**
 
 ## On time
 
@@ -91,12 +89,18 @@ Complete catalog. The top 7 most-violated are inline in SKILL.md §9 CRITICAL; t
 ❌ **Misresolving an ambiguous geo name** — clarify, don't guess
 ❌ **Not surfacing the order-volume cost** of excluding a top-5 geo
 
+❌ **Omitting the account geo settings row** from the Step 4 table, or presenting it as something the user can change in this flow
+
+❌ **Letting a user-named geo vanish** because the account excludes it, instead of saying so
+
 ## On concurrency
 
 ❌ **Auto-excluding draft-state tests** — only scheduled and active
 ❌ **Not telling the user their geo pool was reduced** by a running test
 ❌ **Relaxing concurrency silently** to make a design solve
-❌ **Allowing unconditional simultaneous overlap** — only reference-group overlap, or full reuse with a later start date
+❌ **Allowing simultaneous overlap** — reuse is only ever sequenced, on a start date after the other test ends
+
+❌ **Offering sequenced reuse without naming the delay** — the gain and the wait go in the same sentence
 
 ## On mid-flow modification
 

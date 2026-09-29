@@ -88,10 +88,14 @@ Show this **in addition** to the design result / comparison table above — the 
 Derive each period's threshold from the design's native one with the same formula the product uses — no re-run:
 
 > threshold(N) = (feasibility threshold at the design's own length) × √(design length / N)
+>
+>
 
 Rows: 14 / 21 / 28 days (21 = the design's native length). "Clears it?" = current spend ≥ threshold × 0.95.
 
 > Test-length options — how the daily threshold moves with duration:
+>
+>
 
 |Test period|Feasibility threshold|Your $933 / day|
 |---|---|---|
@@ -99,9 +103,13 @@ Rows: 14 / 21 / 28 days (21 = the design's native length). "Clears it?" = curren
 |21 days|$1,250 / day|✗|
 |28 days|$1,080 / day|✗ — closest|
 
-> ★ Recommended = the **shortest length that clears**, chosen from **21 / 28 days** only. **14 days is shown for reference but is never the recommendation** (matches the product). If neither 21 nor 28 clears, a longer **custom length** lowers the threshold further — offer it.
+> ★ Recommended = **the user's stated test length if they gave one** (say whether it clears; if it doesn't, name the shortest length that does as the alternative). Otherwise the **shortest length that clears**, chosen from **21 / 28 days** only. **14 days is shown for reference but is never the recommendation** (matches the product). If neither 21 nor 28 clears, a longer **custom length** lowers the threshold further — offer it.
+>
+>
 
 **Rules**:
+
+- A test length the user stated as a constraint is **pinned**: ★ sits on it regardless of whether a shorter length would also clear. Only without a stated length do you pick the shortest that clears.
 - 14 days is displayed but **never** the ★ recommendation — pick ★ from {21, 28, and a custom length if set}, shortest that clears.
 - Custom length = any integer 14–60 except {14, 21, 28}, with test period + cooling ≤ 60 days.
 - Threshold uses √(design length / N) — an estimate scaled from the single design, not a re-solve (same as the product UI).
@@ -110,34 +118,48 @@ Rows: 14 / 21 / 28 days (21 = the design's native length). "Clears it?" = curren
 ## Step 6 — Solve loop, round 1
 
 > At your current spend (~$1.8k/day), 4 weeks won't be enough to detect a meaningful result — we'd need about $2.5k/day, so you're roughly $700/day short.
-
+>
 > Options:
-
-- **Raise daily spend to ~$2.5k**, keep 4 weeks *(breaks your $3k/day cap? no — fits)*
-- **Test a larger geo footprint** — the 10% bracket puts more orders on each side and drops the threshold to ~$1.7k/day, which your current spend clears
-- **Extend to 6 weeks** at current spend *(breaks your "finish by July 15" constraint)*
-- **Let your Google test's geos into this test's reference group** (they'd stay out of the holdout) — gives back 9 DMAs (~14% of orders), threshold drops to ~$1.9k/day, and both readouts still hold up
-- **Proceed as-is** — the result may come back inconclusive
-
+>
+> - **Raise daily spend to ~$2.5k**, keep 4 weeks *(breaks your $3k/day cap? no — fits)*
+>
+> - **Test a larger geo footprint** — the 10% bracket puts more orders on each side and drops the threshold to ~$1.7k/day, which your current spend clears
+>
+> - **Extend to 6 weeks** at current spend *(breaks your "finish by July 15" constraint)*
+>
+> - **Reuse your Google test's geos, starting after it ends Apr 18** — gives back 9 DMAs (~14% of orders), threshold drops to ~$1.9k/day, at the cost of waiting three weeks to start
+>
+> - **Proceed as-is** — the result may come back inconclusive
+>
 > Which way do you want to go?
+>
+>
 
 ## Step 6 — Solve loop, round 3 opening
 
 > Last pass before I hand this to Data Science — at the 10% bracket and 6 weeks, the threshold is ~$2.1k/day against your $1.8k/day. The remaining lever is your geo exclusions: New York and LA together are ~18% of your orders.
+>
+>
 
 ## Step 6 — DS handoff
 
 > I've hit the limit of what I can design here. Passing to Data Science with the full picture:
-
+>
 > **You asked for**: Meta lift test, tactic level ("Prospecting"), finish before July 15, under $3k/day, New York and LA excluded **Resolved**: US / DMA level · DTC + Amazon · Orders · PTM
-
-1. Default geo size, 4 weeks → threshold $2.5k/day vs. $1.8k/day available — $700/day short
-2. 10% geo size, 4 weeks → threshold $2.2k/day — still $400/day short
-3. 10% geo size, 6 weeks → threshold $2.1k/day — still short, and past the July 15 deadline
+>
+> 1. Default geo size, 4 weeks → threshold $2.5k/day vs. $1.8k/day available — $700/day short
+>
+> 2. 10% geo size, 4 weeks → threshold $2.2k/day — still $400/day short
+>
+> 3. 10% geo size, 6 weeks → threshold $2.1k/day — still short, and past the July 15 deadline
+>
+>
 
 > **Blocker**: available spend can't clear the feasibility threshold within your deadline without dropping the geo exclusions.
-
+>
 > Data Science can look at whether a different design or a longer horizon gets you a readable result.
+>
+>
 
 ## Step 7 — Draft created
 
@@ -152,20 +174,28 @@ Multi-cell — still one draft, with the cells named:
 > Draft created with both cells — Meta Ads and Google Ads, sharing one reference group: [draft link]
 >
 > Start date isn't set — pick it when you schedule.
+>
+>
 
 Updating an existing draft:
 
 > Updated your existing draft rather than making a new one: [draft link] — the geo exclusions and the 6-week period are in.
+>
+>
 
 ## Step 8 — Design deck
 
 Before building — the two intake answers, one line:
 
 > Building the design deck from draft [draft link] (3-cell, CTV + TikTok). Feasibility threshold on the deck: yes · PTM-vs-LTM comparison page: yes · theme / title: default. Give me a few minutes.
+>
+>
 
 Deck done — the link and what's in it, never the deck's tables retyped:
 
-> Design deck ready: [Slides link] — 17 slides, 25/25 checks passed. Each cell has its own Test Parameters page and two Geos pages (names, then DMA codes). MDL is on the deck, two-sided, marked share-on-request. The internal validation deck is in the same folder, filename ending _INTERNAL-Validation. Want the LTM comparison page added? It re-publishes to the same link.
+> Design deck ready: [Slides link] — [n] slides, [checks] checks passed. The validation deck is in the same folder, filename ending _INTERNAL-Validation. Want the LTM comparison page added? It re-publishes to the same link.
+>
+>
 
 If the deck skill refuses — duplicate-geo variants, identical holdouts across cells, mixed countries or geo levels — relay its reason and the choice the user has to make. Don't work around it, and don't build slides by hand.
 

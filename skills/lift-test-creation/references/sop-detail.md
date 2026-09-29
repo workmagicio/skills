@@ -12,7 +12,7 @@
 - **salesChannel** — query connected channels (Ready / Not optimal only); default all selected.
 - **country** — trailing-90-day sales share; auto-pick the dominant country.
 - **geoLevel** — derive from country (US → DMA; others → postcode).
-- **locationSetting** — lift-test-scan for scheduled + active tests; auto-exclude the union of their geos, then layer user geo constraints on top → references/constraints.md
+- **locationSetting** — lift-test-scan's `runningTests` (scheduled / executing / active) is auto-excluded; a draft is excluded only when the user names it, pulled via lift-test-get. Layer the user's own geo includes / excludes and any concurrency instruction on top → references/constraints.md. The account-level geo limitation comes back on `scan.geoExclusion` — design-prepare folds it into the design, and you surface `geoExclusionSummary` in the Step 4 table's account-geo row.
 - **status** — draft.
 
 ## Step 4 — What the summary must contain
@@ -27,6 +27,7 @@ The Step 4 confirmation is a **two-column table** — label on the left, value o
 |**Sales channels**|The channel list, noting "all your connected channels" when it's all of them|Always|
 |**Primary metric**|Orders, or New customers|Always|
 |**Your constraints**|One line, every stated constraint in the user's own terms, separated by ·|Always, if there is none, display "none"|
+|**Account geo settings**|The account-level geo configuration the test inherits — the baseline pool before any exclusion. Name the setting, not the full geo list|Only if the account geo settings are set|
 |**Also**|The concurrency note — which running test's geos are being avoided, and through what date|Only if the geo pool was reduced|
 
 ## Step 5 — Design failures
@@ -54,6 +55,6 @@ All of these now route into the solve loop rather than terminating:
 - **C — re-design** (online-design inputs): `locationSetting` / geo size (holdout) / `salesChannel` / metric filters / `primaryMetric` / `country` / `geoLevel` → re-run scan → prepare → design → analyze (seed prepare with the draft's current config), then rebuild `geoGroup` / `testChannel`.
 - **D — recompute estimator, no re-design**: **test period** (√ scaling) and **method PTM ↔ LTM** (target-method formula) → recompute `expected_daily_spend` / `expect_cpa` / `minimum_daily_budget_required` on the existing `geoGroup`; geos unchanged.
 - **E — testChannel change**: ask the user whether to regenerate, then:
-  - **Swapping the platform (e.g. Meta → Google)** — not a plain field patch. **Must** re-fetch `impactCampaignInfos` for the new platform (lift-test-impact-campaigns / tactic-list — the old platform's ids are invalid) and recompute the estimator for the new platform's spend / CPA (via analyze; the geo pair is order-geography-based and can be reused). Also regenerate `name`, and re-check `approach` and PTM support for the new platform. Fields touched: `adPlatform`, `name`, `approach`, `testChannel` (`adPlatform` / `adPlatformName` / `impactCampaignInfos` / cell `name`), and each cell's `geoGroup.estimator`. Unchanged: `country` / `geoLevel` / `salesChannel` / `primaryMetric` / `locationSetting` / `numberOfCells` / start+end times.
-  - **Adding / removing a cell or platform** (changes cell count / the shared reference group) → re-design (path C).
-  - **Same-platform scope tweak** (a different tactic / campaign selection, same platform) → recompute the estimator (path D); geos unchanged.
+    - **Swapping the platform (e.g. Meta → Google)** — not a plain field patch. **Must** re-fetch `impactCampaignInfos` for the new platform (lift-test-impact-campaigns / tactic-list — the old platform's ids are invalid) and recompute the estimator for the new platform's spend / CPA (via analyze; the geo pair is order-geography-based and can be reused). Also regenerate `name`, and re-check `approach` and PTM support for the new platform. Fields touched: `adPlatform`, `name`, `approach`, `testChannel` (`adPlatform` / `adPlatformName` / `impactCampaignInfos` / cell `name`), and each cell's `geoGroup.estimator`. Unchanged: `country` / `geoLevel` / `salesChannel` / `primaryMetric` / `locationSetting` / `numberOfCells` / start+end times.
+    - **Adding / removing a cell or platform** (changes cell count / the shared reference group) → re-design (path C).
+    - **Same-platform scope tweak** (a different tactic / campaign selection, same platform) → recompute the estimator (path D); geos unchanged.

@@ -7,7 +7,7 @@
 |User names two platforms|One 3-cell test with a shared reference group; say so in Step 4 and offer separate tests as the alternative. **Never ask them to pick a cell count.**|
 |User specifies LTM but PTM is recommended|State the difference once. If they hold firm, use LTM. **Don't lecture twice.**|
 |User picks an unsupported country ("Japan", "Brazil")|Error out, list the 7 supported countries, ask which. **Don't hard-build, don't route to DS** — this is a product limit, not a modeling question.|
-|User-named tactic / campaign doesn't exist|After lift-test-impact-campaigns: "Couldn't find a tactic called 'X' — candidates are: …"|
+|User-named tactic / campaign doesn't exist|Campaigns: after lift-test-impact-campaigns. Tactics: after tactic-list — impact-campaigns doesn't return tactics. Either way: "Couldn't find a tactic called 'X' — candidates are: …"|
 |User picked a Not-ready sales channel|Name the specific failing readiness check, point to Settings. **Don't silently drop the channel.**|
 |Design fails to form a geo pair|Solve loop round 1 — structural reason + levers. **Never expose "holdoutPct"** — say "more geos on the holdout side".|
 |Design comes back Insufficient|Solve loop round 1 with quantified gap.|
@@ -18,7 +18,7 @@
 |User states no start date|**Don't ask.** Leave unset; note it in the draft handoff.|
 |User names a draft in a concurrency constraint that doesn't exist|List their scheduled / active tests and ask which one they meant.|
 |User says a draft is "dead, ignore it"|Remove from the exclusion set; state what geos that gives back.|
-|User says overlap is fine|Unconditional simultaneous overlap isn't offered. Give the two forms: the other test's geos in this test's reference group only, or full reuse with a start date after that test ends.|
+|User says overlap is fine|Simultaneous overlap isn't offered. Give the one form that is: reuse those geos with a start date after the other test ends.|
 |"Don't touch New York"|Clarify once: out of the test entirely, or just out of the holdout group?|
 |Ambiguous geo name ("New York" at DMA level, "the coasts")|Clarify with a proposed resolved list — don't guess.|
 |Ambiguous budget unit ("under $5k")|Clarify once: daily cap or total test budget?|

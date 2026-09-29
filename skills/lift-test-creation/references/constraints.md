@@ -19,7 +19,7 @@ How each constraint enters the design, how it's validated, and how it behaves in
 |"I can only pause a few DMAs"|Minimum bracket; flag that this raises the feasibility threshold|
 |"go bigger if it helps"|Treated as pre-authorization for the geo-size lever in the solve loop — still confirm which bracket before re-solving|
 
-- Brackets: **Minimum → 5% → 10% → 15%**.
+- Brackets: **Minimum → 5% → 10% → 15% -> 20% -> 25% ->30%**.
 - User-facing name is **"Geo size"**. Never "holdoutPct", never a raw decimal.
 - Larger geo size → more orders per side → **lower** feasibility threshold. Say that plainly when offering it as a lever.
 - A geo-size cap that blocks the design is a legitimate solve-loop gap: "To clear the threshold at your spend we'd need the 10% bracket; you asked to stay at 5%."
@@ -83,6 +83,7 @@ Users don't manage the reference group directly — it's the remainder the desig
 
 ### Exclusion mechanics
 
+- The candidate pool is bounded by the **account's own geo exclusions**, which lift-test-design-prepare applies — a user constraint can narrow the pool, never widen it past what the account is configured to measure. If the design comes back having dropped a geo the user named, attribute it to the account setting rather than letting it disappear quietly.
 - Exclusions shrink the candidate pool for **both** sides. A long exclusion list is the most common cause of a no-solve at Step 5.
 - Excluding a high-volume geo (a top-5 DMA) disproportionately raises the feasibility threshold — surface that when it happens: "Excluding New York and LA takes ~18% of your orders out of the pool, which pushes the threshold up."
 - Inclusion lists ("only run in California") are exclusions of everything else. Treat a narrow include list as a likely no-solve risk and say so *before* design if the named pool is very small.
@@ -131,23 +132,22 @@ Call lift-test-scan. Auto-exclude the union of the **treatment + reference geos*
 |"don't start until the other one finishes"|Records a start date. Since the skill doesn't ask for one, put it in the draft handoff note; if the user states the date outright, honor it.|
 |Names a test that doesn't exist|List their scheduled / active tests and ask which one|
 
-### The two permitted forms of overlap
+### The one permitted form of overlap
 
-Full, unconditional overlap is never allowed — two live tests sharing treatment geos in the same window contaminate both readouts. Only these two forms are on the table:
+Simultaneous overlap is never allowed — two live tests sharing geos in the same window contaminate both readouts. There is exactly one way to reuse another test's geos:
 
-|Form|What it means|When to offer it|
-|---|---|---|
-|**Reference-group overlap only**|The other test's geos may sit in this test's reference group, but never on its treatment side. Both tests stay readable because no geo is being manipulated by two tests at once.|Default relaxation — offer this first|
-|**Full overlap, sequenced**|Any geo may be reused, **provided this test starts after the other test's end date**. Record that start date on the draft and say why it's there.|When reference-only doesn't give back enough, and the user can wait|
+**Full overlap, sequenced** — any geo may be reused, **provided this test starts after the other test's end date**. That records a start date on the draft (the one case where the skill sets one without being asked for it), so say the date and why it's there.
 
-If the user asks for unconditional simultaneous overlap, say what it costs and offer the two forms instead:
+If the user asks to overlap while the other test is still running, say what it costs and offer the sequenced form instead:
 
-> "Running both in the same geos at the same time means neither readout can attribute the lift to one test. Two ways to get most of the geos back: let the other test's geos sit in this test's reference group, or reuse them fully and start this one after Apr 18."
+> "Running both in the same geos at the same time means neither readout can attribute the lift to one test. The way to get those geos back is to reuse them fully and start this one after Apr 18, when the Google test ends."
+>
+>
 
 ### Interaction with the solve loop
 
 Relaxing concurrency is a **lever** — often the highest-value one, because it can return several high-volume geos at once. When offering it, name the form and its cost:
 
-> "Round 2 option: let the Google test's geos sit in this test's reference group rather than excluding them. That gives back 9 DMAs (~14% of orders) and drops the threshold to ~$1.9k/day. They stay out of the holdout, so both readouts hold up."
+> "Round 2 option: reuse the geos held by your Google test, starting this one after it ends on Apr 18. That gives back 9 DMAs (~14% of orders) and drops the threshold to ~$1.9k/day — the cost is waiting three weeks to start."
 
 Never relax concurrency silently to make a design solve. It degrades a test the user already has running.

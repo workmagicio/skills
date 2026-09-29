@@ -5,17 +5,16 @@ category: lift-test
 risk: R0
 version: 2.1.0
 last-updated: 2026-09-23
-
 references:
-  - references/input-parsing.md
-  - references/constraints.md
-  - references/solve-loop.md
-  - references/auto-solve.md
-  - references/sop-detail.md
-  - references/create-update-params.md
-  - references/output-templates.md
-  - references/edge-cases.md
-  - references/failure-modes.md
+- references/input-parsing.md
+- references/constraints.md
+- references/solve-loop.md
+- references/auto-solve.md
+- references/sop-detail.md
+- references/create-update-params.md
+- references/output-templates.md
+- references/edge-cases.md
+- references/failure-modes.md
 ---
 
 ## 1. Purpose
@@ -133,12 +132,12 @@ These are two ways of describing the same thing. The user supplies **one side**;
 |---|---|---|---|
 |**Concurrent-test requirements**|"don't overlap with the test I have scheduled", "avoid the geos in draft #1183", "that draft is dead, ignore it"|locationSetting auto-exclusion set — which other tests' geos are carved out|references/constraints.md|
 |**Geo constraints**|"exclude NY and CA", "only run in the Midwest", "don't pause Texas"|locationSetting include / exclude + treatment-side pinning|references/constraints.md|
-|**Treatment geo size**|"keep the holdout small", "no more than 10% of orders", "I can't pause more than a handful of DMAs"|geo-size bracket (Minimum → 5% → 10% → 15%)|references/constraints.md|
+|**Treatment geo size**|"keep the holdout small", "no more than 10% of orders", "I can't pause more than a handful of DMAs"|geo-size bracket (Minimum → 5% → 10% → 15% -> 20% -> 25% -> 30%)|references/constraints.md|
 |**Budget**|"under $3k/day", "$50k for the whole test"|Feasibility ceiling in the design check. **Daily vs. total must be disambiguated once.**|references/constraints.md|
 |**Test period**|"4 weeks", "finish before July 15", "as fast as possible"|testPeriod target, or deadline → back-solve|references/input-parsing.md|
 |**CPA estimate**|"assume a $40 CPA", "we run about $35 CPA on Meta"|Input to expected-daily-spend / feasibility computation — replaces the derived estimate|references/constraints.md|
 
-**Default behaviors when no constraint is given** — resolved silently, never raised as questions: the tenant's currently scheduled + active tests are auto-excluded from the geo pool; geo size, period and method come from design; no budget ceiling or CPA override is applied.
+**Default behaviors when no constraint is given** — resolved silently, never raised as questions: the tenant's currently scheduled + active tests are auto-excluded from the geo pool; geo size, period and method come from design;  no budget ceiling is applied; CPA is resolved via database-query-run for any budget decision (Step 5), and a user-stated CPA overrides it.
 
 ### D. Never asked
 
@@ -152,13 +151,13 @@ These are two ways of describing the same thing. The user supplies **one side**;
 
 1. **Parse the request.** Resolve every field present in the wording — aliases, scope *or* cell count, time, geo, and **every constraint in §4.C**. Record what's specified; never re-ask it. Check the §3 boundary before anything else.
 2. **Resolve the test structure.** Apply the §4.A either/or table. Ask at most one question, and only when neither side was given (or the two sides conflict).
-3. **Resolve defaults.** Run lift-test-scan for: current spend, suggested params, and existing tests for collision avoidance (`runningTests` covers scheduled / executing / active — auto-exclude those; a draft is excluded only if the user names it, pulled via lift-test-get). Query DB for sales channels and country. Apply any stated constraints to the inputs before design. (The PTM / LTM sufficiency call is made later, by lift-test-design-analyze, not by scan.)
-4. **Confirm — the ONLY full-config confirmation gate.** Echo all collected + resolved fields in business language: scope or **cell shape**, **sales channels**, **primary metric**, **country + geo level**, method, and a **read-back of every constraint** the user stated. Surface override conflicts once; don't lecture. → references/output-templates.md
-5. **Run the design: lift-test-design-prepare → lift-test-design → lift-test-design-result → lift-test-design-analyze.** prepare packages the inputs; design submits the solve and returns a `task_id`; design-result polls that token until the ~3–4 min PTM + LTM solve settles into design IDs; design-analyze turns those IDs into the decision — geo pair, test period, geo size, feasibility threshold, expected daily spend, **Sufficient / Insufficient**, and the **PTM / LTM recommendation**. Present **two tables**: (1) the PTM vs LTM comparison (keeps the native ~21-day test period + feasibility threshold), and (2) a test-period × feasibility-threshold table across 14 / 21 / 28 days (thresholds scaled by √(design length / N), same formula as the product) with ★ on the shortest sufficient length chosen from 21 / 28 (14 is reference-only; a custom 14–60 length is allowed). → references/output-templates.md. Sufficient and every stated constraint honored → Step 7. Anything else — no viable pair, Insufficient, or a violated constraint — is **not** an error message; it enters the solve loop → Step 6.
+3. **Resolve defaults.** Run lift-test-scan for: current spend, suggested params, and existing tests for collision avoidance (`runningTests` covers scheduled / executing / active — auto-exclude those; a draft is excluded only if the user names it, pulled via lift-test-get), **and the account-level geo limitation** (`geoExclusion` / `geoExclusionSummary`, `null` when the account has none) — carry it into the Step 4 table's account-geo row. Query DB for sales channels and country. Apply any stated constraints to the inputs before design. (The PTM / LTM sufficiency call is made later, by lift-test-design-analyze, not by scan.)
+4. **Confirm — the ONLY full-config confirmation gate.** Echo the collected + resolved config as a two-column table in business language, in this order: test scope (or "left open — you'll set each cell's scope in the draft" when the user gave only a cell count) · cell shape · country + geo level · sales channels · primary metric · a read-back of every constraint the user stated, or "none" · the account geo settings row when the account has them set · the concurrency note when the geo pool was reduced. Close with both halves of the closing line: one open ask for anything else to factor in, and one line that this is the last config confirmation. Surface override conflicts once; don't lecture. Row-by-row spec → references/sop-detail.md · wording → references/output-templates.md
+5. **Run the design: lift-test-design-prepare → lift-test-design → lift-test-design-result → lift-test-design-analyze.** prepare packages the inputs; design submits the solve and returns a `task_id`; design-result polls that token until the ~3–4 min PTM + LTM solve settles into design IDs; design-analyze turns those IDs into the decision — geo pair, test period, geo size, feasibility threshold, expected daily spend, **Sufficient / Insufficient**, and the **PTM / LTM recommendation**. Present **two tables**: (1) the PTM vs LTM comparison (keeps the native ~21-day test period + feasibility threshold), and (2) a test-period × feasibility-threshold table across 14 / 21 / 28 days (thresholds scaled by √(design length / N), same formula as the product) with ★ on the user's stated test length when they gave one (say whether it clears), otherwise on the shortest sufficient length chosen from 21 / 28 (14 is reference-only; a custom 14–60 length is allowed). → references/output-templates.md. CPA: resolve it yourself, the same way auto-solve does — one database-query-run query scoped to what the user selected, by testLevel (platform → the selected accounts via `account_id`, or the whole platform if none were picked; tactic → the selected tactics via `tactic_name`; campaign → the selected campaigns via `campaign_id`), DDA / iDDA all-channel cost per order capped at 1.5 × AOV (→ references/auto-solve.md, CPA section) — and pass it to design-analyze as `platformSpend[].cpa`. Don't leave it to analyze's auto-CPA (30-day platform-reported `origin_cpa`, not grain-aware and tends to run low). Sufficient and every stated constraint honored → Step 7. Anything else — no viable pair, Insufficient, or a violated constraint — is **not** an error message; it enters the solve loop → Step 6.
 6. **Solve loop — max 3 rounds.** Insufficient, or a Step 5 failure: quantify the gap in concrete numbers → present the levers, each with the number it moves and the constraint it would break → **the user picks** → re-solve. Three rounds without a feasible design → stop and route to DS with the handoff summary. "Proceed as-is" exits the loop at any round. → references/solve-loop.md
-   - **Auto-solve branch.** When the failure is budget-related and auto-solve's inputs are complete (a budget target — stated or inferable from scan spend — and a CPA resolvable via database-query-run), offer to search for a fitting design automatically: **one consent question**; the user says yes → the skill runs the geo-size × test-period search itself (instead of one manual lever per round) and takes the result to Step 7. One auto-solve run **is** the loop — it replaces the manual rounds, doesn't stack on them. → references/auto-solve.md
+    1. **Auto-solve branch.** When the failure is budget-related and auto-solve's inputs are complete (a budget target — stated or inferable from scan spend — and a CPA resolvable via database-query-run), the skill **runs the geo-size × test-period search itself, automatically** — one progress line, no consent question — instead of one manual lever per round, and takes the result to Step 7. A geo size or test period the user pinned is never overridden; only a real trade-off (>20% geo size or >35 days) pauses for the user to pick. One auto-solve run **is** the loop — it replaces the manual rounds, doesn't stack on them. → references/auto-solve.md
 7. **Push the test as a draft.** A brand-new test → **lift-test-create** (default): one draft per test, whatever the cell count — a 3-, 4- or 5-cell test is one draft carrying all its cells, assembled from the chosen analyzed design. Modifying a draft the user already has → **lift-test-create-or-update** with its `id`. No second full-config confirmation. Return the draft link, plus the start-date note and any "proceed as-is" caveat. → references/sop-detail.md
-8. **Build the design deck — only when asked.** When the user wants a client-facing test plan ("design deck", "test plan deck", "slides I can walk the client through"), don't narrate the design in chat — run the deck skill on the Step 7 draft: a 2-cell draft → 2-cell-test-design-deck; a 3-cell or larger draft → multicell-design-deck, which expands the cells from that one draft. Two intake answers before building: show the feasibility threshold on the deck (yes / no), and for 3 cells or more, add the PTM-vs-LTM comparison page (yes / no). Output: two editable Google Slides in the client's Partnership-drive folder › Lift Test Design — the client design deck and an INTERNAL validation deck. If the skill refuses the draft, relay its reason and the choice the user has to make. Never rebuild the deck by hand, and never paste its MDL or geo lists into chat (§7). → references/output-templates.md, Step 8
+8. **Build the design deck — only when asked.** When the user wants a client-facing test plan ("design deck", "test plan deck", "slides I can walk the client through"), don't narrate the design in chat — run the deck skill on the Step 7 draft: a 2-cell draft → 2-cell-test-design-deck; a 3-cell or larger draft → multicell-design-deck, which expands the cells from that one draft. Two intake answers before building: show the feasibility threshold on the deck (yes / no), and for 3 cells or more, add the PTM-vs-LTM comparison page (yes / no). Output — the same two files whatever the cell count: two editable Google Slides in the client's Partnership-drive folder › Lift Test Design — the client design deck, and a validation deck whose filename ends _INTERNAL-Validation. The validation deck leads with a verdict page, then the design-validation section, then the deck-check section. The .pptx, .html and .pdf written locally are intermediates, not deliverables. If the skill refuses the draft, relay its reason and the choice the user has to make. Never rebuild the deck by hand, and never paste its MDL or geo lists into chat (§7). → references/output-templates.md, Step 8
 
 ### 5.2 Validation checkpoints
 
@@ -168,13 +167,13 @@ Multi-step SOP — the agent must pause and surface at these gates, never autopi
 |---|---|
 |Step 2|Only if a question is genuinely needed — structure or a conflicting either/or.|
 |Step 4|Full-config summary in business language, incl. cell shape + constraint read-back. **This is the only full-config confirmation gate.**|
-|Step 5 (design back, Sufficient)|Progress update only: the method comparison table + the test-period × feasibility-threshold table (★ = shortest sufficient length among 21 / 28; 14 reference-only). Do **not** restate full config, and do **not** ask for start date.|
+|Step 5 (design back, Sufficient)|Progress update only: the method comparison table + the test-period × feasibility-threshold table (★ = the user's stated test length when they gave one, saying whether it clears; otherwise the shortest sufficient length among 21 / 28 — 14 is reference-only and never starred). Do **not** restate full config, and do **not** ask for start date.|
 |Step 6 (each round)|Quantified gap + levers with numbers. User picks; **never pick for them**. Say which round this is when on round 2 or 3.|
-|Step 6 (auto-solve offer)|When budget-related and auto-solve inputs are complete: **one** consent question ("want me to search automatically?"). Yes → run the search (no second full-config gate); No → manual levers. → references/auto-solve.md|
+|Step 6 (auto-solve run)|When budget-related and auto-solve inputs are complete: runs **automatically** — one progress line, no consent question, no second full-config gate. Comfortable fit → Step 7 directly (result table + round log); only a >20% geo size / >35-day trade-off pauses for the user to pick. Never overrides a geo size / test period the user pinned. → references/auto-solve.md|
 |Step 6 (exhausted)|DS handoff summary. Nothing gets built.|
 |Step 7|Draft link. Done. No final-confirm table.|
 
-**Autopilot is forbidden at these gates.** The Step 4 single-confirmation rule, the no-double-confirm rule (Step 7), and the user-picks-the-lever rule (Step 6) are the most-violated invariants — see §9 CRITICAL.
+**Autopilot is forbidden at these gates.** The Step 4 single-confirmation rule, the no-double-confirm rule (Step 7), and the user-picks-the-lever rule (Step 6's **manual** rounds — auto-solve is the documented exception, §9-3) are the most-violated invariants — see §9 CRITICAL.
 
 ### 5.3 Input-quality routing
 
@@ -193,20 +192,20 @@ Multi-step SOP — the agent must pause and surface at these gates, never autopi
 
 |Tool|Required?|Purpose|
 |---|---|---|
-|lift-test-scan|Required|Last-28-day daily spend + orders, existing tests as `runningTests` (scheduled / executing / active) for awareness and start-date conflict checks, and suggested params (holdout / cells / metric). The actual geo auto-exclusion set is computed later by design-prepare (loadConcurrentTestInfo), not by scan.|
+|lift-test-scan|Required|Last-28-day daily spend + orders, existing tests as `runningTests` (scheduled / executing / active) for awareness and start-date conflict checks, and suggested params (holdout / cells / metric). The actual geo auto-exclusion set is computed later by design-prepare (loadConcurrentTestInfo), not by scan. Also returns `geoExclusion` / `geoExclusionSummary` — the account-level geo limitation converted to the test's geo level (`null` when none) — for the Step 4 read-back; design-prepare applies it to the design and lift-test-create re-checks it.|
 |lift-test-impact-campaigns|Required (account / campaign level)|List ad **accounts or campaigns** to build impactCampaignInfos — `level=account` for a platform-scope test (also the first step before drilling into campaigns), `level=campaign` for a campaign-scope test. **Tactic-level grouping is NOT here — use the tactic MCP tool for tactic candidates.**|
 |tactic-list|Required (tactic level)|Fetch the tactic candidates for a tactic-scope test — impact-campaigns does not return tactics|
 |lift-test-design-prepare|Required|Assemble scan output + confirmed targeting / geo / metric / location inputs into `lift_test_group`, `create_params`, and a summary; applies the concurrent-test and account-level geo exclusions here. (Budget / CPA constraints are not prepare inputs — they are handled at analyze / create.)|
 |lift-test-design|Required|Submit the design solve. Runs asynchronously — returns a `task_id` immediately (the ~3–4 min PTM + LTM solve runs detached), not the design itself|
 |lift-test-design-result|Required|Poll the `task_id` from lift-test-design until the solve settles; returns the PTM / LTM design IDs (or a failed / running state)|
-|lift-test-design-analyze|Required|Turn the design IDs into the decision: geo pair, test period, geo size, feasibility threshold, expected daily spend, **Sufficient / Insufficient**, and the **PTM / LTM recommendation**. Can re-evaluate estimator feasibility + recommendation when CPA or daily-spend inputs change (via `platformSpend`); budget ceilings are compared outside this tool.|
+|lift-test-design-analyze|Required|Turn the design IDs into the decision: geo pair, test period, geo size, feasibility threshold, expected daily spend, **Sufficient / Insufficient**, and the **PTM / LTM recommendation**. Always pass `platformSpend[].cpa` — the CPA resolved via database-query-run scoped to the user's selection by testLevel (platform → selected accounts or the whole platform; tactic → selected tactics; campaign → selected campaigns; DDA / iDDA, see references/auto-solve.md); it re-evaluates feasibility + recommendation with it. Left empty it falls back to a 30-day platform-reported `origin_cpa` that is not grain-aware and runs low. Budget ceilings are compared outside this tool.|
 |lift-test-create|Required (final step — new draft)|**Default for a brand-new test.** Create the single draft from the chosen analyzed design — all cells in one draft. Takes the structured fields (§4) + the design IDs / geoGroup from analyze and assembles the payload for you (incl. timezone conversion).|
 |lift-test-create-or-update|Optional (update / edit)|Update an existing draft the user is modifying — pull it with lift-test-get, change fields, push the `body` back **with its `id`**. Before saving it runs the same gates as lift-test-create on whatever the body carries — geoGroup / testChannel shape, account-level geo limitation, concurrent geo-conflict, past start date (a body with no design still saves). The caller assembles the body, so prefer lift-test-create for new drafts.|
 |lift-test-list|Optional|"What tests have I created before"; resolving a named draft in a concurrency constraint|
 |lift-test-get|Optional|Pull an existing draft — mid-flow modification, or reading the geos of a draft named in a concurrency constraint|
 |database-query-run|Required (auto-solve only)|Compute the per-platform CPA for the Step 6 auto-solve branch — one unified Cube.dev query (`attr_all_orders` / `attr_all_sales`, DDA vs iDDA by `attr_model_name`). Analyze's auto-CPA is too low; never use it as the fit CPA. → references/auto-solve.md|
 
-**Design-deck skills (Step 8).** 2-cell-test-design-deck and multicell-design-deck are Claude Code / Cowork skills, not MCP tools. They read the warehouse through the workmagic_query connector, need Python 3.10+ and Google Chrome, render an editable .pptx, run their own verification, and publish to Google Drive with a bundled service account. Input is the Step 7 draft link plus the two intake answers — nothing else.
+**Design-deck skills (Step 8).** 2-cell-test-design-deck and multicell-design-deck are Claude Code / Cowork skills, not MCP tools. They read the warehouse through the workmagic_query connector, need Python 3.10+ and Google Chrome, run their own verification, and publish to Google Drive with a bundled service account. Input is the Step 7 draft link plus the two intake answers — nothing else; what comes back is in Step 8.
 
 ## 7. Output format
 
@@ -221,7 +220,7 @@ Multi-step SOP — the agent must pause and surface at these gates, never autopi
 
 All output templates (Step 4 summary, solve-loop rounds, design comparison, DS handoff, draft link) → references/output-templates.md
 
-**The design deck is the one output where the banned figures appear.** Chat keeps the rules above — no MDL, no reference-group geo list. The deck built in Step 8 is a client document produced by the deck skills, and it carries what chat must not: the multi-cell deck prints each cell's MDL as a percentage (two-sided, at the test's planned length) under a red framed "ONLY SHARE ON CLIENT'S REQUEST" tag, gives every cell two Geos pages — market names, then the DMA / geo codes — and labels the cost figure by the test's own primary metric (cost per incremental order / incremental CAC / cost per incremental sale), never a blanket "iCAC"; both decks list the Reference group beside the treatment markets, and state the feasibility threshold, when shown, as a floor for the planned window rather than a spend cap. Treatment-side labels follow the method exactly as in chat. Don't copy any of these back into chat — send the link.
+**Step 8’s two files are where the banned figures appear.** Chat keeps the rules above — no MDL, no reference-group geo list. Both files carry what chat must not, and neither is ever retyped back into chat. On the client design deck: a 3-cell or larger deck prints each cell’s MDL as a percentage (two-sided, at the test’s planned length) under a red framed "ONLY SHARE ON CLIENT’S REQUEST" tag and gives every cell two Geos pages — market names, then the DMA / geo codes; a 2-cell deck prints no MDL. Every client deck lists the Reference group beside the treatment markets, labels the cost figure by the test’s own primary metric (cost per incremental order / incremental CAC / cost per incremental sale) rather than a blanket "iCAC", and states the feasibility threshold, when shown, as a floor for the planned window rather than a spend cap. The validation deck is internal end to end — the verdict, the gate results, the MDL basis, provenance, and anything stale — and goes to no one outside the team. Treatment-side labels follow the method exactly as in chat. Send the link, never the contents.
 
 ## 8. Edge cases & routing
 
@@ -231,7 +230,7 @@ See references/edge-cases.md — covering unsupported country, cell-count confli
 
 1. **Never hard-build when constraints aren't satisfiable.** State the gap with numbers. Give the levers. Unsupported country, past start date, infeasible budget — surface, never silently default.
 2. **Never re-confirm the full config after Step 4.** Step 4 is the ONLY full-config gate. After design, inside the solve loop, before create — progress updates and specific local questions only. "Shall I create the draft now?" is the most common regression.
-3. **Never pick the lever for the user.** In the solve loop the skill quantifies and offers; the user chooses. Re-solving with an unrequested lever is a silent override.
+3. **Never pick the lever for the user.** In the solve loop the skill quantifies and offers; the user chooses. Re-solving with an unrequested lever is a silent override. Exception: auto-solve searches only axes the user left open — a pinned geo size or period is never moved, and any trade-off outside the comfortable band goes back to them.
 4. **Cap the solve loop at 3 rounds, then route to DS.** A fourth round is a failure mode, not persistence. Carry the handoff summary.
 5. **Respect the boundary.** Non-standard metric definitions and creative tests are not approximated, not partially built — they go to DS (§3).
 6. **Never override a user's explicit choice silently.** LTM when PTM is recommended, a geo they excluded, a budget ceiling they set — surface once, respect the decision.
@@ -246,5 +245,7 @@ Full failure-modes catalog → references/failure-modes.md
 |lift-test-readout|Downstream: reading and acting on results — iROAS, confidence intervals, post-test decisions|
 |lift-test-diagnosis|Downstream: diagnosing failed or inconclusive tests — implementation drift, data readiness gaps, underpowered designs|
 |Data Science (DS)|Escalation target for out-of-boundary requests and exhausted solve loops|
-|2-cell-test-design-deck|Downstream (Step 8): turns a 2-cell draft into the client design deck — editable Google Slides in the client's Drive folder|
-|multicell-design-deck|Downstream (Step 8): turns a 3-cell or larger draft into one merged client design deck plus an internal validation deck|
+
+|2-cell-test-design-deck|Downstream (Step 8): turns a 2-cell draft into the client design deck and its validation deck — output contract in §5.1, Step 8|
+|---|---|
+|multicell-design-deck|Downstream (Step 8): merges a 3-cell or larger draft's cells into one client design deck, plus its validation deck — output contract in §5.1, Step 8|
