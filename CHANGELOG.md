@@ -4,6 +4,19 @@ All notable changes to the WorkMagic public skills are recorded here. This repo 
 [Agent Skills open standard](https://agentskills.io); each skill is independently versioned in
 its `SKILL.md` frontmatter (`version:` / `last-updated:`).
 
+## 2026-09-29
+
+### Changed
+
+- **`lift-test-creation` 2.1.1：v2 正文按 2026-09-23 同一判据（「每轮都要在场 / 只在某个分支才要」）
+  重切，正文 29,265 → 25,382 字符（−13.3%）。** v2.1.0 重写时未套用瘦身，本次补上：① 删掉
+  `When to trigger` 的 9 条正向触发例句；② Step 8 设计 deck 的完整契约（SOP 第 8 步正文、§6 的
+  deck skill 说明、§7 的 deck 文件内容说明）与 §5.3 输入质量路由表**逐字**移入
+  `references/sop-detail.md`，正文留指针；③ frontmatter `description` 换回 2026-09-23 加长的
+  241 字符版本（v2 重写时退回了 67 字符短版，漏召风险）。反向路由、约束白名单、必填 / 默认值、
+  CRITICAL rules、SOP 步骤骨架、校验 gate 一律保留，没有重述任何一条规则。
+  顺手修了 §10 Related skills 被拆成两张表（第二张无表头）的排版错误。
+
 ## 2026-09-23
 
 ### Changed

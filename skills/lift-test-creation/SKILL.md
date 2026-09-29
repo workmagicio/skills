@@ -1,10 +1,10 @@
 ---
 name: lift-test-creation
-description: Turn a natural-language request — a scope or just a cell count, plus any constraints — into an executable lift test draft.
+description: Turn a natural-language request into an executable lift test draft — geo lift tests, holdout and incrementality tests, and the PTM / LTM market split they need. Use when someone asks to set up, design or run a test to measure incrementality.
 category: lift-test
 risk: R0
-version: 2.1.0
-last-updated: 2026-09-23
+version: 2.1.1
+last-updated: 2026-09-29
 references:
 - references/input-parsing.md
 - references/constraints.md
@@ -31,18 +31,6 @@ Default creation skill in the Lift Test domain.
 ## 2. When to trigger
 
 **Trigger condition**: The user's request contains a verb like "create / set up / run / launch / start" plus an object that points to "experiment / lift test / incrementality test / measure incrementality."
-
-**Examples that should trigger this skill**:
-
-- "Create a lift test for me"
-- "Run a Meta lift test"
-- "Set up a lift test on Meta at the tactic level"
-- "Set up a 3-cell test" *(cell-count entry — no platform named)*
-- "I want a 2-cell test on my biggest channel"
-- "Run a Meta lift test in the US but exclude New York and California"
-- "Create a lift test that doesn't overlap with the test I already have scheduled"
-- "Meta lift test, keep the holdout under 8% of orders, budget under $3k/day"
-- "Run a Meta test assuming a $40 CPA"
 
 **Examples that should NOT trigger this skill — route elsewhere**:
 
@@ -157,7 +145,7 @@ These are two ways of describing the same thing. The user supplies **one side**;
 6. **Solve loop — max 3 rounds.** Insufficient, or a Step 5 failure: quantify the gap in concrete numbers → present the levers, each with the number it moves and the constraint it would break → **the user picks** → re-solve. Three rounds without a feasible design → stop and route to DS with the handoff summary. "Proceed as-is" exits the loop at any round. → references/solve-loop.md
     1. **Auto-solve branch.** When the failure is budget-related and auto-solve's inputs are complete (a budget target — stated or inferable from scan spend — and a CPA resolvable via database-query-run), the skill **runs the geo-size × test-period search itself, automatically** — one progress line, no consent question — instead of one manual lever per round, and takes the result to Step 7. A geo size or test period the user pinned is never overridden; only a real trade-off (>20% geo size or >35 days) pauses for the user to pick. One auto-solve run **is** the loop — it replaces the manual rounds, doesn't stack on them. → references/auto-solve.md
 7. **Push the test as a draft.** A brand-new test → **lift-test-create** (default): one draft per test, whatever the cell count — a 3-, 4- or 5-cell test is one draft carrying all its cells, assembled from the chosen analyzed design. Modifying a draft the user already has → **lift-test-create-or-update** with its `id`. No second full-config confirmation. Return the draft link, plus the start-date note and any "proceed as-is" caveat. → references/sop-detail.md
-8. **Build the design deck — only when asked.** When the user wants a client-facing test plan ("design deck", "test plan deck", "slides I can walk the client through"), don't narrate the design in chat — run the deck skill on the Step 7 draft: a 2-cell draft → 2-cell-test-design-deck; a 3-cell or larger draft → multicell-design-deck, which expands the cells from that one draft. Two intake answers before building: show the feasibility threshold on the deck (yes / no), and for 3 cells or more, add the PTM-vs-LTM comparison page (yes / no). Output — the same two files whatever the cell count: two editable Google Slides in the client's Partnership-drive folder › Lift Test Design — the client design deck, and a validation deck whose filename ends _INTERNAL-Validation. The validation deck leads with a verdict page, then the design-validation section, then the deck-check section. The .pptx, .html and .pdf written locally are intermediates, not deliverables. If the skill refuses the draft, relay its reason and the choice the user has to make. Never rebuild the deck by hand, and never paste its MDL or geo lists into chat (§7). → references/output-templates.md, Step 8
+8. **Build the design deck — only when asked.** Full contract → references/sop-detail.md, Step 8
 
 ### 5.2 Validation checkpoints
 
@@ -177,16 +165,7 @@ Multi-step SOP — the agent must pause and surface at these gates, never autopi
 
 ### 5.3 Input-quality routing
 
-|User provided|Path|Expected quality|
-|---|---|---|
-|Full spec (platform + level + tactic/campaign)|Resolve defaults → Step 4 → design → create|high|
-|Cell count only ("3-cell test")|Resolve defaults → Step 4 (scope left open) → design → create|high|
-|Partial spec (platform only)|Ask for the missing structure piece; defaults for the rest, surfaced in Step 4|medium-high|
-|"Create a lift test for me"|One structure question offering both framings; defaults elsewhere; cap at ≤ 3 turns|medium|
-|Spec + constraints ("Meta, under $3k/day, finish by Jul 15, avoid my running test")|Parse all constraints; conflicts → clarify once; infeasible → solve loop with quantified gaps|medium — depends on feasibility|
-|Constraints only, no structure|Resolve structure first (Step 2), then apply constraints|medium|
-|Ambiguous geo / time / budget-unit references|Clarify once (not a loop)|depends on clarification|
-|Out of boundary (creative test, custom metric)|Don't build; route to DS with handoff|n/a|
+→ references/sop-detail.md, Input-quality routing
 
 ## 6. Tools used
 
@@ -205,7 +184,7 @@ Multi-step SOP — the agent must pause and surface at these gates, never autopi
 |lift-test-get|Optional|Pull an existing draft — mid-flow modification, or reading the geos of a draft named in a concurrency constraint|
 |database-query-run|Required (auto-solve only)|Compute the per-platform CPA for the Step 6 auto-solve branch — one unified Cube.dev query (`attr_all_orders` / `attr_all_sales`, DDA vs iDDA by `attr_model_name`). Analyze's auto-CPA is too low; never use it as the fit CPA. → references/auto-solve.md|
 
-**Design-deck skills (Step 8).** 2-cell-test-design-deck and multicell-design-deck are Claude Code / Cowork skills, not MCP tools. They read the warehouse through the workmagic_query connector, need Python 3.10+ and Google Chrome, run their own verification, and publish to Google Drive with a bundled service account. Input is the Step 7 draft link plus the two intake answers — nothing else; what comes back is in Step 8.
+**Design-deck skills (Step 8)** → references/sop-detail.md, Step 8
 
 ## 7. Output format
 
@@ -220,7 +199,7 @@ Multi-step SOP — the agent must pause and surface at these gates, never autopi
 
 All output templates (Step 4 summary, solve-loop rounds, design comparison, DS handoff, draft link) → references/output-templates.md
 
-**Step 8’s two files are where the banned figures appear.** Chat keeps the rules above — no MDL, no reference-group geo list. Both files carry what chat must not, and neither is ever retyped back into chat. On the client design deck: a 3-cell or larger deck prints each cell’s MDL as a percentage (two-sided, at the test’s planned length) under a red framed "ONLY SHARE ON CLIENT’S REQUEST" tag and gives every cell two Geos pages — market names, then the DMA / geo codes; a 2-cell deck prints no MDL. Every client deck lists the Reference group beside the treatment markets, labels the cost figure by the test’s own primary metric (cost per incremental order / incremental CAC / cost per incremental sale) rather than a blanket "iCAC", and states the feasibility threshold, when shown, as a floor for the planned window rather than a spend cap. The validation deck is internal end to end — the verdict, the gate results, the MDL basis, provenance, and anything stale — and goes to no one outside the team. Treatment-side labels follow the method exactly as in chat. Send the link, never the contents.
+**Step 8’s two files are where the banned figures appear** — chat keeps the rules above; what each file carries → references/sop-detail.md, Step 8
 
 ## 8. Edge cases & routing
 
@@ -245,7 +224,5 @@ Full failure-modes catalog → references/failure-modes.md
 |lift-test-readout|Downstream: reading and acting on results — iROAS, confidence intervals, post-test decisions|
 |lift-test-diagnosis|Downstream: diagnosing failed or inconclusive tests — implementation drift, data readiness gaps, underpowered designs|
 |Data Science (DS)|Escalation target for out-of-boundary requests and exhausted solve loops|
-
 |2-cell-test-design-deck|Downstream (Step 8): turns a 2-cell draft into the client design deck and its validation deck — output contract in §5.1, Step 8|
-|---|---|
 |multicell-design-deck|Downstream (Step 8): merges a 3-cell or larger draft's cells into one client design deck, plus its validation deck — output contract in §5.1, Step 8|
