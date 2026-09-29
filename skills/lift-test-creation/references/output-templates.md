@@ -1,91 +1,215 @@
-- Step 4 — User-confirmation summary
+## Step 4 — Config confirmation (scope entry)
 
 Here's the config I'll use — confirm before I run the design:
 
+Anything else to factor in — budget ceiling, a deadline, geos to leave alone, a CPA you'd rather I use? If not, I'll run the geo-pair design now and won't come back to re-confirm the config.
 
+## Step 4 — Config confirmation (cell-count entry)
 
-Ad platform: Meta Ads
+Here's the config I'll use — confirm before I run the design:
 
-Test scope: tactic level — "Prospecting" tactic (12 campaigns)
+Anything else to factor in — budget ceiling, a deadline, geos to leave alone? If not, I'll run the design now and won't come back to re-confirm the config.
 
-Test method: PTM (pause-to-measure — pause Meta in a subset of geos to measure lift from removed exposure)
+**Shape note**: a cell count is a complete request. Don't fill in platforms or tactics the user didn't name, and don't ask them to — say the scope is left open and move on.
 
-Setup: Automatic (WorkMagic handles the platform config and reverts at the end)
+## Step 5 — Sufficient progress update
 
-Country: United States (DMA level)
+Always a table, always with the treatment geos listed by name and a numeric threshold.
 
-Sales channels: DTC, Amazon (all your connected channels)
+**Required rows**: test period · geo size (both the % of orders **and** the geo count) · the treatment geos **by name** · feasibility threshold **as a specific number** · the spend it's being compared against.
 
-Primary metric: Orders
+### 2-cell
 
-Excluded geos: New York DMA, Los Angeles DMA (per your request)
+> Design's back:
 
+|Test period|28 days (+ 7-day cooling period)|
+|---|---|
+|Geo size|6.2% of orders — 12 DMAs|
+|**Holdout group**|Cleveland, Pittsburgh, Kansas City, Birmingham, Greenville, Louisville, Buffalo, Richmond, Tulsa, Omaha, Albuquerque, Spokane|
+|Feasibility threshold|**$1,820 / day**|
+|Your current Meta spend|$2,100 / day — clears it, and under your $3k/day cap ✓|
 
+> Reference group: the remaining 198 DMAs.
 
-Anything to change? If not, I'll run the geo-pair design now — and won't come back to re-confirm the config; from here we'll just talk about new outputs (test period, feasibility) and any specific decision left (like start date).
+> Creating the draft now.
 
-Step 5/6 — Sufficient progress update
+### 3-cell
 
-Design's back. Test period: 4 weeks. Feasibility threshold: \~\$1.8k/day — your current Meta spend (\$2.1k/day) clears it.
+One column per cell. The test period and the reference group are shared, so they sit outside the per-cell columns.
 
+> Design's back — 28-day test period (+ 7-day cooling period):
 
+||**Meta Ads**|**Google Ads**|
+|---|---|---|
+|Geo size|6.0% of orders — 11 DMAs|5.4% of orders — 10 DMAs|
+|**Holdout group**|Cleveland, Pittsburgh, Kansas City, Birmingham, Greenville, Louisville, Buffalo, Richmond, Tulsa, Omaha, Albuquerque|Hartford, Nashville, Raleigh, Salt Lake City, Jacksonville, Grand Rapids, Harrisburg, Dayton, Wichita, Toledo|
+|Feasibility threshold|**$1,820 / day**|**$960 / day**|
+|Your current spend|$2,100 / day ✓|$1,150 / day ✓|
 
-When should this start?
+> Reference group: the shared remaining 189 DMAs — no geo appears in more than one holdout group.
 
-**Shape note**: progress update (one or two new facts) + the single open question (start date). Does NOT restate ad platform, test level, method. Asking “does this all still look good?” is the double-confirmation regression.
+> Both cells clear their thresholds. Creating the draft now.
 
-- Step 5/6 — Design comparison (when method wasn’t pinned)
+The same shape extends to 4- and 5-cell tests: one column per cell, shared facts outside the table. Past three columns, break the geo lists to the top 5 + "+ N more" so the table stays readable.
 
-Design's back. Here's the comparison:
+**Cell-count-only requests**: the columns are "Cell 1 / Cell 2" rather than platform names, and the spend row reads "set once you pick each cell's scope in the draft" — the threshold is still a specific number.
 
+### Rules for both
 
+**Label the geo row by method** — "Holdout group" for PTM, "Exposed group" for LTM. The reference group is the remainder: give its size, never its member list.
 
-|                       | PTM ★                          | LTM                             |
+**Long geo lists**: at postcode level the list can run to hundreds. Show the top 10 by order volume and "+ N more", and note the full list is on the draft.
 
-| Method                | PTM (Pause-to-Measure)         | LTM (Launch-to-Measure)         |
+**Multi-cell geos never overlap** — say so once, as in the example. It's the question a user is most likely to have about a shared reference group.
 
-| Test period           | 21 days                        | 21 days                         |
+**Shape note**: the table plus one line of action. No start-date question, no "does this all still look good?" — that's the double-confirmation regression.
 
-| Treatment geos        | Holdout group: \~6% of orders   | Exposed group: \~8.6% of orders  |
+## Step 5 — Design comparison (method not pinned)
 
-| Feasibility threshold | Auto-calculated ✓              | Auto-calculated ✓               |
+> Design's back. Here's the comparison:
 
-| Budget sufficient     | ✓ Yes                          | ✓ Yes                           |
+||PTM ★|LTM|
+|---|---|---|
+|Method|PTM (Pause-to-Measure)|LTM (Launch-to-Measure)|
+|Test period|21 days|21 days|
+|Geo size|6.0% of orders — 11 DMAs|8.6% of orders — 15 DMAs|
+|Treatment geos|**Holdout group**: Cleveland, Pittsburgh, Kansas City, Birmingham, Greenville, +6 more|**Exposed group**: Cleveland, Pittsburgh, Kansas City, Birmingham, Greenville, +10 more|
+|Feasibility threshold|**$1,820 / day**|**$2,400 / day**|
+|Your current spend|$2,100 / day ✓|$2,100 / day ✗ — $300/day short|
 
+> ★ Recommended: PTM — Meta already has significant spend, so pausing ads in a holdout group of DMAs is the cleanest way to measure incremental lift, and your current spend clears its threshold.
 
+**Labeling note**: method-specific labels — "Holdout group" in the PTM column, "Exposed group" in the LTM column. Never reuse "Holdout group" for LTM. Never invent "Treatment group."
 
-★ Recommended: PTM — Meta already has significant spend (\~\$131K/day), so pausing ads in a holdout group of DMAs is the ideal way to measure incremental lift.
+## Step 5 — Test period × feasibility threshold (second table)
 
-**Labeling note**: “Treatment geos” row uses method-specific labels — “Holdout group” in PTM column, “Exposed group” in LTM column. Never reuse “Holdout group” for LTM. Never invent “Treatment group.”
+Show this **in addition** to the design result / comparison table above — the first table keeps its native (~21-day) test period and feasibility threshold; this second table shows how the threshold moves with the test length so the user can pick the shortest sufficient length.
 
-- Step 6 — Insufficient prompt
+Derive each period's threshold from the design's native one with the same formula the product uses — no re-run:
 
-At your current daily spend (\~\$1.8k/day), 4 weeks likely won't be enough to detect a meaningful result.
+> threshold(N) = (feasibility threshold at the design's own length) × √(design length / N)
+>
+>
 
-We'd need roughly \$2.5k/day to detect a 5% lift within 4 weeks.
+Rows: 14 / 21 / 28 days (21 = the design's native length). "Clears it?" = current spend ≥ threshold × 0.95.
 
+> Test-length options — how the daily threshold moves with duration:
+>
+>
 
+|Test period|Feasibility threshold|Your $933 / day|
+|---|---|---|
+|14 days|$1,530 / day|✗|
+|21 days|$1,250 / day|✗|
+|28 days|$1,080 / day|✗ — closest|
 
-A few options:
+> ★ Recommended = **the user's stated test length if they gave one** (say whether it clears; if it doesn't, name the shortest length that does as the alternative). Otherwise the **shortest length that clears**, chosen from **21 / 28 days** only. **14 days is shown for reference but is never the recommendation** (matches the product). If neither 21 nor 28 clears, a longer **custom length** lowers the threshold further — offer it.
+>
+>
 
-1. Raise daily spend to \$2.5k, keep 4 weeks
-2. Test a larger geo footprint (more orders per geo, so the threshold drops — current daily spend may be enough)
-3. Keep current spend, extend to 6 weeks
-4. Proceed with current config (result may come back inconclusive)
+**Rules**:
 
-- Step 7 — Start-date question with collision
+- A test length the user stated as a constraint is **pinned**: ★ sits on it regardless of whether a shorter length would also clear. Only without a stated length do you pick the shortest that clears.
+- 14 days is displayed but **never** the ★ recommendation — pick ★ from {21, 28, and a custom length if set}, shortest that clears.
+- Custom length = any integer 14–60 except {14, 21, 28}, with test period + cooling ≤ 60 days.
+- Threshold uses √(design length / N) — an estimate scaled from the single design, not a re-solve (same as the product UI).
+- Never show MDL in this table.
 
-Another lift test is running through April 18. Suggest starting this one on April 19 or later — when works?
+## Step 6 — Solve loop, round 1
 
-- Step 8 — Draft created
+> At your current spend (~$1.8k/day), 4 weeks won't be enough to detect a meaningful result — we'd need about $2.5k/day, so you're roughly $700/day short.
+>
+> Options:
+>
+> - **Raise daily spend to ~$2.5k**, keep 4 weeks *(breaks your $3k/day cap? no — fits)*
+>
+> - **Test a larger geo footprint** — the 10% bracket puts more orders on each side and drops the threshold to ~$1.7k/day, which your current spend clears
+>
+> - **Extend to 6 weeks** at current spend *(breaks your "finish by July 15" constraint)*
+>
+> - **Reuse your Google test's geos, starting after it ends Apr 18** — gives back 9 DMAs (~14% of orders), threshold drops to ~$1.9k/day, at the cost of waiting three weeks to start
+>
+> - **Proceed as-is** — the result may come back inconclusive
+>
+> Which way do you want to go?
+>
+>
 
-Draft created: [draft link]
+## Step 6 — Solve loop, round 3 opening
 
-Open it to finalize any last details, then schedule.
+> Last pass before I hand this to Data Science — at the 10% bracket and 6 weeks, the threshold is ~$2.1k/day against your $1.8k/day. The remaining lever is your geo exclusions: New York and LA together are ~18% of your orders.
+>
+>
 
-Never output
+## Step 6 — DS handoff
 
-- Internal field names (holdoutPct, numberOfCells, experiment_days, MDL, facebookMarketing)
-- ISO timestamps in conversation (“testStartTime: 2026-06-01T00:00:00Z”)
+> I've hit the limit of what I can design here. Passing to Data Science with the full picture:
+>
+> **You asked for**: Meta lift test, tactic level ("Prospecting"), finish before July 15, under $3k/day, New York and LA excluded **Resolved**: US / DMA level · DTC + Amazon · Orders · PTM
+>
+> 1. Default geo size, 4 weeks → threshold $2.5k/day vs. $1.8k/day available — $700/day short
+>
+> 2. 10% geo size, 4 weeks → threshold $2.2k/day — still $400/day short
+>
+> 3. 10% geo size, 6 weeks → threshold $2.1k/day — still short, and past the July 15 deadline
+>
+>
+
+> **Blocker**: available spend can't clear the feasibility threshold within your deadline without dropping the geo exclusions.
+>
+> Data Science can look at whether a different design or a longer horizon gets you a readable result.
+>
+>
+
+## Step 7 — Draft created
+
+Single cell:
+
+> Draft created: [draft link]
+
+> Start date isn't set — pick it when you schedule. One thing to know: your Google test runs through Apr 18, so starting after that keeps the two clean.
+
+Multi-cell — still one draft, with the cells named:
+
+> Draft created with both cells — Meta Ads and Google Ads, sharing one reference group: [draft link]
+>
+> Start date isn't set — pick it when you schedule.
+>
+>
+
+Updating an existing draft:
+
+> Updated your existing draft rather than making a new one: [draft link] — the geo exclusions and the 6-week period are in.
+>
+>
+
+## Step 8 — Design deck
+
+Before building — the two intake answers, one line:
+
+> Building the design deck from draft [draft link] (3-cell, CTV + TikTok). Feasibility threshold on the deck: yes · PTM-vs-LTM comparison page: yes · theme / title: default. Give me a few minutes.
+>
+>
+
+Deck done — the link and what's in it, never the deck's tables retyped:
+
+> Design deck ready: [Slides link] — [n] slides, [checks] checks passed. The validation deck is in the same folder, filename ending _INTERNAL-Validation. Want the LTM comparison page added? It re-publishes to the same link.
+>
+>
+
+If the deck skill refuses — duplicate-geo variants, identical holdouts across cells, mixed countries or geo levels — relay its reason and the choice the user has to make. Don't work around it, and don't build slides by hand.
+
+## Out-of-boundary response
+
+> Geo lift can't isolate creative-vs-creative effects — it measures the incrementality of spend on a channel, tactic, or campaign, and a geo split doesn't separate which creative drove the difference.
+
+> I'm passing this to Data Science with everything you've described, including the Meta tactic-level piece — they'll want the full picture before advising on either part.
+
+## Never output
+
+- Internal field names (holdoutPct, experiment_days, MDL, facebookMarketing, attr_model_name)
+- ISO timestamps in conversation ("testStartTime: 2026-06-01T00:00:00Z")
 - Long-form PTM-vs-LTM lectures
 - Six technical questions at once
+- A start-date question
+- Vague gaps ("a bit short", "might not be enough") — always numbers
