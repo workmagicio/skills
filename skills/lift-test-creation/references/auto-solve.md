@@ -131,9 +131,12 @@ bake in the **(All)-channels** sum (Shopify scalar + every other channel), and
 shopify-vs-multi-channel split.
 
 - **Scope = what the user selected, by testLevel** (query `dws_view_copilot_attr_ads_ad_level_daily_latest`, which carries all three dimensions; `GROUP BY ads_platform, attr_model_name`):
-    - **platform** → the selected accounts: `account_id IN (...)`; if the user picked no account, the whole platform (no grain filter — `dws_view_copilot_attr_channel_level_daily_latest` also works then).
+    - **platform** → the selected accounts: `account_id IN (...)`; if the user picked no account, the whole platform (no grain filter — `dws_view_copilot_attr_channel_level_daily_latest` also works then). **Platform level also adds the active-campaign filter** (see below); tactic / campaign levels do NOT.
     - **tactic** → the selected tactics: `tactic_name IN (...)`.
     - **campaign** → the selected campaigns: `campaign_id IN (...)`.
+    - **Active-campaign filter — platform level ONLY** (verbatim from the product UI; tactic / campaign levels omit it). Statuses are NOT normalized here (raw mixed-case values coexist), so use the frontend's exact predicate: `if(campaign_status IN ('ACTIVE','ENABLED','ENABLE','Active','LIVE','active','Enabled') OR campaign_status IS NULL OR campaign_status = '', 1, 0) = 1`.
+
+- **Window = trailing 30 days, in the tenant's timezone** (the one scan resolved), **not** "UTC today minus 30". `window-end` = the calendar day, in that timezone, of the moment that is the **end of yesterday in UTC** (i.e. take 23:59:59 of yesterday UTC, read which date it is in the tenant timezone). `window-start = window-end − 29 days`. Both ends inclusive = 30 days. Pass the same `timezone` to `lift-test-design-analyze` so its own CPA / spend window matches.
 
 ```sql
 SELECT ads_platform, attr_model_name,
@@ -142,7 +145,7 @@ SELECT ads_platform, attr_model_name,
        MEASURE(attr_all_sales)  AS all_sales
 FROM dws_view_copilot_attr_ads_ad_level_daily_latest
 WHERE tenant_id = <tid>
-  AND event_date >= '<30d-ago>' AND event_date < '<today>'
+  AND event_date >= '<window-start>' AND event_date <= '<window-end>'   -- trailing 30 days, inclusive
   AND attr_model_name IN ('data_driven', 'incrementality_adjusted')   -- DDA, iDDA
   AND ads_platform = '<Meta|Google|…>' AND <grain filter>
 GROUP BY ads_platform, attr_model_name
