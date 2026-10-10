@@ -156,7 +156,10 @@ GROUP BY ads_platform, attr_model_name
 
 - **iDDA vs DDA is TENANT-level.** If the tenant has ANY calibration row, use the **iDDA**
 cpo (`incrementality_adjusted`) for EVERY platform, else DDA. Not per-platform; the
-1.5×AOV cap always prefers iDDA AOV. Check:
+1.5×AOV cap always prefers iDDA AOV. **Per-platform fallback:** if a platform has NO iDDA
+orders in the window (so it has no iDDA cpo), fall back to that platform's **DDA cpo** for it —
+the cap still uses the iDDA AOV. A platform with no usable cpo at all (no orders in either
+model) gets no CPA. Check:
 
 ```sql
 SELECT test_level, ads_platform
