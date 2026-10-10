@@ -1,4 +1,4 @@
-Complete catalog. Top 6 most-violated are inline in SKILL.md §7 CRITICAL; the rest are here.
+Complete catalog. Top 7 most-violated are inline in SKILL.md §7 CRITICAL; the rest are here.
 
 **On mandatory asks**:
 
@@ -24,6 +24,8 @@ Complete catalog. Top 6 most-violated are inline in SKILL.md §7 CRITICAL; the r
 - ❌ **Exposing internal field labels (“Test DMAs”, “Control DMAs”)** — use “Holdout group” / “Reference group” to match the product UI
 - ❌ **Using “Geo coverage” or “Expected daily spend” in design output** — use **“Geo size”** and **“Feasibility threshold”** to match the product UI
 - ❌ **Including MDL in design output** — the UI doesn’t show it; don’t give it to the user
+- ❌ **Exposing raw internal fields — `design_id`, `minimum_detectable_lift`, `factor`** — never surface these in chat; they are internal design-engine fields, not user-facing values
+- ❌ **Treating `minimum_detectable_lift` as MDL** — `minimum_detectable_lift` is NOT MDL; never use it as the MDL value or present it as such
 
 **On time**:
 
