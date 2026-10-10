@@ -226,7 +226,7 @@ All output templates (Step 4 summary, solve-loop rounds, design comparison, DS h
 
 See references/edge-cases.md — covering unsupported country, cell-count conflicts, mid-flow modification, ambiguous geo names, Not-ready sales channels, design failures, dead drafts in concurrency constraints, out-of-boundary requests.
 
-## 9. CRITICAL rules (top 7)
+## 9. CRITICAL rules (top 8)
 
 1. **Never hard-build when constraints aren't satisfiable.** State the gap with numbers. Give the levers. Unsupported country, past start date, infeasible budget — surface, never silently default.
 2. **Never re-confirm the full config after Step 4.** Step 4 is the ONLY full-config gate. After design, inside the solve loop, before create — progress updates and specific local questions only. "Shall I create the draft now?" is the most common regression.
@@ -234,7 +234,8 @@ See references/edge-cases.md — covering unsupported country, cell-count confli
 4. **Cap the solve loop at 3 rounds, then route to DS.** A fourth round is a failure mode, not persistence. Carry the handoff summary.
 5. **Respect the boundary.** Non-standard metric definitions and creative tests are not approximated, not partially built — they go to DS (§3).
 6. **Never override a user's explicit choice silently.** LTM when PTM is recommended, a geo they excluded, a budget ceiling they set — surface once, respect the decision.
-7. **Never expose internal parameter names.** holdoutPct, MDL, experiment_days, attr_model_name, raw API platform IDs. (numberOfCells is the exception — it is user-facing *when the user raises it*.)
+7. **Never expose internal parameter names.** `holdoutPct`, `MDL`, `experiment_days`, `attr_model_name`, raw API platform IDs, and the raw design-engine fields `design_id`, `minimum_detectable_lift`, `factor`. (numberOfCells is the exception — it is user-facing *when the user raises it*.)
+8. **`minimum_detectable_lift` is an internal field, NOT the user-facing MDL.** It may be used in internal step calculations, but it must never appear in chat and must never be presented or labeled as the test's MDL. Its name is misleading — showing its value to the user, or passing it off as MDL, gives a wrong number.
 
 Full failure-modes catalog → references/failure-modes.md
 
