@@ -156,7 +156,10 @@ GROUP BY ads_platform, attr_model_name
 
 - **iDDA vs DDA is TENANT-level.** If the tenant has ANY calibration row, use the **iDDA**
 cpo (`incrementality_adjusted`) for EVERY platform, else DDA. Not per-platform; the
-1.5×AOV cap always prefers iDDA AOV. Check:
+1.5×AOV cap always prefers iDDA AOV. **Per-platform fallback:** if a platform has NO iDDA
+orders in the window (so it has no iDDA cpo), fall back to that platform's **DDA cpo** for it —
+the cap still uses the iDDA AOV. A platform with no usable cpo at all (no orders in either
+model) gets no CPA. Check:
 
 ```sql
 SELECT test_level, ads_platform
@@ -199,8 +202,11 @@ not loop auto-solve again.
 
 - **§7 output.** The result is narrated in business language — **Geo size**, **Test period**,
 **Feasibility threshold** vs budget + coverage %. **No holdout_pct, no MDL, no designId,
-no `lift_test_group` in chat.** The design IDs / geoGroup are carried **internally** into
-the Step 7 `lift-test-create` call, never printed. Gaps get numbers, never adjectives.
+no design `task_id`, no `lift_test_group` in chat** — the `task_id` stays internal, both in
+the "searching…" progress line and in any handoff note left while a solve is still running
+(keep it to resume polling; never print it for the user to hold). The design IDs / geoGroup
+are carried **internally** into the Step 7 `lift-test-create` call, never printed. Gaps get
+numbers, never adjectives.
 
 ## Output → Step 7
 

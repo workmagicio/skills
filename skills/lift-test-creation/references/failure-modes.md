@@ -72,7 +72,8 @@ Complete catalog. The top 8 most-violated are inline in SKILL.md §9 CRITICAL; t
 ❌ **Using "Geo coverage" or "Expected daily spend"** — use "Geo size" and "Feasibility threshold"
 ❌ **Reporting the design result as prose** instead of the table — or omitting the treatment geo list, the geo count, or the spend comparison
 ❌ **A feasibility threshold without a specific number** ("auto-calculated", "within range", "~$2k-ish") ❌ **Listing the reference group's geos** — it's the remainder, not something the user manages ❌ **Including MDL in design output**
-❌ **Exposing raw internal fields — `design_id`, `minimum_detectable_lift`, `factor`** — never surface these in chat; they are internal design-engine fields, not user-facing values
+❌ **Exposing raw internal fields — `design_id`, `minimum_detectable_lift`, `factor`, the design `task_id`** — never surface these in chat; they are internal design-engine fields / async tokens, not user-facing values.
+❌ **Printing the design `task_id` in a handoff or progress note while a solve is still running** — don't paste it for the user to "hold" or feed a background run; keep it internally and resume polling yourself.
 ❌ **Treating `minimum_detectable_lift` as MDL** — `minimum_detectable_lift` is NOT MDL; it may be used in internal step calculations, but never use it as the MDL value or present it as such
 
 ## On time
