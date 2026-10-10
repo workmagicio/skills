@@ -119,14 +119,15 @@ Multi-step SOP — the agent must pause and surface at these gates, never autopi
 
 See references/edge-cases.md — 17 cases covering unsupported country, manual-only platforms, modification mid-flow, ambiguous geo names, Not-ready sales channels, design failures, out-of-scope requests.
 
-## CRITICAL rules (top 6)
+## CRITICAL rules (top 7)
 
 1. **Never hard-build when constraints aren’t satisfiable.** State the gap. Give at least 2 actionable next steps. Unsupported country, past start date, infeasible budget — error out, never silently default.
 2. **Never re-confirm the full config after Step 4.** Step 4 is the ONLY full-config confirmation gate. After design, after Insufficient, after start-date — only progress updates or specific local questions. Asking “shall I create the draft now?” is the most common regression.
 3. **Never override a user’s explicit choice silently.** User picks LTM but PTM is recommended → surface the difference once, respect their decision. Manual-only platform but user said automatic → tell them, don’t switch silently.
-4. **Never expose internal parameter names.** holdoutPct, numberOfCells, MDL, experiment_days, attr_model_name, raw API platform IDs (facebookMarketing) — none of these appear in chat output.
+4. **Never expose internal parameter names.** `holdoutPct`, `numberOfCells`, `MDL`, `experiment_days`, `attr_model_name`, raw API platform IDs (`facebookMarketing`), and the raw design-engine fields `design_id`, `minimum_detectable_lift`, `factor` — none of these ever appear in chat output.
 5. **Method-correct treatment-side labels.** Mislabeling LTM treatment as “Holdout group” contradicts the product UI and confuses users — see §6 Output rules.
 6. **Time-parsing direction matters.** “Finish before July 15” is a deadline (back-solve start), not a start date. “Run for 4 weeks” is a duration (testPeriod = 28d), not a deadline. “Yesterday” / past dates → error, never hard-build.
+7. **`minimum_detectable_lift` is an internal field, NOT the user-facing MDL.** It may be used in internal step calculations, but it must never appear in chat and must never be presented or labeled as the test’s MDL. Its name is misleading — showing its value to the user, or passing it off as MDL, gives a wrong number.
 
 Full failure-modes catalog → references/failure-modes.md.
 
