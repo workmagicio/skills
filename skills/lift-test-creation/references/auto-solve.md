@@ -22,7 +22,7 @@ complete:
 |Input|Complete when|
 |---|---|
 |**Budget target**|The user stated a daily budget, **or** it's inferable from scan current spend (tactic → 30-day `ad_spend ÷ window_days`; account / platform → `scan.platformMetrics[platform].daily_spend`). No budget and none inferable → **nothing to fit** — auto-solve doesn't run; stay in the manual loop.|
-|**CPA**|Resolvable via `database-query-run` (口径 below), or the user gives it. Analyze's auto-CPA does **not** count — it is too low (see CPA section).|
+|**CPA**|Resolvable via `database-query-run` (basis below), or the user gives it. Analyze's auto-CPA now uses the **same basis as the UI** and is a valid fallback — auto-solve resolves it up front so one explicit CPA stays identical across every probe (see CPA section).|
 |Scope / level / geo / metric|Already resolved by Step 4 — always present at this point.|
 
 Inputs complete → **run the search below without asking** — announce it in one progress
@@ -83,7 +83,7 @@ budget is inferred from current spend the two are identical.
           TIMED OUT (design-result ends failed with no rows, ~5 min) → log the round as
                                                              "timed out"; move on to the next larger
                                                              size — do NOT stop the search
-          spend短缺 (required₂₁ > budget/0.95)            → LTM: hi=mid-1 · PTM: lo=mid+1
+          spend shortfall (required₂₁ > budget/0.95)      → LTM: hi=mid-1 · PTM: lo=mid+1
           until lo>hi → smallest feasible geo size.
        Each probe waits for design-result's terminal state (success / failed; solves
        are P95 < 300s). Keep a ROUND LOG — one line per probe: geo size → passed /
@@ -118,14 +118,16 @@ PTM *cheaper*. This sets the binary-search direction on a shortfall (LTM smaller
 - **A $200 LTM feasibility threshold is the floor** (MIN_EXPECTED_DAILY_SPEND), not a real
 value — if you see it, the real required is below $200, usually a wrong CPA.
 
-## CPA — one unified query, not analyze's auto-CPA
+## CPA — one unified query (same basis the UI and analyze use)
 
 Resolve CPA per platform and pass it to `lift-test-design-analyze` via `platformSpend[].cpa`.
-Priority: `database-query-run` → ask the user → stop. **Never** fall back to analyze's
-auto-CPA (platform/reported-level, far too low — it under-states budget and can wrongly
-recommend PTM).
+Priority: `database-query-run` → ask the user → stop. Resolve it **up front** so the one CPA is
+explicit, user-overridable, and stays identical across every probe. Analyze's auto-CPA (when
+`platformSpend[].cpa` is omitted) now uses the **same basis as the UI** — 30-day, grain-aware,
+DDA / iDDA all-channel cost per order capped at 1.5×AOV, in the tenant timezone — so it is a
+safe equivalent fallback, **not** the old platform-reported `origin_cpa` that ran low.
 
-The口径 is **pure Cube.dev, one query** — `attr_all_orders` / `attr_all_sales` already
+The basis is **pure Cube.dev, one query** — `attr_all_orders` / `attr_all_sales` already
 bake in the **(All)-channels** sum (Shopify scalar + every other channel), and
 `attr_model_name` splits DDA vs iDDA. No raw ADB, no `element_at` / `json_overlaps`, no
 shopify-vs-multi-channel split.
@@ -141,7 +143,7 @@ shopify-vs-multi-channel split.
 ```sql
 SELECT ads_platform, attr_model_name,
        MEASURE(ad_spend)        AS ad_spend,
-       MEASURE(attr_all_orders) AS all_orders,   -- (All) 口径: shopify + every channel
+       MEASURE(attr_all_orders) AS all_orders,   -- (All) basis: shopify + every channel
        MEASURE(attr_all_sales)  AS all_sales
 FROM dws_view_copilot_attr_ads_ad_level_daily_latest
 WHERE tenant_id = <tid>
@@ -156,7 +158,10 @@ GROUP BY ads_platform, attr_model_name
 
 - **iDDA vs DDA is TENANT-level.** If the tenant has ANY calibration row, use the **iDDA**
 cpo (`incrementality_adjusted`) for EVERY platform, else DDA. Not per-platform; the
-1.5×AOV cap always prefers iDDA AOV. Check:
+1.5×AOV cap always prefers iDDA AOV. **Per-platform fallback:** if a platform has NO iDDA
+orders in the window (so it has no iDDA cpo), fall back to that platform's **DDA cpo** for it —
+the cap still uses the iDDA AOV. A platform with no usable cpo at all (no orders in either
+model) gets no CPA. Check:
 
 ```sql
 SELECT test_level, ads_platform
@@ -199,8 +204,11 @@ not loop auto-solve again.
 
 - **§7 output.** The result is narrated in business language — **Geo size**, **Test period**,
 **Feasibility threshold** vs budget + coverage %. **No holdout_pct, no MDL, no designId,
-no `lift_test_group` in chat.** The design IDs / geoGroup are carried **internally** into
-the Step 7 `lift-test-create` call, never printed. Gaps get numbers, never adjectives.
+no design `task_id`, no `lift_test_group` in chat** — the `task_id` stays internal, both in
+the "searching…" progress line and in any handoff note left while a solve is still running
+(keep it to resume polling; never print it for the user to hold). The design IDs / geoGroup
+are carried **internally** into the Step 7 `lift-test-create` call, never printed. Gaps get
+numbers, never adjectives.
 
 ## Output → Step 7
 
