@@ -71,6 +71,8 @@ budget is inferred from current spend the two are identical.
    - User pinned a geo size → probe only that bucket (1 run).
    - Else three-state binary over the ladder, seeded at the 0.05 rail:
        probe(h) = design(holdout=h, 21) → poll design-result in-loop → design-analyze(real CPA)
+         (holdout=h: re-call prepare with the same testChannel and the scan result in which only
+          suggested.holdout_pct = h — prepare has no holdout parameter — then design its lift_test_group)
        ① Submit probe 0.05, then — 15s later, WITHOUT waiting for its result — submit
           probe 0.15 as well (design is fire-and-forget: two task_ids, polled in parallel,
           roughly halving wall-clock). 0.05 PASS → done (smallest & comfortable); ignore

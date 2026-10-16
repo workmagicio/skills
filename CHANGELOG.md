@@ -4,6 +4,20 @@ All notable changes to the WorkMagic public skills are recorded here. This repo 
 [Agent Skills open standard](https://agentskills.io); each skill is independently versioned in
 its `SKILL.md` frontmatter (`version:` / `last-updated:`).
 
+## 2026-10-16
+
+### Changed
+
+- **`lift-test-creation` 2.2.0：对齐 platform-mcp 按 cell 分组的 `testChannel`（v2 线）。**
+  `lift-test-design-prepare` 改收按 cell 分组的 `testChannel`（二维数组：外层 = test cell，内层 = 该 cell 的平台条目
+  `{adPlatform, impactCampaignInfos}`），由 prepare 推导 numberOfCells / testChannelIndex / extraInfo。skill 同步：
+  一个 cell = 一个 lift 结果、未说分组默认每样一个 cell、用户说「一起」才合进同一 cell；prepare 挪到 Step 3（Step 4
+  确认前），并发测试地域的自动排除由 prepare 完成，「推迟到对方结束后复用地域」= `restrictStartDate: true`；
+  加大 geo size 只改 scan 结果的 `suggested.holdout_pct`；支持 8 国（英国传 `GB`），非 US 只支持 postcode；
+  Amazon Ads 不支持；没有可选目标的平台以 `[]` 存为 skip for now。
+  **未改**：「只给 cell 数」入口原样保留——当前 prepare 要求每个 cell 至少带一个平台，这条入口暂时跑不通，待 MCP 支持后再议。
+  **上线顺序**：必须在 platform-mcp 的 testChannel 按 cell 分组改动部署之后再发布本条。
+
 ## 2026-09-23
 
 ### Changed

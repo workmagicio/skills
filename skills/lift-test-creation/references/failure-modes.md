@@ -7,6 +7,11 @@ Complete catalog. The top 8 most-violated are inline in SKILL.md §9 CRITICAL; t
 ❌ **Asking for a cell count when the user gave a scope** — derive it
 ❌ **Silently splitting two platforms into two separate tests** when the user asked for one test — or silently merging them when they asked for separate ones
 ❌ **Building a 6-cell test** instead of routing
+❌ **Putting things the user wants measured separately into one cell** (or splitting things they asked to measure together)
+❌ **Calling lift-test-design-prepare with the old flat `adPlatform` + `impactCampaignInfos`** — it takes `testChannel`, grouped by cell (one array per test cell)
+❌ **Calling lift-test-design-prepare after Step 4** — prepare runs in Step 3; the concurrency row the user confirms comes from it
+❌ **Using lift-test-impact-campaigns for tactics** — tactics come from tactic-list
+❌ **Passing “UK” as the country** — the code is `GB`; and non-US countries are postcode only
 
 ## On constraints
 
@@ -102,6 +107,7 @@ Complete catalog. The top 8 most-violated are inline in SKILL.md §9 CRITICAL; t
 ❌ **Not telling the user their geo pool was reduced** by a running test
 ❌ **Relaxing concurrency silently** to make a design solve
 ❌ **Allowing simultaneous overlap** — reuse is only ever sequenced, on a start date after the other test ends
+❌ **Passing holdout_pct as a prepare argument** — prepare has none; change only `suggested.holdout_pct` inside the scan result
 
 ❌ **Offering sequenced reuse without naming the delay** — the gain and the wait go in the same sentence
 

@@ -115,7 +115,7 @@ Keeping a new test from colliding with tests the tenant already has.
 
 ### Default behavior (no constraint stated)
 
-Call lift-test-scan. Auto-exclude the union of the **treatment + reference geos** of every test in **scheduled** or **active** state. Mention it in the Step 4 summary in one line — the user should know their pool was reduced, without being asked to manage it:
+lift-test-design-prepare auto-excludes the union of the **treatment + reference geos** of every test in **scheduled** or **active** state (same country + geo level) and reports them in `concurrentTestInfo` / `autoExcludedGeoCodes`; lift-test-scan's `runningTests` lists those tests for awareness. Mention it in the Step 4 summary in one line — the user should know their pool was reduced, without being asked to manage it:
 
 > "Steering clear of the geos in your Google test that runs through Apr 18."
 
@@ -136,7 +136,7 @@ Call lift-test-scan. Auto-exclude the union of the **treatment + reference geos*
 
 Simultaneous overlap is never allowed — two live tests sharing geos in the same window contaminate both readouts. There is exactly one way to reuse another test's geos:
 
-**Full overlap, sequenced** — any geo may be reused, **provided this test starts after the other test's end date**. That records a start date on the draft (the one case where the skill sets one without being asked for it), so say the date and why it's there.
+**Full overlap, sequenced** — any geo may be reused, **provided this test starts after the other test's end date**. Mechanism: re-call prepare with `restrictStartDate: true` (skips the auto-exclusion) and a start date after `concurrentTestInfo.rangeEndTime`. This releases **every** concurrent test's geos at once, so the start must clear the latest end date; to reuse only one test's geos, keep the others out by passing their geos (lift-test-get) as locationSetting excludes. That records a start date on the draft (the one case where the skill sets one without being asked for it), so say the date and why it's there.
 
 If the user asks to overlap while the other test is still running, say what it costs and offer the sequenced form instead:
 

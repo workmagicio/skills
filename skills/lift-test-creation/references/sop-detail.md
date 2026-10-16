@@ -10,10 +10,27 @@
 ## Step 3 — Default-resolution detail
 
 - **salesChannel** — query connected channels (Ready / Not optimal only); default all selected.
-- **country** — trailing-90-day sales share; auto-pick the dominant country.
-- **geoLevel** — derive from country (US → DMA; others → postcode).
-- **locationSetting** — lift-test-scan's `runningTests` (scheduled / executing / active) is auto-excluded; a draft is excluded only when the user names it, pulled via lift-test-get. Layer the user's own geo includes / excludes and any concurrency instruction on top → references/constraints.md. The account-level geo limitation comes back on `scan.geoExclusion` — design-prepare folds it into the design, and you surface `geoExclusionSummary` in the Step 4 table's account-geo row.
+- **country** — trailing-90-day sales share; auto-pick the dominant country. Pass the UK as `GB` (supported: US / GB / CA / DE / FR / AU / ES / SE).
+- **geoLevel** — derive from country (US → DMA; every other country → postcode). DMA / state are US-only: overriding country to a non-US one without a geoLevel falls back to postcode; passing dma / state with a non-US country is an error from prepare.
+- **locationSetting** — lift-test-design-prepare auto-excludes the geos of every scheduled / active test (same country + geo level) and reports `concurrentTestInfo { concurrentTestCount, rangeEndTime, geoCodes }` + `autoExcludedGeoCodes`; scan's `runningTests` lists those tests for awareness. `restrictStartDate: true` skips the auto-exclusion — the sequenced-reuse form in references/constraints.md. A draft is excluded only when the user names it, pulled via lift-test-get. Layer the user's own geo includes / excludes and any concurrency instruction on top → references/constraints.md. The account-level geo limitation comes back on `scan.geoExclusion` — design-prepare folds it into the design, and you surface `geoExclusionSummary` in the Step 4 table's account-geo row.
 - **status** — draft.
+
+## Step 3 — Building `testChannel` for lift-test-design-prepare
+
+`testChannel` is the cell structure — an array of arrays: **outer array = test cells** (the shared reference group is implicit, not listed — numberOfCells = cells + 1), **inner array = the platforms in that cell**, each entry `{adPlatform, impactCampaignInfos}`. prepare derives numberOfCells, testChannelIndex and extraInfo — never pass them, and never pass the old flat `adPlatform` + `impactCampaignInfos`.
+
+Rules: one cell = one lift result. Separate results → separate cells; explicitly “together / combined” → the same cell; several things named with no grouping stated → one cell each (default — don’t ask). Each platform at most once per cell, all its targets in that one entry. Max 4 test cells.
+
+|User says|testChannel|
+|---|---|
+|“Test Meta Prospecting”|`[[{adPlatform:"facebookMarketing", impactCampaignInfos:[{tacticNames:["Prospecting"]}]}]]` (2-cell)|
+|“Meta and Google” / “Meta vs Google”|`[[{adPlatform:"facebookMarketing", …}], [{adPlatform:"googleAds", …}]]` (3-cell)|
+|“Meta and Google together as one”|`[[{adPlatform:"facebookMarketing", …}, {adPlatform:"googleAds", …}]]` (2-cell)|
+|“Prospecting and Retargeting, separate results”|`[[{adPlatform:"facebookMarketing", impactCampaignInfos:[{tacticNames:["Prospecting"]}]}], [{adPlatform:"facebookMarketing", impactCampaignInfos:[{tacticNames:["Retargeting"]}]}]]` (3-cell)|
+|“Prospecting + Retargeting combined”|`[[{adPlatform:"facebookMarketing", impactCampaignInfos:[{tacticNames:["Prospecting"]}, {tacticNames:["Retargeting"]}]}]]` (2-cell)|
+|“Meta vs TikTok” and TikTok has no selectable tactic|TikTok entry `impactCampaignInfos: []` → saved as “skip for now”, scope set in the draft|
+
+Target shapes by testLevel: tactic `{tacticNames:[name]}` (one object per tactic, `''` = Default tactic); platform `{accountId, accountName}`; campaign `{accountId, accountName, campaignId, campaignName}`. prepare rejects targets of the wrong shape for the testLevel (e.g. account objects at tactic level) — fix the targets or switch testLevel.
 
 ## Step 4 — What the summary must contain
 
@@ -37,7 +54,7 @@ All of these now route into the solve loop rather than terminating:
 |Failure|Round-1 framing|
 |---|---|
 |Geo size too low for the data volume|"We'd need more geos on the holdout side than your current setting allows" — then the geo-size lever|
-|Too many locationSetting excludes|Name the count and the share of orders removed; offer the geo-exclusion lever|
+|Too many locationSetting excludes / no feasible solution (the raw error is a Chinese solver message plus solver parameters — never show it raw)|Name the count and the share of orders removed — split into the user's own excludes and prepare's `autoExcludedGeoCodes` (concurrent tests); offer the geo-exclusion lever and, when concurrent tests took the geos, the sequenced-reuse lever (`restrictStartDate: true`)|
 |Sales-channel readiness insufficient|Name the channel + the failing check; offer to drop it or fix it in Settings (not a solve-loop lever — a prerequisite)|
 |Country not supported / data volume too low|Name the limit. Unsupported country is a hard stop, not a loop.|
 
@@ -45,7 +62,7 @@ All of these now route into the solve loop rather than terminating:
 
 **One draft per test** — a multi-cell test is not split into one draft per cell.
 
-- **New test → lift-test-create (default).** Pass the structured fields, not a hand-built body: the collected fields from SKILL.md §4 plus the design outputs (method, the geoGroup and design IDs from analyze, testPeriod, coolingPeriod, and the final locationSetting), testChannel derived from the platform + cell config, and status = draft unless the user explicitly asked to schedule. The tool assembles the payload (incl. timezone conversion) and returns the draft.
+- **New test → lift-test-create (default).** Pass the structured fields, not a hand-built body: the collected fields from SKILL.md §4 plus the design outputs (method, the geoGroup and design IDs from analyze, testPeriod, coolingPeriod, and the final locationSetting), testChannel = prepare's `create_params.testChannel`, as-is (one array per test cell; analyze / create add the geos and estimator), and status = draft unless the user explicitly asked to schedule. The tool assembles the payload (incl. timezone conversion) and returns the draft.
 - **Modifying an existing draft → lift-test-create-or-update.** Pull it with lift-test-get, change the fields, and push the full `body` back **with its `id`** (the tool forwards the body as-is, so the caller owns its shape). Say which draft was updated rather than implying a new one was made.
 
 **Which fields an edit may touch — pick the right path** (field-level detail → `references/create-update-params.md`):
@@ -55,6 +72,6 @@ All of these now route into the solve loop rather than terminating:
 - **C — re-design** (online-design inputs): `locationSetting` / geo size (holdout) / `salesChannel` / metric filters / `primaryMetric` / `country` / `geoLevel` → re-run scan → prepare → design → analyze (seed prepare with the draft's current config), then rebuild `geoGroup` / `testChannel`.
 - **D — recompute estimator, no re-design**: **test period** (√ scaling) and **method PTM ↔ LTM** (target-method formula) → recompute `expected_daily_spend` / `expect_cpa` / `minimum_daily_budget_required` on the existing `geoGroup`; geos unchanged.
 - **E — testChannel change**: ask the user whether to regenerate, then:
-    - **Swapping the platform (e.g. Meta → Google)** — not a plain field patch. **Must** re-fetch `impactCampaignInfos` for the new platform (lift-test-impact-campaigns / tactic-list — the old platform's ids are invalid) and recompute the estimator for the new platform's spend / CPA (via analyze; the geo pair is order-geography-based and can be reused). Also regenerate `name`, and re-check `approach` and PTM support for the new platform. Fields touched: `adPlatform`, `name`, `approach`, `testChannel` (`adPlatform` / `adPlatformName` / `impactCampaignInfos` / cell `name`), and each cell's `geoGroup.estimator`. Unchanged: `country` / `geoLevel` / `salesChannel` / `primaryMetric` / `locationSetting` / `numberOfCells` / start+end times.
+    - **Swapping the platform (e.g. Meta → Google)** — not a plain field patch. **Must** re-fetch `impactCampaignInfos` for the new platform (lift-test-impact-campaigns / tactic-list — the old platform's ids are invalid), re-call prepare with that cell's entry swapped in `testChannel` and recompute the estimator for the new platform's spend / CPA (via analyze; the geo pair is order-geography-based and can be reused). Also regenerate `name`, and re-check `approach` and PTM support for the new platform. Fields touched: `adPlatform`, `name`, `approach`, `testChannel` (`adPlatform` / `adPlatformName` / `impactCampaignInfos` / cell `name`), and each cell's `geoGroup.estimator`. Unchanged: `country` / `geoLevel` / `salesChannel` / `primaryMetric` / `locationSetting` / `numberOfCells` / start+end times.
     - **Adding / removing a cell or platform** (changes cell count / the shared reference group) → re-design (path C).
     - **Same-platform scope tweak** (a different tactic / campaign selection, same platform) → recompute the estimator (path D); geos unchanged.

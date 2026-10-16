@@ -4,9 +4,11 @@
 |User says only "set up a 3-cell test"|Build it as asked. **Don't ask them to name platforms, and don't pick platforms for them** — the per-cell scope is set in the draft.|
 |User gives both a cell count and a scope that don't match ("4-cell on Meta only")|Clarify once: a second Meta tactic, another platform, or did they mean 2-cell?|
 |User asks for ≥ 6 cells|Out of boundary — state the 2–5 range (4 impact groups max), offer to split into separate tests or route to DS.|
-|User names two platforms|One 3-cell test with a shared reference group; say so in Step 4 and offer separate tests as the alternative. **Never ask them to pick a cell count.**|
+|User names two platforms|One 3-cell test with a shared reference group (one cell each); say so in Step 4 and offer separate tests as the alternative. “Together / combined” → both in one cell (2-cell). **Never ask them to pick a cell count.**|
+|A named platform has no selectable account / tactic / campaign|Keep it in its cell with an empty target list (saved as “skip for now”); tell the user to set its scope in the draft.|
+|User asks for Amazon Ads|Not a lift-test platform — say so and offer the supported platforms. Don't map it to anything.|
 |User specifies LTM but PTM is recommended|State the difference once. If they hold firm, use LTM. **Don't lecture twice.**|
-|User picks an unsupported country ("Japan", "Brazil")|Error out, list the 7 supported countries, ask which. **Don't hard-build, don't route to DS** — this is a product limit, not a modeling question.|
+|User picks an unsupported country ("Japan", "Brazil")|Error out, list the 8 supported countries (US / UK / CA / DE / FR / AU / ES / SE), ask which. **Don't hard-build, don't route to DS** — this is a product limit, not a modeling question.|
 |User-named tactic / campaign doesn't exist|Campaigns: after lift-test-impact-campaigns. Tactics: after tactic-list — impact-campaigns doesn't return tactics. Either way: "Couldn't find a tactic called 'X' — candidates are: …"|
 |User picked a Not-ready sales channel|Name the specific failing readiness check, point to Settings. **Don't silently drop the channel.**|
 |Design fails to form a geo pair|Solve loop round 1 — structural reason + levers. **Never expose "holdoutPct"** — say "more geos on the holdout side".|
