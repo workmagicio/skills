@@ -49,12 +49,23 @@ The Step 4 confirmation is a **two-column table** — label on the left, value o
 
 ## Step 5 — Design failures
 
-All of these now route into the solve loop rather than terminating:
+When lift-test-design-result ends `status: "failed"` it returns `reason` + `user_message` (the product UI's wording for that reason). Say `user_message` in your own flow, act on `reason` as below, and **never show `error`** — it is the raw design-service message (often Chinese), kept for debugging.
+
+**Design-solve failures** route into the solve loop rather than terminating:
 
 |Failure|Round-1 framing|
 |---|---|
 |Geo size too low for the data volume|"We'd need more geos on the holdout side than your current setting allows" — then the geo-size lever|
-|Too many locationSetting excludes / no feasible solution (the raw error is a Chinese solver message plus solver parameters — never show it raw)|Name the count and the share of orders removed — split into the user's own excludes and prepare's `autoExcludedGeoCodes` (concurrent tests); offer the geo-exclusion lever and, when concurrent tests took the geos, the sequenced-reuse lever (`restrictStartDate: true`)|
+|`reason: no_feasible_design` — too many locationSetting excludes / no feasible split|Name the count and the share of orders removed — split into the user's own excludes and prepare's `autoExcludedGeoCodes` (concurrent tests); offer the geo-exclusion lever, the geo-size lever and, when concurrent tests took the geos, the sequenced-reuse lever (`restrictStartDate: true`)|
+
+**Data / system failures** are prerequisites, not solve-loop levers — no round is consumed, and re-running the design without changing the input fails the same way:
+
+|`reason`|Handle|
+|---|---|
+|`no_overlap` / `insufficient_60d`|The selected sales channels lack a common 60-day order history. Offer to drop channels (start with the newest / thinnest one), then re-run prepare + design.|
+|`no_orders`|No orders for the selected channels in this country. Check the channel / country choice; if both are right, the data is not there yet.|
+|`order_data_issue`|The order data itself is malformed. Nothing to adjust in the test — hand off to the WorkMagic team.|
+|`system_error`|Transient. Re-submit the same design once; if it fails again, say so and stop.|
 |Sales-channel readiness insufficient|Name the channel + the failing check; offer to drop it or fix it in Settings (not a solve-loop lever — a prerequisite)|
 |Country not supported / data volume too low|Name the limit. Unsupported country is a hard stop, not a loop.|
 

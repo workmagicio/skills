@@ -6,7 +6,7 @@ The loop is entered from either failure mode:
 
 |Trigger|Round 1 framing|
 |---|---|
-|**Design failed** — no viable geo pair|"Couldn't form a workable geo pair" + the structural reason|
+|**Design failed** — lift-test-design-result `reason: no_feasible_design` (no viable geo pair)|"Couldn't form a workable geo pair" + the structural reason. Other failure reasons (data / system) don't enter the loop — references/sop-detail.md Step 5|
 |**Design returned Insufficient** — expected daily spend > available spend (or > the user's budget ceiling)|"Design solved, but it won't have the power to detect a result" + the numbers|
 |**A stated constraint was violated by the returned design**|"The design came back, but it breaks [constraint]"|
 

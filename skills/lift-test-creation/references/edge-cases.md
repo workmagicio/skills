@@ -11,7 +11,8 @@
 |User picks an unsupported country ("Japan", "Brazil")|Error out, list the 8 supported countries (US / UK / CA / DE / FR / AU / ES / SE), ask which. **Don't hard-build, don't route to DS** — this is a product limit, not a modeling question.|
 |User-named tactic / campaign doesn't exist|Campaigns: after lift-test-impact-campaigns. Tactics: after tactic-list — impact-campaigns doesn't return tactics. Either way: "Couldn't find a tactic called 'X' — candidates are: …"|
 |User picked a Not-ready sales channel|Name the specific failing readiness check, point to Settings. **Don't silently drop the channel.**|
-|Design fails to form a geo pair|Solve loop round 1 — structural reason + levers. **Never expose "holdoutPct"** — say "more geos on the holdout side".|
+|Design fails to form a geo pair (`reason: no_feasible_design`)|Solve loop round 1 — structural reason + levers. **Never expose "holdoutPct"** — say "more geos on the holdout side".|
+|Design fails on the order data (`reason: no_overlap` / `insufficient_60d` / `no_orders` / `order_data_issue`)|Not a solve-loop round. Relay `user_message`; offer to drop sales channels (overlap / 60-day), check channel + country (no orders), or hand off (data issue).|
 |Design comes back Insufficient|Solve loop round 1 with quantified gap.|
 |Design violates a stated constraint|Treated as a failure, not a success. Solve loop with the trade-off stated.|
 |Solve loop hits round 3 without a solution|Stop. DS handoff. **No draft.**|

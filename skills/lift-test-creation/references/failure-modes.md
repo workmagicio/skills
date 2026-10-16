@@ -108,6 +108,8 @@ Complete catalog. The top 8 most-violated are inline in SKILL.md §9 CRITICAL; t
 ❌ **Relaxing concurrency silently** to make a design solve
 ❌ **Allowing simultaneous overlap** — reuse is only ever sequenced, on a start date after the other test ends
 ❌ **Passing holdout_pct as a prepare argument** — prepare has none; change only `suggested.holdout_pct` inside the scan result
+❌ **Showing a failed design's raw `error`** (Chinese design-service text) — relay `user_message` and act on `reason`
+❌ **Spending solve-loop rounds on a data failure** (`no_overlap` / `insufficient_60d` / `no_orders`) — no lever fixes it; change the sales channels first
 
 ❌ **Offering sequenced reuse without naming the delay** — the gain and the wait go in the same sentence
 

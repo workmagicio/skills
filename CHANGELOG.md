@@ -15,6 +15,9 @@ its `SKILL.md` frontmatter (`version:` / `last-updated:`).
   确认前），并发测试地域的自动排除由 prepare 完成，「推迟到对方结束后复用地域」= `restrictStartDate: true`；
   加大 geo size 只改 scan 结果的 `suggested.holdout_pct`；支持 8 国（英国传 `GB`），非 US 只支持 postcode；
   Amazon Ads 不支持；没有可选目标的平台以 `[]` 存为 skip for now。
+  design 失败改按 lift-test-design-result 新返回的 `reason` / `user_message` 处理（对齐前端 6 类失败文案）：
+  只有 `no_feasible_design` 进 solve loop，数据类（`no_overlap` / `insufficient_60d` / `no_orders` / `order_data_issue`）
+  不消耗轮次、先调整销售渠道，`system_error` 重试一次；不再展示原始中文报错。
   **未改**：「只给 cell 数」入口原样保留——当前 prepare 要求每个 cell 至少带一个平台，这条入口暂时跑不通，待 MCP 支持后再议。
   **上线顺序**：必须在 platform-mcp 的 testChannel 按 cell 分组改动部署之后再发布本条。
 

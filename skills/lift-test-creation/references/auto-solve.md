@@ -80,9 +80,12 @@ budget is inferred from current spend the two are identical.
           already in hand (reused, not re-run).
        ② Binary from 0.15's result, then:
           PASS (budget ≥ 0.95×required₂₁, every platform) → record; seek smaller (hi=mid-1)
-          NO SOLUTION (design returns "no feasible geo pair", fast) → log the round as
+          NO SOLUTION (design-result failed, reason no_feasible_design, fast) → log the round as
                                                              "no solution"; too small; seek larger (lo=mid+1)
-          TIMED OUT (design-result ends failed with no rows, ~5 min) → log the round as
+          DATA FAILURE (reason no_orders / order_data_issue / no_overlap / insufficient_60d)
+                                                           → STOP the search: every geo size fails
+                                                             the same way; handle per sop-detail Step 5
+          TIMED OUT (design-result failed, reason system_error, no rows, ~5 min) → log the round as
                                                              "timed out"; move on to the next larger
                                                              size — do NOT stop the search
           spend shortfall (required₂₁ > budget/0.95)      → LTM: hi=mid-1 · PTM: lo=mid+1
