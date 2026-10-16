@@ -3,8 +3,8 @@ name: lift-test-creation
 description: Turn a natural-language request into an executable lift test draft — geo lift tests, holdout and incrementality tests, and the PTM / LTM market split they need. Use when someone asks to set up, design or run a test to measure incrementality.
 category: lift-test
 risk: R0
-version: 1.1.0
-last-updated: 2026-09-23
+version: 1.2.0
+last-updated: 2026-10-16
 
 references:
   - references/input-parsing.md
@@ -35,19 +35,19 @@ Turn the user’s natural-language request into a **well-configured, executable 
 
 | **Field** | **Required?** | **Description / default** |
 |-|-|-|
-| adPlatform | Required | If the user didn’t name one, **ask**. |
-| testLevel | Required | platform / tactic / campaign. If the user didn’t say, **ask in business language**. |
-| impactCampaignInfos | Required | Tactic ID(s) when testLevel = tactic; campaign ID(s) when testLevel = campaign. **Must ask** (unless the user already named specific tactics/campaigns). |
-| testStartTime | Required | If the user didn’t say, **ask last**. **Never** accept a past date. |
+| adPlatform | Required | If the user didn’t name one, **ask**. One or more platforms; each is bound to a test cell (see numberOfCells). Amazon Ads is not a lift-test platform — say so, don’t map it. |
+| testLevel | Required | platform / tactic / campaign — ONE level for the whole test (every cell). If the user didn’t say, **ask in business language**. |
+| impactCampaignInfos | Required | Each platform’s selected targets, shaped by testLevel: tactic → one object per tactic `{tacticNames:[name]}` from **tactic-list** (`''` = the Default tactic); platform → accounts `{accountId, accountName}`, campaign → `{accountId, accountName, campaignId, campaignName}`, both from **lift-test-impact-campaigns**. **Must ask** (unless the user already named them). A platform with nothing selectable → `[]` (saved as “skip for now”, scope set later in the draft). |
+| testStartTime | Optional | If the user didn’t say, **ask last**. **Never** accept a past date. If the user wants to schedule later, create the draft without it (“to be scheduled”). |
 | salesChannel | Has default | Default to all selected (every channel in **Ready** or **Not optimal** state). |
 | primaryMetric | Has default | Default orders. |
-| country | Has default | Query trailing-90-day sales share, auto-pick the dominant country. Only **7 countries supported**: US / AU / CA / FR / DE / UK. **Other countries error out** — never hard-build. |
-| geoLevel | Has default | Derive from country: US → DMA; others → postcode. |
-| method | Has default | Derive from ad spend: if PTM is Sufficient → PTM; otherwise LTM. |
-| approach | Has default | Derive from liftTestAdsPlatformList: if the platform supports automatic → automatic; otherwise manual. |
+| country | Has default | Query trailing-90-day sales share, auto-pick the dominant country. Only **8 countries supported**: US / UK / CA / DE / FR / AU / ES / SE — the UK is passed as **`GB`**. **Other countries error out** — never hard-build. |
+| geoLevel | Has default | Derive from country: US → DMA; every other country → postcode only (DMA / state are US-only). |
+| method | Design output | lift-test-design-analyze `recommended` — PTM when PTM is supported and Sufficient, else LTM. Not known before the design runs (lift-test-scan does not return it). Honor an explicit user choice. |
+| approach | Design output | lift-test-design-analyze `recommendedApproach` — automatic only when every platform supports automatic in that country; otherwise manual. Not known before the design runs. Honor an explicit user choice (surface manual-only platforms). |
 | timezone | Auto | Query dwd_view_analytics_tenant_timezone. Don’t ask the user. |
-| locationSetting | Auto + user override | By default, query the tenant’s currently scheduled + active tests and auto-exclude the union of their control + test geos (**to avoid colliding with running tests**). Layer the user’s explicit exclude / include on top. |
-| numberOfCells | Auto | When the user names multiple platforms, automatically split into multiple 2-cell tests. **Don’t ask the user to pick this.** |
+| locationSetting | Auto + user override | lift-test-design-prepare **auto-excludes every geo occupied by the tenant’s scheduled + active tests** (same country + geo level) — the default, keeps the start date. The alternative is to start after those tests end (`restrictStartDate: true`): no auto-exclusion, full geo coverage. The user’s explicit exclude / include is layered on top. |
+| numberOfCells | Auto | **One cell = one lift result.** Each thing the user wants measured separately is its own test cell; things the user explicitly wants measured *together* share one cell. Several things named with no grouping stated → one cell each (default — don’t ask). numberOfCells = test cells + 1 shared reference group, max 5 (4 test cells). **One test (one draft) holds all its cells** — never split into separate tests. **Don’t ask the user to pick this** — ask only if more than 4 test cells would be needed. |
 | holdoutPct | Has default | Default 0.05. **The user should never see this field name**, unless design fails and the value needs adjusting. |
 | testPeriod | Design output | Computed by the design engine, 14–60 days. When the user states a constraint like “4 weeks,” check whether it’s feasible. |
 | coolingPeriod | Has default | Default 7 days. Range 1–28. |
@@ -60,13 +60,13 @@ Per-field parsing and resolution rules (alias mapping, time direction, geo parsi
 ### 4.1 Steps
 
 1. **Parse the request.** Resolve every field present in user wording (aliases, time, geo). Record what’s specified — never re-ask.
-2. **Ask only for missing required fields.** Just adPlatform + testLevel + (impactCampaignInfos via lift-test-impact-campaigns). At most 1–2 questions per turn.
-3. **Resolve defaults.** Run lift-test-scan for: current spend, PTM Sufficient check, active tests for collision avoidance. Query DB for sales channels / country / timezone.
-4. **Confirm Step 4 — the ONLY full-config confirmation gate.** Echo all collected + resolved fields in business language. Surface override conflicts once, don’t lecture. See references/output-templates.md.
-5. **Call lift-test-design.** On failure (holdout too low / too many excludes / readiness insufficient), don’t silently adjust — surface and ask. Detail → references/sop-detail.md.
-6. **Determine Sufficient / Insufficient via lift-test-design-analyze.** If Insufficient, offer the 4 standard levers (raise budget / increase geo size / extend period / proceed anyway). Lever detail → references/sop-detail.md.
+2. **Ask only for missing required fields.** Just adPlatform + testLevel + targets (tactics via tactic-list; accounts / campaigns via lift-test-impact-campaigns). Derive the cell structure from the wording (§Inputs numberOfCells) — don’t ask about it. At most 1–2 questions per turn.
+3. **Resolve defaults, then call lift-test-design-prepare.** Run lift-test-scan for current spend, active tests and suggested defaults. Query DB for sales channels / country / timezone. Then call **lift-test-design-prepare** with the lift-test-scan result verbatim, testLevel, and **`testChannel` — grouped by cell: one array per test cell, listing that cell’s platforms as `{adPlatform, impactCampaignInfos}`** (never the old flat `adPlatform` + `impactCampaignInfos`; never pass numberOfCells). prepare auto-excludes the geos held by running / scheduled tests; when its `concurrentTestInfo.concurrentTestCount` > 0, Step 4 must offer both options — keep the start date with fewer geos (default), or start after `concurrentTestInfo.rangeEndTime` with full geo coverage (re-call prepare with `restrictStartDate: true` + `startTime`). Detail + testChannel examples → references/sop-detail.md.
+4. **Confirm Step 4 — the ONLY full-config confirmation gate.** Echo prepare’s summary in business language — including its Cells row and any auto-excluded geos (how many, and why). Method and setup are not known yet (they come from analyze) — show them only if the user already stated them. Surface override conflicts once, don’t lecture. If the user changes anything → re-call prepare and show the new summary. See references/output-templates.md.
+5. **Run the design: lift-test-design → lift-test-design-result → lift-test-design-analyze.** design takes prepare’s `lift_test_group` and returns a task id; poll design-result until it settles; pass prepare’s create_params (incl. testLevel) to analyze. On failure, don’t silently adjust — surface and ask. A “no feasible solution” failure after many geos were auto-excluded → offer starting after the running tests (`restrictStartDate: true`) or loosening the user’s excludes. Failure table → references/sop-detail.md.
+6. **Read lift-test-design-analyze: Sufficient / Insufficient, recommended method and setup.** Present the recommended method (PTM / LTM) and setup (automatic / manual) as a single decision, not a re-confirmation of the config. If Insufficient, offer the 4 standard levers (raise budget / increase geo size / extend period / proceed anyway). Lever detail → references/sop-detail.md.
 7. **Ask for testStartTime if missing.** Account for active-test collisions (“Another test is running through [date] — suggest after that”).
-8. **Call lift-test-create-or-update directly.** No second full-config confirmation. Return draft link. Payload mapping → references/sop-detail.md.
+8. **Call lift-test-create directly** (lift-test-create-or-update only to modify an existing draft, with its `id`). No second full-config confirmation. One draft carries all cells. Return draft link. Payload mapping → references/sop-detail.md.
 
 ### 4.2 Validation Checkpoints
 
@@ -75,7 +75,7 @@ Multi-step SOP — the agent must pause and surface at these gates, never autopi
 | After step | Pause and surface |
 |-|-|
 | Step 4 | Full-config summary in business language. **This is the only full-config confirmation gate.** |
-| Step 5/6 (after design) | Progress update only: test period + feasibility. Do NOT restate full config. |
+| Step 5/6 (after design) | Progress update: test period + feasibility, plus the recommended method / setup as one decision. Do NOT restate full config. |
 | Step 6 (Insufficient) | Concrete numbers + 4 levers. User picks; don’t pick for them. |
 | Step 7 | Single question: start date. Surface active-test collisions if any. |
 | Step 8 | Draft link. Done. No final-confirm table. |
@@ -97,12 +97,15 @@ Multi-step SOP — the agent must pause and surface at these gates, never autopi
 
 | **Tool** | **Required?** | **Purpose** |
 |-|-|-|
-| lift-test-scan | Required | Pull current ad spend, currently scheduled / active tests, PTM-Sufficient check |
-| lift-test-impact-campaigns | Required | Fetch candidate list when testLevel = tactic / campaign |
-| lift-test-design-prepare | Required | Package collected + resolved parameters into design inputs |
-| lift-test-design | Required | Generate geo pair; returns testPeriod, holdoutPct, feasibility threshold |
-| lift-test-design-analyze | Required | Compute expected daily spend, determine Sufficient / Insufficient, recommend PTM or LTM |
-| lift-test-create-or-update | Required (final step) | Create draft / update draft |
+| lift-test-scan | Required | Pull current ad spend, currently scheduled / active tests, suggested defaults (country, geo level, holdout) |
+| tactic-list | Required (tactic level) | Fetch candidate tactics — lift-test-impact-campaigns does not return tactics |
+| lift-test-impact-campaigns | Required (platform / campaign level) | Fetch candidate accounts (level=account) or campaigns (level=campaign) |
+| lift-test-design-prepare | Required (before Step 4) | Package scan result + testLevel + `testChannel` (one array per test cell) into design inputs; derives numberOfCells and per-entry fields; auto-excludes geos held by running / scheduled tests (`restrictStartDate: true` skips that). Its summary feeds Step 4 |
+| lift-test-design | Required | Submit the geo-pair design solve; returns a task id |
+| lift-test-design-result | Required | Poll the task id until the design settles (~3–4 min); returns PTM / LTM design ids |
+| lift-test-design-analyze | Required | Compute expected daily spend, determine Sufficient / Insufficient, recommend PTM or LTM (`recommended`) and automatic or manual (`recommendedApproach`) |
+| lift-test-create | Required (final step) | Create the draft from prepare’s create_params + analyze’s chosen design — one draft, all cells |
+| lift-test-create-or-update | Optional | Update an existing draft (with its `id`) |
 | lift-test-list | Optional | When the user asks “what tests have I created before” |
 | lift-test-get | Optional | Pull an existing draft when the user wants to modify mid-flow |
 
@@ -112,12 +115,12 @@ Multi-step SOP — the agent must pause and surface at these gates, never autopi
 - UI-aligned field names: “Test period” (not “Experiment days”), “Feasibility threshold” (not “Expected daily spend”), “Geo size” (not “Geo coverage”).
 - Method-specific treatment-side labels (matches product UI): PTM → “Holdout group”; LTM → “Exposed group”; reference side any method → “Reference group”. Never use “Holdout group” in an LTM column. Never invent a unified “Treatment group” term.
 - First mention of PTM / LTM gets a one-line inline explanation: “PTM (pause-to-measure — pause ads in a subset of geos)”. After that, just “PTM” / “LTM” is fine.
-- Multi-platform requests: explain the split in business language — “I’ll set up N separate 2-cell tests, one per platform.” Never ask the user to pick numberOfCells.
+- Multi-cell requests: explain the cell shape once in business language — “A 3-cell test means Meta and Google are each measured separately against one shared reference group”; things measured together: “Meta and Google run as one combined group against the reference.” Never ask the user to pick numberOfCells.
 - All output templates (Step 4 summary, Insufficient prompt, design comparison, draft link) → references/output-templates.md.
 
 ## Edge cases & routing
 
-See references/edge-cases.md — 17 cases covering unsupported country, manual-only platforms, modification mid-flow, ambiguous geo names, Not-ready sales channels, design failures, out-of-scope requests.
+See references/edge-cases.md — 19 cases covering unsupported country, manual-only platforms, modification mid-flow, ambiguous geo names, Not-ready sales channels, design failures, multi-cell structure (more than 4 cells, platforms with nothing selectable), out-of-scope requests.
 
 ## CRITICAL rules (top 7)
 

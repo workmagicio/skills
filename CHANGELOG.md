@@ -4,6 +4,24 @@ All notable changes to the WorkMagic public skills are recorded here. This repo 
 [Agent Skills open standard](https://agentskills.io); each skill is independently versioned in
 its `SKILL.md` frontmatter (`version:` / `last-updated:`).
 
+## 2026-10-16
+
+### Changed
+
+- **`lift-test-creation` 1.2.0：对齐 platform-mcp 按 cell 分组的 `testChannel`（多 cell）。**
+  `lift-test-design-prepare` 不再收扁平的 `adPlatform` + `impactCampaignInfos`，改收按 cell 分组的 `testChannel`（二维数组）
+  （外层 = test cell，内层 = 该 cell 内的平台条目 `{adPlatform, impactCampaignInfos}`），由 prepare 推导
+  numberOfCells / testChannelIndex / extraInfo。skill 同步：一个 cell = 一个 lift 结果、未说分组默认每样一个
+  cell、最多 4 个 test cell、一个 draft 承载全部 cell（不再拆成多个 2-cell 测试）；tactic 候选改走
+  `tactic-list`；设计链路写全 prepare → design → design-result → analyze；建草稿改调 `lift-test-create`
+  （create-or-update 仅用于修改已有草稿）；testStartTime 可不填（待排期）；支持国家 8 个、英国传 `GB`，
+  非 US 只支持 postcode；Amazon Ads 不是 lift-test 平台。
+  同时按本地实测修正流程：prepare 挪到 Step 4 确认之前（确认的就是它的 summary）；写明 prepare 会自动排除
+  进行中测试占用的地域，地域被占多时给「推迟到这些测试结束后开始」（`restrictStartDate`）的选项，design 报
+  「无可行解」时据此引导；method / approach 改为取自 design 之后的 analyze（scan 不返回），Step 4 不再展示；
+  「加大 geo size」写明只能改 scan 结果里的 `suggested.holdout_pct`（prepare 没有该参数）。
+  **上线顺序**：必须在 platform-mcp 的 testChannel 按 cell 分组改动部署之后再发布本条。
+
 ## 2026-09-30
 
 ### Changed

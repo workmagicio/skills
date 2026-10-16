@@ -52,8 +52,21 @@ Complete catalog. Top 7 most-violated are inline in SKILL.md §7 CRITICAL; the r
 **On multi-platform**:
 
 - ❌ **Dropping one of the platforms the user named**
-- ❌ **Telling the user “I’ll split this into multiple cells” but then asking them to pick numberOfCells**
-- ❌ **Not telling the user the test will be split into multiple 2-cell experiments**
+- ❌ **Splitting a multi-cell request into separate tests / drafts** — one test carries all its cells
+- ❌ **Asking “one cell or two?” when the user named several things without saying how to group them** — default is one cell each
+- ❌ **Putting things the user wants measured separately into one cell** (or splitting things they asked to measure together)
+- ❌ **Not explaining the cell shape** (what each cell measures against the shared reference group)
+- ❌ **Calling lift-test-design-prepare with the old flat `adPlatform` + `impactCampaignInfos`** — it takes `testChannel`, grouped by cell (one array per test cell)
+- ❌ **Using lift-test-impact-campaigns for tactics** — tactics come from tactic-list
+- ❌ **Passing “UK” as the country** — the code is `GB`
+
+**On flow order and design inputs**:
+
+- ❌ **Calling lift-test-design-prepare after Step 4** — prepare runs before Step 4; its summary (Cells, auto-excluded geos) is what the user confirms
+- ❌ **Showing a method or setup in Step 4 that the user didn’t state** — they come from lift-test-design-analyze after the design
+- ❌ **Not offering “start after the running tests” when prepare auto-excluded many geos** — leads straight to a “no feasible solution” design
+- ❌ **Showing the raw design error (a Chinese solver message + solver parameters)** — translate it to the cause and next steps
+- ❌ **Passing holdout_pct as a prepare argument** — prepare has none; change only `suggested.holdout_pct` inside the scan result
 
 **On mid-flow modification**:
 

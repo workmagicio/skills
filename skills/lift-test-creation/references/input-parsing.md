@@ -7,6 +7,8 @@
 | “TT”, “TikTok” | TikTok Ads |
 | “Snap” | Snapchat Ads |
 | “Pin”, “Pinterest” | Pinterest Ads |
+| “Amazon Ads” | **Not a lift-test platform** — say so; don’t map it |
+| “UK”, “United Kingdom”, “Britain” | country `GB` |
 | “PTM”, “pause”, “pause to measure” | PTM |
 | “LTM”, “launch”, “launch to measure” | LTM |
 | “auto”, “automatic”, “let WorkMagic do it” | automatic |
@@ -30,6 +32,15 @@ Distinguish three semantics:
 
 **Budget unit ambiguity** (“under \$5k” — daily or total?): clarify once.
 
+- Cell-grouping parsing
+
+| User says | Cells |
+|-|-|
+| “Meta and Google”, “Meta vs Google”, “compare Meta and TikTok” | one cell each (default when no grouping is stated — don’t ask) |
+| “…separately” / “a separate result for each” | one cell each |
+| “…together” / “combined” / “as one” | the same cell |
+| More than 4 things to measure separately | ask which to drop or combine (max 4 test cells) |
+
 - Geo-constraint parsing
 
 | User says | Handle |
@@ -46,12 +57,12 @@ Distinguish three semantics:
 |-|-|
 | adPlatform | The ad platform the user named (Meta, Google, TikTok, etc.). **Apply alias mapping silently** (FB→Meta, GA→Google Ads, IG→Meta). |
 | testLevel | Ask in business language: “Test the entire account, a specific tactic, or particular campaigns?” |
-| impactCampaignInfos | Use lift-test-impact-campaigns to fetch the candidate list. |
+| impactCampaignInfos | Tactics: tactic-list (impact-campaigns does not return tactics). Accounts / campaigns: lift-test-impact-campaigns. Bound per platform per cell in `testChannel`. |
 | testStartTime | Ask last — other fields can be resolved first. |
 | salesChannel | Query DB for the tenant’s connected sales channels, show them to the user for confirmation. |
 | primaryMetric | Switch to new_customers when the user says “acquisition / new customer.” |
-| country | Only **7 countries supported**: US / AU / CA / FR / DE / UK. **Other countries error out** — never hard-build. |
-| geoLevel | **US state only when the user explicitly says so.** |
+| country | Only **8 countries supported**: US / UK (passed as `GB`) / CA / DE / FR / AU / ES / SE. **Other countries error out** — never hard-build. |
+| geoLevel | **US state only when the user explicitly says so.** Non-US countries are postcode only. |
 | method | **Honor explicit user choice exactly** — do not silently switch. |
 | approach | **MNTN / Walmart Connect / Roku / Universal Ads / Vibe / TikTok GMV Max** are manual-only. |
 | coolingPeriod | Suggest 14–28 when the user mentions long-consideration categories (furniture, electronics, etc.). |

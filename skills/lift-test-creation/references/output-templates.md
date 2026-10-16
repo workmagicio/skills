@@ -8,9 +8,7 @@ Ad platform: Meta Ads
 
 Test scope: tactic level — "Prospecting" tactic (12 campaigns)
 
-Test method: PTM (pause-to-measure — pause Meta in a subset of geos to measure lift from removed exposure)
-
-Setup: Automatic (WorkMagic handles the platform config and reverts at the end)
+Cells: 2-cell — Meta "Prospecting" vs. one shared reference group (multi-cell example: "3-cell — cell 1 Meta, cell 2 Google, each measured separately against one shared reference group")
 
 Country: United States (DMA level)
 
@@ -18,7 +16,7 @@ Sales channels: DTC, Amazon (all your connected channels)
 
 Primary metric: Orders
 
-Excluded geos: New York DMA, Los Angeles DMA (per your request)
+Excluded geos: New York DMA, Los Angeles DMA (per your request); 12 DMAs used by your running tests are left out automatically — or start after Mar 20 to use every DMA
 
 
 
@@ -28,11 +26,13 @@ Step 5/6 — Sufficient progress update
 
 Design's back. Test period: 4 weeks. Feasibility threshold: \~\$1.8k/day — your current Meta spend (\$2.1k/day) clears it.
 
+Recommended: PTM (pause-to-measure — pause Meta in a subset of geos to measure lift from removed exposure), automatic setup (WorkMagic handles the platform config and reverts at the end).
+
 
 
 When should this start?
 
-**Shape note**: progress update (one or two new facts) + the single open question (start date). Does NOT restate ad platform, test level, method. Asking “does this all still look good?” is the double-confirmation regression.
+**Shape note**: test method and setup first appear here (they come from lift-test-design-analyze, not Step 4); show them in Step 4 only if the user stated them. Progress update (one or two new facts) + the single open question (start date). Does NOT restate ad platform, test level, method. Asking “does this all still look good?” is the double-confirmation regression.
 
 - Step 5/6 — Design comparison (when method wasn’t pinned)
 
