@@ -22,7 +22,7 @@ The `lift_test_group` body and where every field comes from. `lift-test-create` 
 |---|---|---|
 |`name`|derived|auto-generated from date + platform + geo size + metric + method: `YYYYMMDD - {Platform} - {geoSize%} DTC {Orders/New customers} - {PTM/LTM}` → e.g. `20260519 - Meta - 7% DTC Orders - LTM`|
 |`status`|const|`"draft"` (activation to `scheduled` is a separate action)|
-|`adPlatform`|user → prepare|raw platform ids `["facebookMarketing"]`|
+|`adPlatform`|prepare|distinct raw platform ids across all cells of `testChannel`, e.g. `["facebookMarketing"]`|
 |`salesChannel`|scan → prepare|connected channels array|
 |`primaryMetric`|scan/user → prepare|`orders` / `nc_orders`|
 |`country`|scan → prepare|`US` …|
@@ -56,7 +56,7 @@ The `lift_test_group` body and where every field comes from. `lift-test-create` 
 
 |Field|Source|Rule|
 |---|---|---|
-|`numberOfCells`|prepare (derived)|string `"2"`…`"5"` = (N−1) impact groups + 1|
+|`numberOfCells`|prepare (derived)|string `"2"`…`"5"` = `testChannel.length` (test cells) + 1 shared reference group|
 |`budgetRequirement`|user|`{ operator:"between", value:[min,max] }`; default `[null,null]`|
 |`additionalRequests`|user|free text, default `""`|
 |`includeCustomSalesChannels`|const|`false`|
@@ -96,20 +96,20 @@ Changing geo size / any online-design input is NOT a recompute — it needs a fr
 
 ## `testChannel` — one inner array per cell
 
-`Array<Array<cell>>`; one cell per platform. Each cell:
+`Array<Array<entry>>` — **outer = test cells, inner = that cell's platform entries** (a cell may hold several platforms measured together; a platform may appear in several cells). The caller builds it as prepare's `testChannel` input (`{adPlatform, impactCampaignInfos}` per entry — rules in sop-detail Step 3); prepare stamps testChannelIndex + extraInfo; analyze / create add the geos and estimator. Each entry:
 
 |Field|Source|Rule|
 |---|---|---|
 |`name`|derived|auto-generated per-cell name (date + platform + geo size + metric, like the top-level name)|
 |`status`|const|`"draft"`|
-|`adPlatform`|prepare (cell tag) / user|this cell's platform|
-|`testChannelIndex`|derived|0-based cell index|
+|`adPlatform`|user → prepare|this entry's platform|
+|`testChannelIndex`|prepare (derived)|0-based cell index (= outer index)|
 |`primaryMetric`|scan/user|same as top-level|
-|`impactCampaignInfos`|user (impact-campaigns / tactic-list) → prepare|shape by `testLevel`: **platform**`{accountId, accountName, campaigns:[]}`; **tactic**`{…, tacticNames:[…]}`; **campaign**`{accountId, accountName, campaigns:[campaignId,…]}`. May also carry `excludeAudienceIds` / `includeAudienceIds` (nullable)|
+|`impactCampaignInfos`|user (impact-campaigns / tactic-list) → prepare|shape by `testLevel` — as passed to prepare: **platform**`{accountId, accountName}`; **tactic** one object per tactic `{tacticNames:[name]}` (`''` = Default tactic); **campaign**`{accountId, accountName, campaignId, campaignName}`. A persisted draft may carry the stored form (`campaigns:[…]`) — keep it verbatim on update. `[]` = skip for now. May also carry `excludeAudienceIds` / `includeAudienceIds` (nullable)|
 |`controlGeo`|analyze|`= geoGroup.control[cell].code` (reference-side codes)|
 |`testGeo`|analyze|`= geoGroup.test.code` (treatment-side codes)|
 |`geoGroup`|analyze + derived|embedded per-cell geoGroup: same as the shared geoGroup, but `control` is the single OBJECT for this cell and `estimator` carries the per-cell `expect_cpa` + `minimum_daily_budget_required`|
-|`extraInfo`|const|`{ completed: true, skipForNow: false }`|
+|`extraInfo`|prepare (derived)|`{ completed: true, skipForNow: impactCampaignInfos is empty }` — an empty target list is a skip-for-now placeholder, scope set later in the draft|
 
 > On **update via lift-test-get → create-or-update**, a persisted cell also carries system fields (`id, tenantId, accountId, createTime, updateTime, workflowId, status, testStartTime, testEndTime, executeMessage, changeRecord, affectedCampaigns, autoAffectedCampaigns, originTargeting, liftTestGroupId, dmaExclusion, testGeoLevel, controlGeoLevel, adPlatformName, adType`). These are backend-populated — **preserve them verbatim from get; never assemble or drop them.**
 >

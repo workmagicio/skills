@@ -7,6 +7,8 @@
 |"TT", "TikTok"|TikTok Ads|
 |"Snap"|Snapchat Ads|
 |"Pin", "Pinterest"|Pinterest Ads|
+|"Amazon Ads"|**Not a lift-test platform** — say so; don't map it|
+|"UK", "United Kingdom", "Britain"|country `GB`|
 |"PTM", "pause", "pause to measure"|PTM|
 |"LTM", "launch", "launch to measure"|LTM|
 
@@ -21,7 +23,9 @@ Spelling tolerance: "Goggle Ads", "Snapcaht" → silently corrected; surface the
 |"4-cell"|numberOfCells = 4 → 3 impact groups + 1 shared reference group|
 |"5-cell"|numberOfCells = 5 → 4 impact groups + 1 shared reference group — the maximum|
 |"6-cell" or more|Out of boundary → §3|
-|"test Meta and Google"|2 impact groups → 3-cell. Do **not** ask the user to pick the number.|
+|"test Meta and Google"|2 impact groups → 3-cell (one cell each). Do **not** ask the user to pick the number.|
+|"…a separate result for each"|one cell each, in one test|
+|"…together" / "combined" / "as one"|the same cell (several platforms or targets in one cell)|
 |"run separate tests on Meta and Google"|Two independent 2-cell tests — the user asked for separation explicitly|
 
 **Ambiguity rule**: "Meta and Google" alone → default to **one 3-cell test with a shared reference group** and say so in Step 4 ("one test, two cells measured against a shared reference group — say the word if you'd rather have two separate tests"). Confirm, don't re-ask.
