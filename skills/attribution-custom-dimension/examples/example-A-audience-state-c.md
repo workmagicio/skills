@@ -32,7 +32,7 @@ Pattern observed: underscore-separated. Audience appears to be the **third token
 
 #### Step 3 — Detect separators
 
-Call `naming-convention-separators`. Returns: `_` as the dominant separator across the tenant's campaigns.
+Call `naming-convention-separators-get`. Returns: `_` as the dominant separator across the tenant's campaigns.
 
 #### Step 4 — Propose (one confirmation question)
 

@@ -1,0 +1,67 @@
+name: Branch
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+      - preview
+
+jobs:
+  job:
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      # master → preview 回灌:已有 open 的 master → preview PR 或 master 相对 preview 无新提交则跳过。
+      - if: github.ref_name == 'master'
+        id: sync
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ "$(git rev-list --count origin/preview..origin/master)" = "0" ]; then
+            echo "master has no commits ahead of preview, skip"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          existing=$(gh pr list --base preview --head master --state open --json number --jq '.[0].number')
+          if [ -n "$existing" ]; then
+            echo "sync PR #$existing already open, skip"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+      - if: github.ref_name == 'master' && steps.sync.outputs.skip != 'true'
+        uses: tretuna/sync-branches@1.4.0
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          FROM_BRANCH: master
+          TO_BRANCH: preview
+          PULL_REQUEST_AUTO_MERGE_METHOD: merge
+      # preview 更新后自动开 preview → master 的发版 PR,标题 "Release YYYYMMDD" = 下一个上线日
+      # (严格晚于今天的下一个周三,按北京时间算;周三当天推送取下周三)。已有 open 的
+      # preview → master PR 就不重复建、也不改名;preview 相对 master 无新提交则跳过。
+      - if: github.ref_name == 'preview'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ "$(git rev-list --count origin/master..origin/preview)" = "0" ]; then
+            echo "preview has no commits ahead of master, skip"
+            exit 0
+          fi
+          existing=$(gh pr list --base master --head preview --state open --json number --jq '.[0].number')
+          if [ -n "$existing" ]; then
+            echo "release PR #$existing already open, skip"
+            exit 0
+          fi
+          dow=$(TZ=Asia/Shanghai date +%u)
+          days=$(( (3 - dow + 7) % 7 ))
+          [ "$days" = "0" ] && days=7
+          release=$(TZ=Asia/Shanghai date -d "+${days} days" +%Y%m%d)
+          gh pr create --base master --head preview \
+            --title "Release ${release}" \
+            --body "Auto-created release PR: preview → master, scheduled for ${release}."
