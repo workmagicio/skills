@@ -4,6 +4,20 @@ All notable changes to the WorkMagic public skills are recorded here. This repo 
 [Agent Skills open standard](https://agentskills.io); each skill is independently versioned in
 its `SKILL.md` frontmatter (`version:` / `last-updated:`).
 
+## 2026-10-19
+
+### Added
+
+- **`media-buyer-plan` 1.0.0：AI Media Buyer「任务 + 方案」车道。** 客户提上新素材 / 新建广告组或系列 / 结构调整 /
+  换季或主推商品这类要 engine 出草稿的需求时，按 `media-buyer-capabilities` → `media-buyer-task-create` → 客户说
+  「任务完成了」后 `media-buyer-task-get` → `media-buyer-plan-submit` → 客户亲口批准才 `media-buyer-plan-execute`
+  走；engine 的提问（含预算超客户约束时的追加 / 只做一部分 / 腾挪三选项）原样转给客户，答案经
+  `media-buyer-task-answer` 回传；批准时客户点名的预算走 `param_overrides`（可越过 engine 参考上限，不可越过客户自己的约束）；
+  方案被拒后列出 engine 留在客户广告账户里的过程产物，客户明确同意才清理（Meta 素材库目前删不掉，如实说）。
+  禁止用 `connector-action` / `connector-api` 直接改账户来完成这类需求。接需求那一步吸收了离线 skill 包的
+  「逐条记客户原话 + 列客户没说清的事项」。
+  **上线顺序**：依赖 platform-mcp 的任务面工具与 wm_ai_agency 任务台账上线；在那之前不要发布本条。
+
 ## 2026-10-16
 
 ### Changed
