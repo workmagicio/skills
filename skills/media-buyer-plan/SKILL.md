@@ -111,7 +111,7 @@ come back with a question.
 - `intent.inputs`: references to the materials (`url` for a Sheet or folder, `customer_input` for a
   ledger entry, `signed_url` for a chat upload — generate that one immediately before the call; it
   expires in minutes). **Pass the reference; don't open or summarise the material yourself.**
-- a `task_request_id` that is stable for this request, so a retry can't file it twice.
+- a `taskRequestId` that is stable for this request, so a retry can't file it twice.
 
 Then the acknowledgement, in four parts: what you received, what the engine is going to look at,
 roughly how long (from the response when it gives one), and that a plan comes back for their
@@ -174,21 +174,22 @@ to their own guardrail — say so in those words, so the choice is made knowingl
 
 ## Step 5 — Assemble and show the plan
 
-`media-buyer-plan-submit` with:
+`media-buyer-plan-submit` with (tool arguments are camelCase; what the tools return keeps the
+service's snake_case, e.g. `result.action_ids` — copy values across, not key names):
 
-- `plan_request_id`: stable for this request. **Revising the plan = resubmitting under the same
+- `planRequestId`: stable for this request. **Revising the plan = resubmitting under the same
   id**, never discard-and-new;
 - `summary`: two or three sentences of customer English — what will change and why;
-- `engine_actions`: every id in the task's `result.action_ids`, each `{action_id, phase}`.
+- `engineActions`: every id in the task's `result.action_ids`, each `{actionId, phase}`.
   Phase 1 unless the engine's result says otherwise;
-- `follow_ups`: the task's `result.follow_ups`, **copied as returned** — these are later phases
+- `followUps`: the task's `result.follow_ups`, **copied as returned** — these are later phases
   the engine fills in after earlier ones succeed (e.g. "enable the new ads and pause the ones they
   replace");
-- `review_items`: the task's `result.review_items` as returned — generated copy or variants the
+- `reviewItems`: the task's `result.review_items` as returned — generated copy or variants the
   customer approves together with the plan;
-- `source_task_ids`: the owner's task id.
+- `sourceTaskIds`: the owner's task id.
 
-Run it with `dry_run: true` first, then for real. The fields are the engine's; you choose none
+Run it with `dryRun: true` first, then for real. The fields are the engine's; you choose none
 of the numbers.
 
 **Showing it.** Lead with what goes live where, in the plan's own rendered titles. Then, for
@@ -206,7 +207,7 @@ later phases only go out after the earlier ones succeed.
 drafts is not yours to fix — the service sends it back to that engine automatically (the error
 lists it under `bounced`). Tell the customer what was wrong in plain words and that the engine is
 redoing it within their limits; when they say the new round is in, read the task again and
-resubmit under the same `plan_request_id`. **Never edit an engine's number to make a check
+resubmit under the same `planRequestId`. **Never edit an engine's number to make a check
 pass.**
 
 ## Step 6 — Approval
@@ -216,7 +217,7 @@ conversation.** Not on silence, not on "looks interesting", not on an approval o
 version, not on your reading that they would agree. Approval sends real changes to their ads.
 
 **A budget change at approval.** "Make that ad set $60 and go ahead" is approval with a change.
-Pass it in the same call: `param_overrides: [{action_id, field: "budget", value: 60}]` — major
+Pass it in the same call: `paramOverrides: [{actionId, field: "budget", value: 60}]` — major
 units, and only for actions whose `budget.editable` is true. Their named figure counts as their
 explicit authorisation, so it **may go past the engine's reference ceiling**; read the three
 numbers back so they see it: "Engine estimate $40, its reference ceiling $50, yours $60 — going
