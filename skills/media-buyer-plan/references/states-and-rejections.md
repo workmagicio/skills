@@ -42,14 +42,14 @@ blocking limit is.
 | `discarded` | rejected or expired |
 
 A plan past its expiry can't be approved. If the customer approves one that has lapsed, say so,
-file a fresh plan under a **new** `plan_request_id` from the same drafts, and show it again.
+file a fresh plan under a **new** `planRequestId` from the same drafts, and show it again.
 
 ## When submit or execute says no
 
 **Sort the refusal by whose problem it is** before saying anything.
 
-**Yours — fix and resubmit, silently.** An unknown or extra field, a missing `plan_request_id` or
-`summary`, a phase numbering gap, a `follow_ups` entry you altered instead of copying. The
+**Yours — fix and resubmit, silently.** An unknown or extra field, a missing `planRequestId` or
+`summary`, a phase numbering gap, a `followUps` entry you altered instead of copying. The
 customer never hears about these.
 
 **The engine's — it is sent back automatically.** The error carries `bounced[]`, one entry per
@@ -71,7 +71,7 @@ already asked this during the task; seeing it at submit or approval means someth
 
 **At approval, settings may have moved.** Approval re-runs every check. If the customer paused the
 service, switched off a strategy, or tightened a limit since the plan was shown, approval is
-refused and the plan stays waiting. Say what changed; revise under the same `plan_request_id` if
+refused and the plan stays waiting. Say what changed; revise under the same `planRequestId` if
 needed.
 
 **A budget override was refused** → nothing was approved and nothing changed. Say which of their
