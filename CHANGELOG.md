@@ -4,6 +4,18 @@ All notable changes to the WorkMagic public skills are recorded here. This repo 
 [Agent Skills open standard](https://agentskills.io); each skill is independently versioned in
 its `SKILL.md` frontmatter (`version:` / `last-updated:`).
 
+## 2026-10-20
+
+### Changed
+
+- **`media-buyer-plan` 1.1.0：车道可以跑在 Justin 的工单（workitem）上。** 新增一节「When the request runs as a workitem」：
+  在对话里接需求、整份需求写进工单 brief；工单的那一轮建完任务就结束，不轮询——工单自己跟着任务；引擎的提问合并成一条、
+  每条带 `[task <id>]`，下一轮按标签里的任务号用 `media-buyer-task-answer` 逐条交回；`proposal_ready` 时读回执、提交方案、
+  请客户批准；`media-buyer-plan-execute` 在工单里会被拦下、客户在工单上批准这一步后下一轮执行一次，之后工单跟着方案
+  直到 `succeeded` / `halted` / `discarded`，再按 `media-buyer-plan-get` 汇报。Step 4 开头加了指向这一节的提示，其余步骤不变。
+  **上线顺序**：依赖 agents 的工单外部依赖（workmagicio/agents#526）与 platform-mcp#429；工单只在 Justin 的 pre / dev 开放，
+  在没有工单工具的宿主上这一节不触发。
+
 ## 2026-10-19
 
 ### Added

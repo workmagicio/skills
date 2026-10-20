@@ -4,8 +4,8 @@ description: Hand a customer's build request to the AI Media Buyer engines as a 
 category: media-buyer
 requires: wm-media-buyer-capabilities, wm-media-buyer-task-create, wm-media-buyer-task-get, wm-media-buyer-plan-submit, wm-media-buyer-plan-execute
 risk: R1
-version: 1.0.0
-last-updated: 2026-10-19
+version: 1.1.0
+last-updated: 2026-10-20
 
 references:
 - references/states-and-rejections.md
@@ -128,6 +128,9 @@ response before you speak: objects outside the managed scope are dropped (`not_d
 those campaigns aren't under AI Media Buyer, rather than that work has started.
 
 ## Step 4 — Wait, then read
+
+> **Running as a workitem?** Then nothing here applies: the workitem watches the task for you —
+> see [When the request runs as a workitem](#when-the-request-runs-as-a-workitem).
 
 The engine works asynchronously, and **nothing notifies you when it finishes**. The customer (or
 someone on the WorkMagic side) will come back with something like "the task is done, read the
@@ -259,6 +262,36 @@ customer's account — nothing to clean up there, and nothing to ask about.
 
 If the customer drops the request **before** a plan exists, `media-buyer-task-cancel` it. If they
 change what they want mid-way, file the new task with `supersedes` pointing at the old one.
+
+## When the request runs as a workitem
+
+Some hosts track this lane as a **workitem** instead of keeping it in the conversation (Justin does,
+where its workitem tool is available — the host's own instructions tell you to). The customer's
+experience is the same; what changes is who waits and who comes back:
+
+- **Taking it down (Steps 1–2)** happens in the conversation, as above. Then create the workitem
+  for the agent with the **whole request in its brief** — the record of the customer's words, the
+  objects, the materials, the open points. The workitem's runs see the brief and its history, not
+  this conversation.
+- **Filing (Step 3), in a workitem run:** call `media-buyer-task-create`, read the response as
+  Step 3 says, then **finish the run**. Don't poll and don't wait — the workitem follows every task
+  it filed and starts its next run when there is something to do. A task that came back finished
+  at once (a sync capability) is already settled.
+- **Engine questions** reach the customer on their own (in the conversation the request came
+  from). When several are waiting they arrive as one message, each tagged `[task <id>]`. The run
+  that follows the customer's reply gets their answer: send each part with `media-buyer-task-answer`
+  to **the task id in its tag** (a helper's question carries the helper's id), mapped to the
+  option's `value` exactly as in *Engine questions*. If a part of the reply does not map, ask again.
+- **`proposal_ready`:** the run's brief lists the task's outcome under *External tasks*. Read it
+  with `media-buyer-task-get`, assemble and submit the plan (Step 5), show it, and finish the run
+  asking the customer to approve.
+- **Approval (Step 6):** `media-buyer-plan-execute` needs the customer's approval, and a workitem run
+  cannot ask for it live — the call is stopped and the exact step is shown on the workitem. Once the
+  customer approves it there, the next run executes it once (same `paramOverrides`). Then finish the
+  run: the workitem follows the plan phase by phase and comes back when it has `succeeded`, `halted`
+  or been `discarded`. Report from `media-buyer-plan-get` (`execution.outcome`, and for a halt
+  `progress.halt_reason`) — never from the execute response alone.
+- **Rejection (Step 7)** is unchanged.
 
 ## Example — Jordan Craig sends a new creative sheet
 
