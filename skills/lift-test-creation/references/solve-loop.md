@@ -26,7 +26,7 @@ Every round, in order:
 |---|---|---|
 |Raise daily spend to $X|Insufficient, no budget ceiling stated|No — re-check with lift-test-design-analyze|
 |Increase geo size (Minimum → 5% → 10% → 15% -> 20% -> 25% -> 30%)|Geo-size headroom remains|**Yes** — re-call prepare with only `scanResult.suggested.holdout_pct` changed (prepare has no holdout parameter)|
-|Extend test period to N weeks|Period not pinned, or user willing to break it|**Yes**|
+|Extend test period to N weeks|Period not pinned, or user willing to break it|No — the engine has no test-length input (every solve returns its native ~21 days); rescale the feasibility threshold with the √ formula and re-check (references/create-update-params.md). Re-solving only returns another 21-day design and may swap the geo pair|
 |Relax a geo exclusion (name the specific geos and what they give back)|User-stated exclusions exist|**Yes**|
 |Reuse a concurrent test's geos fully, starting after its end date|Auto- or user-excluded tests exist, and the user can wait|**Yes** — re-call prepare with `restrictStartDate: true` + a start after the end date (references/constraints.md)|
 |Revise the CPA assumption — **only if the user says their real CPA differs**|A CPA estimate is driving the threshold|No — re-check with lift-test-design-analyze|

@@ -4,6 +4,22 @@ All notable changes to the WorkMagic public skills are recorded here. This repo 
 [Agent Skills open standard](https://agentskills.io); each skill is independently versioned in
 its `SKILL.md` frontmatter (`version:` / `last-updated:`).
 
+## 2026-10-22
+
+### Fixed
+
+- **`lift-test-creation` 2.2.2：DS 验收 issue tracker 后的 9 处文案修正（只改 skill 文本，不改工具调用）。**
+  ① solve-loop.md：「延长测试期」从 re-solve Yes 改为 No——引擎没有时长输入，按 √ 公式重算阈值即可（tracker #25）。
+  ② input-parsing.md：alias 表补 ChatGPT / OpenAI → `openaiAds`，其余平台指向 scan 的 `adPlatform` 枚举（#26）。
+  ③ sop-detail.md：`custom` 销售渠道是普通已连接渠道，不因此转 DS；scan 返回的渠道已过 Ready / Not optimal 过滤（#26）。
+  ④ sop-detail.md + constraints.md：prepare 只对同 geo level 的并发测试自动排除，跨层级的要在 Step 4 明说并给手动排除 / 顺延两条路（#12 的文本兜底，根治在 prepare）。
+  ⑤ sop-detail.md Step 5：新增引擎 `data_gate` 一行——不是 solve loop 能修的失败，常见原因是单 geo 订单占比 > 30%，直接转 DS、不重试（#16）。
+  ⑥ sop-detail.md + auto-solve.md：analyze 的 `sufficient` 只是标志，判定以 spend ≥ 0.95 × 阈值 为准；零花费平台的 sufficient:true 按 Insufficient 处理（#13 的文本兜底，根治在 analyze）。
+  ⑦ auto-solve.md + failure-modes.md：$200 地板回推出的 `expect_cpa` 是假成本，禁止当「cost per incremental order」给用户或进 deck（#24）。
+  ⑧ failure-modes.md：平台拒绝同轮重复 design-result 时只报进度继续轮询，禁止重新提交 design 或改派后台任务（#3 / 审计 P0-1）；展示设计时不讲 setup 方式（#5）；不转述 analyze 的「什么时候开始」追问（#7）。
+  ⑨ SKILL.md Step 8 + output-templates.md：按 cs-support `wm-cs` 插件里 2-cell-test-design-deck v2.0.5 / multicell-design-deck v1.0.0 的实际行为重写——产物是 .pptx + 验证 deck、由 CSM 自行上传 Partnership drive、不需要 Chrome 和 service account、intake 由 deck skill 自己问；Justin AI 等跑不了本地 skill 的入口要明说并给草稿链接（#20）。
+  依赖：叠在 2.2.1（PR #58）之上。
+
 ## 2026-10-21
 
 ### Fixed

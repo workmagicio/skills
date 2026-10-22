@@ -79,6 +79,10 @@ Complete catalog. The top 8 most-violated are inline in SKILL.md §9 CRITICAL; t
 ❌ **A feasibility threshold without a specific number** ("auto-calculated", "within range", "~$2k-ish") ❌ **Listing the reference group's geos** — it's the remainder, not something the user manages ❌ **Including MDL in design output**
 ❌ **Exposing raw internal fields — `design_id`, `minimum_detectable_lift`, `factor`, the design `task_id`** — never surface these in chat; they are internal design-engine fields / async tokens, not user-facing values.
 ❌ **Printing the design `task_id` in a handoff or progress note while a solve is still running** — don't paste it for the user to "hold" or feed a background run; keep it internally and resume polling yourself.
+❌ **Re-submitting lift-test-design while a solve is still running** — when the platform refuses another design-result call in the same turn, write one progress line and poll again; never resubmit the design, never hand the solve to a background automation
+❌ **Describing the setup method (Automatic / Manual) while the user is choosing a design** — the design tables carry test period, geo size, threshold and spend; setup appears once, in the Step 7 handoff
+❌ **Relaying analyze's "What date would you like the test to start?"** — the tool text asks; this skill does not. Leave the start date unset unless the user volunteered one (§4.D)
+❌ **Quoting a floor-artifact cost** — an `expect_cpa` back-derived from the $200/day floor (channel with no spend data) is never shown as cost per incremental order; say the cost can't be estimated from recent spend (references/auto-solve.md)
 ❌ **Treating `minimum_detectable_lift` as MDL** — `minimum_detectable_lift` is NOT MDL; it may be used in internal step calculations, but never use it as the MDL value or present it as such
 
 ## On time
