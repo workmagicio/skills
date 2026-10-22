@@ -185,19 +185,19 @@ Updating an existing draft:
 
 ## Step 8 — Design deck
 
-Before building — the two intake answers, one line:
+Only when the user asks for a deck, and only on a surface that can run the deck skills (Claude Code / Cowork with the cs-support `wm-cs` plugin). Elsewhere — Justin AI, a plain MCP client — say so once and hand over the draft:
 
-> Building the design deck from draft [draft link] (3-cell, CTV + TikTok). Feasibility threshold on the deck: yes · PTM-vs-LTM comparison page: yes · theme / title: default. Give me a few minutes.
->
->
+> I can't build the deck from here — the design-deck skills run in Claude Code / Cowork. Run `/wm-cs:2-cell-test-design-deck` (or `/wm-cs:multicell-design-deck` for 3 cells or more) on draft [draft link] — tenant [id], test [id].
 
-Deck done — the link and what's in it, never the deck's tables retyped:
+When the deck skill is available, hand it the draft and let it run its own intake; relay its echo and its stop messages verbatim:
 
-> Design deck ready: [Slides link] — [n] slides, [checks] checks passed. The validation deck is in the same folder, filename ending _INTERNAL-Validation. Want the LTM comparison page added? It re-publishes to the same link.
->
->
+> Building the design deck from draft [draft link] (2-cell, Meta). The deck skill will confirm the client name, platform label, sales channels, whether to show the feasibility threshold, the CPA and the timing caveat before it builds.
 
-If the deck skill refuses — duplicate-geo variants, identical holdouts across cells, mixed countries or geo levels — relay its reason and the choice the user has to make. Don't work around it, and don't build slides by hand.
+Deck done — the file and where it goes, never the deck's tables retyped:
+
+> Design deck ready: [path to the .pptx] — [n] slides, [checks] checks passed; the validation deck is beside it. Upload both to the Partnership-drive folder `[tenant id] WorkMagic x [client]` › Lift Test Design (Drive converts the .pptx to Slides).
+
+If the deck skill refuses — several designs on the test, a test that already ran, a TikTok GMV Max cell of a multi-cell test, mixed countries or geo levels — relay its reason and the choice the user has to make. Never rebuild the deck by hand, and never paste its MDL or geo lists into chat (§7).
 
 ## Out-of-boundary response
 

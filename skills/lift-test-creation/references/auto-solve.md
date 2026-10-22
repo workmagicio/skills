@@ -118,7 +118,14 @@ budget is inferred from current spend the two are identical.
 PTM *cheaper*. This sets the binary-search direction on a shortfall (LTM smaller, PTM larger).
 
 - **A $200 LTM feasibility threshold is the floor** (MIN_EXPECTED_DAILY_SPEND), not a real
-value — if you see it, the real required is below $200, usually a wrong CPA.
+value — if you see it, the real required is below $200, usually a wrong CPA. The same floor
+back-derives `expect_cpa` (= 200 ÷ ((1 − r) × MDL)) for a channel with no spend data; a cost figure
+produced this way is an artifact, never a measured CPA — do not quote it as cost per incremental
+order in chat, handoffs or decks. Say the channel has no recent spend to estimate a cost from.
+- **`sufficient` is a flag, not the verdict.** Sufficiency is the skill's rule —
+`ads_daily_reported_spend ≥ 0.95 × expected_daily_spend`. When analyze returns `sufficient: true`
+for a platform whose reported spend is below the threshold (zero spend, back-solved CPA), treat the
+design as Insufficient and say why.
 
 ## CPA — one unified query (same basis the UI and analyze use)
 

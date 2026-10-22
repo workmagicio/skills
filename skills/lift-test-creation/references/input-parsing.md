@@ -7,6 +7,8 @@
 |"TT", "TikTok"|TikTok Ads|
 |"Snap"|Snapchat Ads|
 |"Pin", "Pinterest"|Pinterest Ads|
+|"ChatGPT", "ChatGPT Ads", "OpenAI", "OpenAI Ads"|ChatGPT Ads (platform id `openaiAds`)|
+|"MNTN", "Roku", "AppLovin", "Reddit", "Vibe", "Walmart Connect", "TikTok GMV Max"|The platform of the same name — the full list is the `adPlatform` enum on lift-test-scan|
 |"Amazon Ads"|**Not a lift-test platform** — say so; don't map it|
 |"UK", "United Kingdom", "Britain"|country `GB`|
 |"PTM", "pause", "pause to measure"|PTM|
