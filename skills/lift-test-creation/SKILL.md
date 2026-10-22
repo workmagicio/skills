@@ -3,8 +3,8 @@ name: lift-test-creation
 description: Turn a natural-language request — a scope or just a cell count, plus any constraints — into an executable lift test draft.
 category: lift-test
 risk: R0
-version: 2.2.0
-last-updated: 2026-10-16
+version: 2.2.1
+last-updated: 2026-10-21
 references:
 - references/input-parsing.md
 - references/constraints.md

@@ -65,6 +65,8 @@ The `lift_test_group` body and where every field comes from. `lift-test-create` 
 
 ## `geoGroup` (top-level and per-cell)
 
+> **Side naming — read the field, never the word.** In the platform's `lift_test_group` model `control` is the **treated** cell (Holdout for PTM, Exposed for LTM) and `test` is the **Reference** group — the opposite of the statistical convention. Verified 2026-10-21 against the product setup page on three drafts (manual PTM, online PTM, online LTM): the DMA count and order share shown under "Geo for Holdout / Exposed group" equal the `control` side every time, and `test` is byte-identical across the cells of one multi-cell design. Consistent with `lift-test-design-analyze` (`order_share_pct` = control-side share) and `lift-test-create` (`holdout_pct` = control-group ratio). Any treatment-geo list or count shown to the user (Step 5 tables, handoffs) comes from `geoGroup.control[cell]`, never from `geoGroup.test`. Scope: this is the draft / `geoGroup` model only — readout result fields (`test_orders` / `ctrl_orders` in lift-test-readout) follow the statistical convention, where test = treated.
+
 **Source: analyze** — the chosen `ptm.designs[0].geo_group` or `ltm.designs[0].geo_group`. Pass its fields verbatim; only `test_length` (and, for a custom length, `estimator.custom_test_length`) may be changed by the caller.
 
 |Field|Rule|
@@ -77,8 +79,8 @@ The `lift_test_group` body and where every field comes from. `lift-test-create` 
 |`country`|verbatim|
 |`cooling_length`|days (may serialize as string); range 1–28|
 |`test_length`|days (default 21); **overridable** for custom period (14–60, test+cooling ≤ 60)|
-|`test`|`{ code[], name[], orders, sales, geoLevel }` — treatment side, verbatim|
-|`control`|**top-level = ARRAY**`[{…}]`; **inside `testChannel[].geoGroup.control` = OBJECT**`{…}`. Fields: `{ id, code[], name[], orders, sales, geoLevel, minimum_detectable_lift, shopify_daily_control_orders, factor }`|
+|`test`|`{ code[], name[], orders, sales, geoLevel }` — the **Reference group** (business-as-usual side; in a multi-cell test it is shared by every cell), verbatim. ⚠️ Despite the name, `test` is NOT the treated side|
+|`control`|the **treated cell** (PTM → Holdout group, LTM → Exposed group); its `orders` share is the % the product shows for that group. **top-level = ARRAY**`[{…}]`; **inside `testChannel[].geoGroup.control` = OBJECT**`{…}`. Fields: `{ id, code[], name[], orders, sales, geoLevel, minimum_detectable_lift, shopify_daily_control_orders, factor }`|
 |`estimator.experiment_days`|design's native length (~21) — never changes|
 |`estimator.channel[i][j]`|`{ ad_platform, channel_index, expected_daily_spend, ads_daily_reported_spend?, origin_ads_daily_reported_spend?, cpa?, origin_cpa? }` — **`cpa`/`origin_cpa`/`ads_daily_reported_spend` are OPTIONAL, not always present**|
 
@@ -106,8 +108,8 @@ Changing geo size / any online-design input is NOT a recompute — it needs a fr
 |`testChannelIndex`|prepare (derived)|0-based cell index (= outer index)|
 |`primaryMetric`|scan/user|same as top-level|
 |`impactCampaignInfos`|user (impact-campaigns / tactic-list) → prepare|shape by `testLevel` — as passed to prepare: **platform**`{accountId, accountName}`; **tactic** one object per tactic `{tacticNames:[name]}` (`''` = Default tactic); **campaign**`{accountId, accountName, campaignId, campaignName}`. A persisted draft may carry the stored form (`campaigns:[…]`) — keep it verbatim on update. `[]` = skip for now. May also carry `excludeAudienceIds` / `includeAudienceIds` (nullable)|
-|`controlGeo`|analyze|`= geoGroup.control[cell].code` (reference-side codes)|
-|`testGeo`|analyze|`= geoGroup.test.code` (treatment-side codes)|
+|`controlGeo`|analyze|`= geoGroup.control[cell].code` — this cell's **treated** geos (Holdout for PTM / Exposed for LTM; what the product's setup page lists under "Geo for Holdout / Exposed group")|
+|`testGeo`|analyze|`= geoGroup.test.code` — the **Reference group** geos (shared across cells)|
 |`geoGroup`|analyze + derived|embedded per-cell geoGroup: same as the shared geoGroup, but `control` is the single OBJECT for this cell and `estimator` carries the per-cell `expect_cpa` + `minimum_daily_budget_required`|
 |`extraInfo`|prepare (derived)|`{ completed: true, skipForNow: impactCampaignInfos is empty }` — an empty target list is a skip-for-now placeholder, scope set later in the draft|
 
