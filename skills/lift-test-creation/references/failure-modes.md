@@ -42,6 +42,10 @@ Complete catalog. The top 8 most-violated are inline in SKILL.md §9 CRITICAL; t
 ❌ **Repeating the same lever list** with unchanged figures and calling it a new round
 ❌ **Running a 4th round** instead of routing to DS
 ❌ **Routing to DS without the handoff summary**
+❌ **Calling cs-task-create without showing the preview and getting an explicit yes** — or in the same turn the preview is shown
+❌ **Calling cs-task-create twice** for one hand-off, or retrying after a failure the user didn't ask to retry
+❌ **Passing `liftTestGroupId` when no draft exists** — a design that failed during creation has none
+❌ **Saying the task / group exists before the tool returns**, or inventing a group link the tool didn't return
 ❌ **Not saying which round you're on** from round 2 onward — the handoff should never be a surprise
 ❌ **Not offering proceed-as-is**, or re-litigating it after the user picks it
 ❌ **Treating a user-initiated scope change as a consumed round**
@@ -54,6 +58,7 @@ Complete catalog. The top 8 most-violated are inline in SKILL.md §9 CRITICAL; t
 ❌ **Half-building an out-of-boundary request** "to save progress"
 ❌ **Building the in-scope half** of a request that also contains an out-of-boundary ask — the whole request goes to DS
 ❌ **Promising what DS will do or when**
+❌ **Filing a CS task for an out-of-boundary request** — those are routed in words only; cs-task-create is for designs that can't be formed
 
 ## On mandatory asks
 

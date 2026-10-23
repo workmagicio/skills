@@ -4,6 +4,18 @@ All notable changes to the WorkMagic public skills are recorded here. This repo 
 [Agent Skills open standard](https://agentskills.io); each skill is independently versioned in
 its `SKILL.md` frontmatter (`version:` / `last-updated:`).
 
+## 2026-10-22
+
+### Changed
+
+- **`lift-test-creation` 2.3.0：设计做不出来时转 Data Science 改为建 CS 任务 + Lark 群（需用户确认）。**
+  solve loop 第 3 轮仍无可行设计、或 auto-solve 在边界上也无解且用户不要手动杠杆时：先给转交总结，再展示 CS 任务预览
+  （标题 / 负责团队 Data Science / 优先级（默认 P0）/ 账户 / 描述 / 拉群成员），结束本轮；用户明确同意后才调 platform-mcp 的
+  `cs-task-create`（`category: "Lift Test"`），只调一次，按返回的 `duplicate` / `groupError` 如实转述，群链接只在返回时给。
+  用户拒绝则只留总结、不建任务。**超出 skill 能力范围的需求（创意测试、自定义指标等）仍只口头转 DS，不建任务。**
+  **上线顺序**：须在 cs-support `todos-with-group`、platform-api `/cs-todo/create-with-group`、platform-mcp `cs-task-create`
+  全部部署之后再发布本条。
+
 ## 2026-10-16
 
 ### Changed
