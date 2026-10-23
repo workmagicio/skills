@@ -57,7 +57,7 @@ Default creation skill in the Lift Test domain.
 
 ## 3. Boundary
 
-This skill builds **standard geo lift tests on standard metrics**. Anything outside that is not half-built, not approximated, and not "attempted anyway" — it is routed to DS with a handoff summary. Only a design that can't be formed (an exhausted solve loop) is filed as a CS task; out-of-boundary requests are routed in words only.
+This skill builds **standard geo lift tests on standard metrics**. Anything outside that is not half-built, not approximated, and not "attempted anyway" — it is routed to DS with a handoff summary, and the hand-off is offered as a CS task — preview first, filed with cs-task-create only on the user's yes (references/solve-loop.md). The same applies to a design that can't be formed (an exhausted solve loop).
 
 **In scope**
 
@@ -70,18 +70,18 @@ This skill builds **standard geo lift tests on standard metrics**. Anything outs
 
 |Out-of-boundary case|Why|What to say|
 |---|---|---|
-|**Non-standard metric definition** — custom SQL metric, imported / offline feed, any metric needing bespoke logic to compute|The design and readout engines expect registry metrics; a bespoke definition changes the power calculation and the readout, not just the label|"That metric needs a custom definition before it can be tested — I'm passing this to Data Science with what you've told me."|
-|**Creative test** — "creative A vs. creative B", "test this new video"|Geo lift measures the incrementality of *spend* on a channel / tactic / campaign. It cannot isolate creative-level effects; geo splits don't cleanly separate creatives|"Geo lift can't isolate creative-vs-creative effects — it measures incrementality of spend on a channel, tactic, or campaign. Data Science can advise on the right design here."|
+|**Non-standard metric definition** — custom SQL metric, imported / offline feed, any metric needing bespoke logic to compute|The design and readout engines expect registry metrics; a bespoke definition changes the power calculation and the readout, not just the label|"That metric needs a custom definition before it can be tested — that's Data Science's call. I can file it as a task for them with what you've told me:" → hand-off summary + CS task preview|
+|**Creative test** — "creative A vs. creative B", "test this new video"|Geo lift measures the incrementality of *spend* on a channel / tactic / campaign. It cannot isolate creative-level effects; geo splits don't cleanly separate creatives|"Geo lift can't isolate creative-vs-creative effects — it measures incrementality of spend on a channel, tactic, or campaign. Data Science can advise on the right design here — I can file it as a task for them:" → hand-off summary + CS task preview|
 |**Solve loop exhausted** — 3 rounds, still no feasible design|Further levers would require assumptions the skill shouldn't invent|Hand-off summary, then file it as a CS task for Data Science with cs-task-create — **preview first, call only on the user's yes**. → references/solve-loop.md|
-|**≥ 6 cells**|Outside the supported design range — the ceiling is 4 impact groups plus one shared reference group|State the 2–5 range; offer to split or to route|
-|**Non-geo design** (user-level split, audience holdout, platform-native experiment)|Different product surface|Route to DS|
+|**≥ 6 cells**|Outside the supported design range — the ceiling is 4 impact groups plus one shared reference group|State the 2–5 range; offer to split into separate tests, or to file it as a CS task for DS (preview first)|
+|**Non-geo design** (user-level split, audience holdout, platform-native experiment)|Different product surface|Hand-off summary + CS task preview for DS|
 
 **Routing rules**
 
 - Do **not** create a partial draft "to save progress" when the request is out of boundary.
 - Do **not** promise DS a turnaround or a specific outcome.
 - Do include the handoff summary (what was asked, what was resolved, what blocks it).
-- **Out-of-boundary requests are not filed.** Never call cs-task-create for them — say Data Science is the right team, give the summary, and stop. cs-task-create is only for a design that can't be formed (solve-loop.md).
+- **Offer the hand-off as a CS task.** After the summary, show the CS task preview and end the turn; call cs-task-create only on the user's yes, once (references/solve-loop.md). If they decline, leave the summary in chat and stop. Product limits the user can fix themselves — an unsupported country, a past start date, a Not-ready sales channel — are not hand-offs: ask them to change the input.
 - If the request is *partly* out of boundary (e.g. a standard 2-cell Meta test **plus** a creative comparison), **the whole request goes to DS** — don't build the in-scope half and route the rest. Splitting the request splits the design decision, and DS needs the full picture to advise on either part.
 
 ## 4. Inputs
@@ -187,7 +187,7 @@ Multi-step SOP — the agent must pause and surface at these gates, never autopi
 |Spec + constraints ("Meta, under $3k/day, finish by Jul 15, avoid my running test")|Parse all constraints; conflicts → clarify once; infeasible → solve loop with quantified gaps|medium — depends on feasibility|
 |Constraints only, no structure|Resolve structure first (Step 2), then apply constraints|medium|
 |Ambiguous geo / time / budget-unit references|Clarify once (not a loop)|depends on clarification|
-|Out of boundary (creative test, custom metric)|Don't build; route to DS with handoff, in words only — no CS task|n/a|
+|Out of boundary (creative test, custom metric)|Don't build; hand-off summary + CS task preview for DS, file on the user's yes|n/a|
 
 ## 6. Tools used
 
@@ -204,7 +204,7 @@ Multi-step SOP — the agent must pause and surface at these gates, never autopi
 |lift-test-create-or-update|Optional (update / edit)|Update an existing draft the user is modifying — pull it with lift-test-get, change fields, push the `body` back **with its `id`**. Before saving it runs the same gates as lift-test-create on whatever the body carries — geoGroup / testChannel shape, account-level geo limitation, concurrent geo-conflict, past start date (a body with no design still saves). The caller assembles the body, so prefer lift-test-create for new drafts.|
 |lift-test-list|Optional|"What tests have I created before"; resolving a named draft in a concurrency constraint|
 |lift-test-get|Optional|Pull an existing draft — mid-flow modification, or reading the geos of a draft named in a concurrency constraint|
-|cs-task-create|Required (Step 6 exhausted only)|File the DS hand-off: a CS task on the account CSM's board plus a Lark group. `category: "Lift Test"`. The server adds the default group members (listed in references/solve-loop.md — show them in the preview); pass `inviteEmails` only for extra WorkMagic teammates the user names. **Preview and get an explicit yes first; call once.** Never for out-of-boundary requests. Returns `duplicate` when the same problem is already being handled, `groupError` when only the group failed. → references/solve-loop.md|
+|cs-task-create|Required (DS hand-off: out-of-boundary request or Step 6 exhausted)|File the DS hand-off: a CS task on the account CSM's board plus a Lark group. `category: "Lift Test"`. The server adds the default group members (listed in references/solve-loop.md — show them in the preview); pass `inviteEmails` only for extra WorkMagic teammates the user names. **Preview and get an explicit yes first; call once.** Not for product limits the user can fix (unsupported country, past start date, Not-ready channel). Returns `duplicate` when the same problem is already being handled, `groupError` when only the group failed. → references/solve-loop.md|
 |database-query-run|Required (auto-solve only)|Compute the per-platform CPA for the Step 6 auto-solve branch — one unified Cube.dev query (`attr_all_orders` / `attr_all_sales`, DDA vs iDDA by `attr_model_name`). Resolving it here keeps one explicit CPA consistent across every probe; analyze's auto-CPA now uses the same basis as the UI and is an equivalent fallback. → references/auto-solve.md|
 
 **Design-deck skills (Step 8).** 2-cell-test-design-deck and multicell-design-deck are Claude Code / Cowork skills, not MCP tools. They read the warehouse through the workmagic_query connector, need Python 3.10+ and Google Chrome, run their own verification, and publish to Google Drive with a bundled service account. Input is the Step 7 draft link plus the two intake answers — nothing else; what comes back is in Step 8.
@@ -231,10 +231,10 @@ See references/edge-cases.md — covering unsupported country, cell-count confli
 ## 9. CRITICAL rules (top 8)
 
 1. **Never hard-build when constraints aren't satisfiable.** State the gap with numbers. Give the levers. Unsupported country, past start date, infeasible budget — surface, never silently default.
-2. **Two confirmation gates, each asked once: the config at Step 4, the design before create.** Step 4 confirms *what to test* — the full config, asked once and never restated afterward. When a design comes back — from Step 5, a solve-loop re-solve, or an auto-solve run — present it, close with "Shall I create the draft now?", and end the turn. Call create only after the user says yes. This question confirms *which design*, not the config — it is required, not a double-confirm. The user's own pick (switching to LTM, choosing a test length or a trade-off point, or "proceed as-is") already counts as the confirmation — create directly, don't ask again. Creating the draft in the same turn the design returns is the most common regression; re-asking after the user already chose is the second.
+2. **Two confirmation gates, each asked once: the config at Step 4, the design before create.** Step 4 confirms *what to test* — the full config, asked once and never restated afterward. When a design comes back — from Step 5, a solve-loop re-solve, or an auto-solve run — present it, close with "Shall I create the draft now?", and end the turn. Call create only after the user says yes. This question confirms *which design*, not the config — it is required, not a double-confirm. The user's own pick (switching to LTM, choosing a test length or a trade-off point, or "proceed as-is") already counts as the confirmation — create directly, don't ask again. Creating the draft in the same turn the design returns is the most common regression; re-asking after the user already chose is the second. The CS-task preview at a Step 6 hand-off (rule 4) is its own yes for a different action — filing a task — not a double-confirm of either gate.
 3. **Never pick the lever for the user.** In the solve loop the skill quantifies and offers; the user chooses. Re-solving with an unrequested lever is a silent override. Exception: auto-solve searches only axes the user left open — a pinned geo size or period is never moved, and any trade-off outside the comfortable band goes back to them.
-4. **Cap the solve loop at 3 rounds, then hand off to DS as a CS task — only with the user's yes.** A fourth round is a failure mode, not persistence. Carry the handoff summary, preview the task (title, team, priority, account, description, group members — defaults + extras), end the turn, and call cs-task-create only after the user explicitly agrees. Filing without that yes, or filing a task for an out-of-boundary request, is a violation.
-5. **Respect the boundary.** Non-standard metric definitions and creative tests are not approximated, not partially built — they go to DS (§3).
+4. **Cap the solve loop at 3 rounds, then hand off to DS as a CS task — only with the user's yes.** A fourth round is a failure mode, not persistence. Carry the handoff summary, preview the task (title, team, priority, account, description, group members — defaults + extras), end the turn, and call cs-task-create only after the user explicitly agrees. Filing without that yes is a violation. Out-of-boundary requests (rule 5) are handed off the same way.
+5. **Respect the boundary.** Non-standard metric definitions and creative tests are not approximated, not partially built — they go to DS (§3), offered as a CS task with the same preview-and-yes as rule 4.
 6. **Never override a user's explicit choice silently.** LTM when PTM is recommended, a geo they excluded, a budget ceiling they set — surface once, respect the decision.
 7. **Never expose internal parameter names or engine IDs.** `holdoutPct`, `MDL`, `experiment_days`, `attr_model_name`, raw API platform IDs, the raw design-engine fields `design_id`, `minimum_detectable_lift`, `factor`, and the design `task_id` (the async solve token from lift-test-design). None of these ever appear in chat — not in a progress line while the solve polls, **and not in a handoff / continuation note when a solve is still running** (keep the `task_id` internally to resume polling; never print it for the user to "hold"). (numberOfCells is the exception — it is user-facing *when the user raises it*.)
 8. **`minimum_detectable_lift` is an internal field, NOT the user-facing MDL.** It may be used in internal step calculations, but it must never appear in chat and must never be presented or labeled as the test's MDL. Its name is misleading — showing its value to the user, or passing it off as MDL, gives a wrong number.
@@ -247,7 +247,7 @@ Full failure-modes catalog → references/failure-modes.md
 |---|---|
 |lift-test-readout|Downstream: reading and acting on results — iROAS, confidence intervals, post-test decisions|
 |lift-test-diagnosis|Downstream: diagnosing failed or inconclusive tests — implementation drift, data readiness gaps, underpowered designs|
-|Data Science (DS)|Escalation target for out-of-boundary requests (routed in words) and exhausted solve loops (filed as a CS task via cs-task-create, after the user's yes)|
+|Data Science (DS)|Escalation target for out-of-boundary requests and exhausted solve loops — both filed as a CS task via cs-task-create, after the user's yes|
 
 |2-cell-test-design-deck|Downstream (Step 8): turns a 2-cell draft into the client design deck and its validation deck — output contract in §5.1, Step 8|
 |---|---|

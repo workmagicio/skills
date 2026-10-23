@@ -12,7 +12,8 @@ its `SKILL.md` frontmatter (`version:` / `last-updated:`).
   solve loop 第 3 轮仍无可行设计、或 auto-solve 在边界上也无解且用户不要手动杠杆时：先给转交总结，再展示 CS 任务预览
   （标题 / 负责团队 Data Science / 优先级（默认 P0）/ 账户 / 描述 / 拉群成员），结束本轮；用户明确同意后才调 platform-mcp 的
   `cs-task-create`（`category: "Lift Test"`），只调一次，按返回的 `duplicate` / `groupError` 如实转述，群链接只在返回时给。
-  用户拒绝则只留总结、不建任务。**超出 skill 能力范围的需求（创意测试、自定义指标等）仍只口头转 DS，不建任务。**
+  用户拒绝则只留总结、不建任务。**超出 skill 能力范围的需求（创意测试、自定义 / 导入指标、非地域测试、≥6 cell）同样走预览 → 确认 → 建任务**；
+  用户能自己改的产品限制（不支持的国家、过去的开始日期、未就绪的销售渠道）不转交、不建任务。
   **上线顺序**：须在 cs-support `todos-with-group`、platform-api `/cs-todo/create-with-group`、platform-mcp `cs-task-create`
   全部部署之后再发布本条。
 

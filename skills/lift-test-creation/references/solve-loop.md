@@ -53,7 +53,7 @@ Every round, in order:
 
 After a failed round 3, stop. Do not create a draft. Do not suggest a fourth lever. Hand off.
 
-The same hand-off applies to the other ways a design can't be formed: auto-solve comes back infeasible at the rails and the user doesn't want the manual levers. It does **not** apply to out-of-boundary requests (SKILL.md §3) — those are routed in words only, never filed as a task.
+The same hand-off applies to the other ways a design can't be formed: auto-solve comes back infeasible at the rails and the user doesn't want the manual levers. It also applies to out-of-boundary requests (SKILL.md §3): the summary then says what was asked and why it is outside what this skill builds, in place of the rounds tried — and the title names the ask, e.g. `[Lift Test] Creative A vs. B test: outside skill scope`.
 
 > **Handoff shape**
 
@@ -81,7 +81,7 @@ Show people by email, never by a guessed name. This list mirrors server config (
 Steps:
 
 1. **Preview, then end the turn.** After the hand-off summary, show what will be filed and ask once — template in output-templates.md (Step 6 — DS hand-off):
-   - Title — `[Lift Test] <account name> — <scope> <cell shape>: no feasible design`, ≤ 512 chars
+   - Title — `[Lift Test] <scope> <cell shape>: no feasible design`, ≤ 512 chars. Leave the account name out: the group name is `【CS Task】 <account> · <title>`, cut at 60 characters, so repeating it pushes the problem off the end
    - Responsible team — Data Science
    - Priority — P0 (the Lift Test default) unless the user asks otherwise; pass `priority` only when they change it
    - Account — tenant name + id (the account the test is for)
