@@ -14,7 +14,12 @@
 |Design fails to form a geo pair|Solve loop round 1 — structural reason + levers. **Never expose "holdoutPct"** — say "more geos on the holdout side".|
 |Design comes back Insufficient|Solve loop round 1 with quantified gap.|
 |Design violates a stated constraint|Treated as a failure, not a success. Solve loop with the trade-off stated.|
-|Solve loop hits round 3 without a solution|Stop. DS handoff. **No draft.**|
+|Solve loop hits round 3 without a solution|Stop. DS hand-off summary + CS task preview; file with cs-task-create only on the user's yes. **No draft.**|
+|User declines the CS task|Leave the summary in chat. Nothing is filed; don't ask again.|
+|User edits the CS task preview (priority, wording, someone to add)|Show the updated preview and ask again — a changed preview needs a fresh yes.|
+|cs-task-create returns `duplicate`|The same problem is already with the team — say so; nothing new was filed. Don't file again.|
+|cs-task-create returns `groupError`|The task was filed but the Lark group wasn't — say so; the team still has it.|
+|cs-task-create fails|Tell the user it failed. Retry only if they ask.|
 |User states a start date in the past|Error out, ask what they meant. **Never hard-build.**|
 |User's stated start date overlaps a scheduled / active test|Check that test's geos against this design's pool. No geo overlap → one line noting the dates overlap but the geos don't. Geo overlap → name the shared geos and what it costs the readouts, and suggest starting after [end date]. Then respect their choice.|
 |User states no start date|**Don't ask.** Leave unset; note it in the draft handoff.|
@@ -27,8 +32,8 @@
 |User supplies a CPA far off their trailing data|Flag once, then use their number. Never quietly substitute your own.|
 |User modifies an existing draft ("change the period on draft #1183")|Pull it with lift-test-get, run the flow from Step 3, and **update** that draft at Step 7 — don't create a duplicate.|
 |User modifies a field mid-flow ("make it 3-cell", "switch to Google")|Identify dependents, say "Changed X, re-running the design, one moment", re-run, show the new summary. **Reset the solve-loop counter.**|
-|User asks for a creative test|Out of boundary — DS. Route the whole request, even if part of it is a standard test.|
-|User asks for a custom / imported metric|Out of boundary — DS.|
+|User asks for a creative test|Out of boundary — DS, in words only (no CS task). Route the whole request, even if part of it is a standard test.|
+|User asks for a custom / imported metric|Out of boundary — DS, in words only (no CS task).|
 |User asks for something else out of scope ("15 countries at once", "offline store traffic")|Don't hard-build. Say what's possible, route the rest.|
 |User has been re-clarified repeatedly with no clear intent|Stop guessing. Route to CSM / DS with what was gathered.|
 |Minor spelling errors ("Goggle Ads", "Snapcaht")|Auto-correct; show the canonical name in the summary.|

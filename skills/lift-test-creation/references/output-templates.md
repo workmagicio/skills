@@ -143,9 +143,9 @@ Rows: 14 / 21 / 28 days (21 = the design's native length). "Clears it?" = curren
 >
 >
 
-## Step 6 — DS handoff
+## Step 6 — DS hand-off
 
-> I've hit the limit of what I can design here. Passing to Data Science with the full picture:
+> I've hit the limit of what I can design here. Here's the full picture for Data Science:
 >
 > **You asked for**: Meta lift test, tactic level ("Prospecting"), finish before July 15, under $3k/day, New York and LA excluded **Resolved**: US / DMA level · DTC + Amazon · Orders · PTM
 >
@@ -162,6 +162,38 @@ Rows: 14 / 21 / 28 days (21 = the design's native length). "Clears it?" = curren
 > Data Science can look at whether a different design or a longer horizon gets you a readable result.
 >
 >
+
+Then the CS task preview — ask once and end the turn:
+
+> I can file this as a task for Data Science and open a Lark group for it:
+>
+> | | |
+> |---|---|
+> | Title | [Lift Test] Acme — Meta Prospecting 2-cell: no feasible design |
+> | Team | Data Science |
+> | Priority | P0 |
+> | Account | Acme (150024) |
+> | Description | The summary above — what you asked, what was resolved, the three rounds and the blocker |
+> | Lark group | Your CSM · you · Lift Test team: amyzhou@, liangbo@, lixiaoke@, liminghang@workmagic.io · CS triage: wangyanghua@, jessiezhang@, jessie@, xukai@workmagic.io |
+> | Also add | None — name anyone else from WorkMagic you want in it |
+>
+> Shall I file it?
+
+Default members come from solve-loop.md ("you" only when the user is a WorkMagic employee); the server adds them — don't put them in `inviteEmails`. Only names the user adds go there (WorkMagic emails only). After the user's yes, call cs-task-create, then:
+
+> Filed — Data Science has it, and they'll follow up in the Lark group: [chatShareUrl, only if returned]
+
+Duplicate:
+
+> This one is already with the team — an open task covers the same problem, so I didn't file a second one.
+
+Group not created:
+
+> Filed — Data Science has the task. The Lark group couldn't be created; the team can open it from the task.
+
+Declined:
+
+> No problem — the summary above has everything if you want to pass it on yourself.
 
 ## Step 7 — After the design confirmation
 

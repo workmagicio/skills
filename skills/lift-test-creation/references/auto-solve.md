@@ -107,7 +107,7 @@ budget is inferred from current spend the two are identical.
    TRADE-OFF list on the iso-budget curve (e.g. 20% / 40d · 25% / 33d · 30% / 28d), each
    with its threshold + coverage, and **let the user pick** (still §9-3: the user chooses).
 5. Infeasible: even the rail geo size at 60 days won't fit (LTM 0.05/60, PTM 0.30/60) →
-   say so explicitly; don't silently drop a method. → DS handoff or manual levers.
+   say so explicitly; don't silently drop a method. → DS hand-off (CS task, user's yes first — solve-loop.md) or manual levers.
 ```
 
 ### Gotchas
@@ -203,7 +203,7 @@ surfaces mid-search is a CPA assumption if that wasn't in the Step 4 read-back �
 - **§9-4 round budget.** One auto-solve run **is** the automated solve loop — it replaces the
 manual rounds, it does not stack on top of them. If it lands a design → the design confirmation
 ("Shall I create the draft now?"), then Step 7 on the user's yes. If it comes
-back infeasible-at-rails → DS handoff (solve-loop.md) or offer the manual levers once; do
+back infeasible-at-rails → DS hand-off as a CS task (solve-loop.md — preview, then file only on the user's yes) or offer the manual levers once; do
 not loop auto-solve again.
 
 - **§7 output.** The result is narrated in business language — **Geo size**, **Test period**,
@@ -220,5 +220,5 @@ numbers, never adjectives.
 - **Trade-off shortlist** (only if the fit needs geo size >20% or period >35) — a few
 (geo size, period) points with threshold + coverage; the user picks one, then Step 7.
 
-- **Infeasible at the rails** → state it, and route: DS handoff or the manual levers. Nothing
+- **Infeasible at the rails** → state it, and route: DS hand-off (CS task, user's yes first) or the manual levers. Nothing
 gets built silently.
