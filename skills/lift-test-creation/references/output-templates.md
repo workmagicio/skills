@@ -2,13 +2,13 @@
 
 Here's the config I'll use — confirm before I run the design:
 
-Anything else to factor in — budget ceiling, a deadline, geos to leave alone, a CPA you'd rather I use? If not, I'll run the geo-pair design now and won't come back to re-confirm the config.
+Anything else to factor in — budget ceiling, a deadline, geos to leave alone, a CPA you'd rather I use? If not, I'll run the design now and show you the result before creating anything.
 
 ## Step 4 — Config confirmation (cell-count entry)
 
 Here's the config I'll use — confirm before I run the design:
 
-Anything else to factor in — budget ceiling, a deadline, geos to leave alone? If not, I'll run the design now and won't come back to re-confirm the config.
+Anything else to factor in — budget ceiling, a deadline, geos to leave alone? If not, I'll run the design now and show you the result before creating anything.
 
 **Shape note**: a cell count is a complete request. Don't fill in platforms or tactics the user didn't name, and don't ask them to — say the scope is left open and move on.
 
@@ -31,7 +31,7 @@ Always a table, always with the treatment geos listed by name and a numeric thre
 
 > Reference group: the remaining 198 DMAs.
 
-> Creating the draft now.
+> Shall I create the draft now?
 
 ### 3-cell
 
@@ -48,7 +48,7 @@ One column per cell. The test period and the reference group are shared, so they
 
 > Reference group: the shared remaining 189 DMAs — no geo appears in more than one holdout group.
 
-> Both cells clear their thresholds. Creating the draft now.
+> Both cells clear their thresholds. Shall I create the draft now?
 
 The same shape extends to 4- and 5-cell tests: one column per cell, shared facts outside the table. Past three columns, break the geo lists to the top 5 + "+ N more" so the table stays readable.
 
@@ -62,7 +62,9 @@ The same shape extends to 4- and 5-cell tests: one column per cell, shared facts
 
 **Multi-cell geos never overlap** — say so once, as in the example. It's the question a user is most likely to have about a shared reference group.
 
-**Shape note**: the table plus one line of action. No start-date question, no "does this all still look good?" — that's the double-confirmation regression.
+**Shape note**: the table plus the design confirmation. No start-date question, no "does this all still look good?" — that's the double-confirmation regression.
+
+**Close with the design confirmation.** End the reply with "Shall I create the draft now?" — once, after the last table (the test-period × feasibility-threshold table; or the first table when there's no period table). Then end the turn; don't call create. The user's "yes" — or their own pick ("use LTM", "make it 28 days") — is the confirmation; create then, in that turn, with no further question.
 
 ## Step 5 — Design comparison (method not pinned)
 
@@ -161,7 +163,13 @@ Rows: 14 / 21 / 28 days (21 = the design's native length). "Clears it?" = curren
 >
 >
 
-## Step 7 — Draft created
+## Step 7 — After the design confirmation
+
+Create only once the user has confirmed the design. Their "yes" / "go" / "looks good" — or a pick from the tables ("use LTM", "make it 28 days") — is the confirmation; create directly, in that turn, and reply with the template below. No further question — the yes or the pick is the confirmation.
+
+> Creating the draft with LTM, 28 days.
+
+Then create, and reply in the same turn:
 
 Single cell:
 

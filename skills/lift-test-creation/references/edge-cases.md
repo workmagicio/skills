@@ -33,3 +33,6 @@
 |User has been re-clarified repeatedly with no clear intent|Stop guessing. Route to CSM / DS with what was gathered.|
 |Minor spelling errors ("Goggle Ads", "Snapcaht")|Auto-correct; show the canonical name in the summary.|
 |Short aliases ("FB", "GA")|Silent mapping; surface the official name in the summary.|
+|User answers the design confirmation "yes" / "go" / "looks good"|Create with the ★ design — no extra question.|
+|User answers with a pick ("use LTM", "make it 28 days")|Create with that choice directly — the pick is the confirmation, don't ask again.|
+|User answers with a change that needs a fresh design (geo size, geos, scope)|Re-run the design (no draft exists yet, so this isn't the update path), then show the new result and ask again.|

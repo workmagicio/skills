@@ -36,7 +36,10 @@ Every round, in order:
 
 **③ The user picks.** Never pick for them. Never re-solve with a lever they didn't name. If they say "whatever you recommend", state a recommendation **and** what it costs, then still get a yes.
 
-**④ Re-solve** with the chosen lever, all other constraints intact. Then either Step 7 (solved) or the next round.
+**④ Re-solve** with the chosen lever, all other constraints intact. Then:
+
+- **Solved** → present the new design in the Step 5 format (output-templates.md), close with "Shall I create the draft now?", and end the turn. Create (Step 7) only after the user says yes. Picking the lever is **not** the confirmation — the user hasn't seen the result yet (§9-2).
+- **Not solved** → quantify the new gap and open the next round. On round 3, DS handoff.
 
 ## Round budget
 
@@ -62,8 +65,8 @@ Tone: matter-of-fact, not apologetic. The user tried a reasonable thing that nee
 
 ## Proceed-as-is
 
-Always on the table, every round. If chosen:
+Always on the table, every round. Choosing it **is** the design confirmation (§9-2) — the user is approving the current design as it stands. If chosen:
 
-- Go straight to Step 7.
+- Go straight to Step 7 — don't ask "Shall I create the draft now?" again.
 - Put one caveat line in the draft handoff — "Built as configured; at $1.8k/day the result may come back inconclusive."
 - Don't re-litigate it. One caveat, then done.

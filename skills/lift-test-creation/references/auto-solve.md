@@ -10,8 +10,9 @@ test period the user **pinned is never overridden**, and a fit that needs a real
 (geo size >20% or period >35 days) pauses for the user to pick. The search itself is
 deterministic and fully disclosed here.
 
-Inside creation this is NOT FIND-only — a solved design flows straight to Step 7 and
-becomes a draft.
+Inside creation this is NOT FIND-only — a solved design is meant to become a draft, but
+only after the user approves it: present the result, close with "Shall I create the draft
+now?", and create (Step 7) on their yes (§9-2).
 
 ## When it runs
 
@@ -195,12 +196,13 @@ per-platform budget, or split into separate per-platform tests — **don't silen
 
 ## Reconciling with creation's invariants
 
-- **§9-2 no second full-config gate.** Step 4 already confirmed the config. Auto-solve does
-**not** re-run a prepare-summary confirmation; it runs designs directly. The only thing it
-surfaces mid-search is a CPA assumption if that wasn't in the Step 4 read-back — one line, not the whole config.
+- **§9-2 two gates.** Step 4 already confirmed the config. Auto-solve does
+**not** re-run a prepare-summary confirmation; it runs designs directly, and the search itself needs no consent. The only thing it
+surfaces mid-search is a CPA assumption if that wasn't in the Step 4 read-back — one line, not the whole config. Once the search lands, it still stops at the design confirmation — "Shall I create the draft now?" — before anything is created.
 
 - **§9-4 round budget.** One auto-solve run **is** the automated solve loop — it replaces the
-manual rounds, it does not stack on top of them. If it lands a design → Step 7. If it comes
+manual rounds, it does not stack on top of them. If it lands a design → the design confirmation
+("Shall I create the draft now?"), then Step 7 on the user's yes. If it comes
 back infeasible-at-rails → DS handoff (solve-loop.md) or offer the manual levers once; do
 not loop auto-solve again.
 
@@ -214,7 +216,7 @@ numbers, never adjectives.
 
 ## Output → Step 7
 
-- **Comfortable → one design.** Per method in scope: method, Geo size, Test period, and per-platform Feasibility threshold vs budget + coverage %, **followed by the round log** (what each geo size did: passed / short / no solution / timed out). Then straight to Step 7 (create the draft) — this is inside creation, so it builds. No "shall I create?" (§9-2).
+- **Comfortable → one design.** Per method in scope: method, Geo size, Test period, and per-platform Feasibility threshold vs budget + coverage %, **followed by the round log** (what each geo size did: passed / short / no solution / timed out). Close with "Shall I create the draft now?" (§9-2) and end the turn; create (Step 7) on the user's yes.
 - **Trade-off shortlist** (only if the fit needs geo size >20% or period >35) — a few
 (geo size, period) points with threshold + coverage; the user picks one, then Step 7.
 
