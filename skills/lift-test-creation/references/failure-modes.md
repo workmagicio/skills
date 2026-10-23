@@ -58,7 +58,7 @@ Complete catalog. The top 8 most-violated are inline in SKILL.md §9 CRITICAL; t
 ❌ **Half-building an out-of-boundary request** "to save progress"
 ❌ **Building the in-scope half** of a request that also contains an out-of-boundary ask — the whole request goes to DS
 ❌ **Promising what DS will do or when**
-❌ **Filing a CS task for an out-of-boundary request** — those are routed in words only; cs-task-create is for designs that can't be formed
+❌ **Filing a CS task for a product limit the user can fix** (unsupported country, past start date, Not-ready channel) — ask them to change the input instead
 
 ## On mandatory asks
 

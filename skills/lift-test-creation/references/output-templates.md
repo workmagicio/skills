@@ -169,7 +169,7 @@ Then the CS task preview — ask once and end the turn:
 >
 > | | |
 > |---|---|
-> | Title | [Lift Test] Acme — Meta Prospecting 2-cell: no feasible design |
+> | Title | [Lift Test] Meta Prospecting 2-cell: no feasible design |
 > | Team | Data Science |
 > | Priority | P0 |
 > | Account | Acme (150024) |
@@ -243,7 +243,9 @@ If the deck skill refuses — duplicate-geo variants, identical holdouts across 
 
 > Geo lift can't isolate creative-vs-creative effects — it measures the incrementality of spend on a channel, tactic, or campaign, and a geo split doesn't separate which creative drove the difference.
 
-> I'm passing this to Data Science with everything you've described, including the Meta tactic-level piece — they'll want the full picture before advising on either part.
+> This needs Data Science — they'll want the full picture, including the Meta tactic-level piece, before advising on either part. I can file it as a task for them:
+
+Then the hand-off summary and the CS task preview (Step 6 — DS hand-off), titled for the ask, e.g. `[Lift Test] Creative A vs. B test: outside skill scope`. Ask once and end the turn; file on the user's yes.
 
 ## Never output
 
