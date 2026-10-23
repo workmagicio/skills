@@ -39,7 +39,7 @@ Every round, in order:
 **④ Re-solve** with the chosen lever, all other constraints intact. Then:
 
 - **Solved** → present the new design in the Step 5 format (output-templates.md), close with "Shall I create the draft now?", and end the turn. Create (Step 7) only after the user says yes. Picking the lever is **not** the confirmation — the user hasn't seen the result yet (§9-2).
-- **Not solved** → quantify the new gap and open the next round. On round 3, DS handoff.
+- **Not solved** → quantify the new gap and open the next round. On round 3, DS hand-off (below).
 
 ## Round budget
 
@@ -49,9 +49,11 @@ Every round, in order:
 - **Each round must carry new numbers.** Repeating the same lever list with the same figures is a failure mode, not a round.
 - Announce position from round 2 on: "Second pass —" / "Last pass before I hand this to Data Science —". The user should never be surprised by the handoff.
 
-## Exhaustion → DS handoff
+## Exhaustion → DS hand-off (as a CS task)
 
-After a failed round 3, stop. Do not create a draft. Do not suggest a fourth lever. Hand off:
+After a failed round 3, stop. Do not create a draft. Do not suggest a fourth lever. Hand off.
+
+The same hand-off applies to the other ways a design can't be formed: auto-solve comes back infeasible at the rails and the user doesn't want the manual levers. It also applies to out-of-boundary requests (SKILL.md §3): the summary then says what was asked and why it is outside what this skill builds, in place of the rounds tried — and the title names the ask, e.g. `[Lift Test] Creative A vs. B test: outside skill scope`.
 
 > **Handoff shape**
 
@@ -62,6 +64,34 @@ After a failed round 3, stop. Do not create a draft. Do not suggest a fourth lev
 5. One line: this needs Data Science, here's everything they need
 
 Tone: matter-of-fact, not apologetic. The user tried a reasonable thing that needs a human modeler — that's a normal outcome, not a failure of theirs.
+
+### Filing it — preview, confirm, then cs-task-create
+
+The hand-off is filed with **cs-task-create**: a CS task on the account CSM's work board plus a Lark group for it. It is a write the user must approve.
+
+**Default group members** — the server adds these automatically; show them in the preview so the user knows who will be in the group, and never pass them in `inviteEmails`:
+
+- The account's CSM (from HubSpot)
+- The user, when they are a WorkMagic employee
+- Lift Test team: amyzhou@workmagic.io, liangbo@workmagic.io, lixiaoke@workmagic.io, liminghang@workmagic.io
+- CS triage: wangyanghua@workmagic.io, jessiezhang@workmagic.io, jessie@workmagic.io, xukai@workmagic.io
+
+Show people by email, never by a guessed name. This list mirrors server config (platform-api `cs-todo.category-config` for the Lift Test team, cs-support `csroster.DefaultGroupInvites` for CS triage) — when either changes, update it here.
+
+Steps:
+
+1. **Preview, then end the turn.** After the hand-off summary, show what will be filed and ask once — template in output-templates.md (Step 6 — DS hand-off):
+   - Title — `[Lift Test] <scope> <cell shape>: no feasible design`, ≤ 512 chars. Leave the account name out: the group name is `【CS Task】 <account> · <title>`, cut at 60 characters, so repeating it pushes the problem off the end
+   - Responsible team — Data Science
+   - Priority — P0 (the Lift Test default) unless the user asks otherwise; pass `priority` only when they change it
+   - Account — tenant name + id (the account the test is for)
+   - Description — the five-part hand-off shape above, in plain business language
+   - Lark group — the default members above, plus any extra WorkMagic teammates the user named (they can add more)
+2. **Call only on an explicit yes.** "Yes" / "file it" / "go ahead" is the approval. If the user edits anything (title, priority, wording, people to add), show the updated preview and ask again. If they decline, leave the summary in chat and stop — nothing is filed, and don't ask again.
+3. **Call once.** `cs-task-create` with `tenantId` (the same one used for scan / prepare), `category: "Lift Test"`, `title`, `description`; `priority` only if the user changed it; `inviteEmails` only for extra WorkMagic teammates the user named; `liftTestGroupId` only when an existing draft is being modified — a design that failed during creation has no draft, so omit it.
+4. **Relay the result as returned.** Created → the task is with the team, they'll follow up in the Lark group; share `chatShareUrl` only if it came back (it's returned to WorkMagic employees only — never invent a link). `duplicate: true` → the same problem is already being handled; say so, nothing new was filed. `groupError` → the task was filed but the group wasn't; say so. A tool error → tell the user it failed; retry only if they ask.
+
+Never claim the task exists before the tool returns, and never promise what Data Science will do or when.
 
 ## Proceed-as-is
 
