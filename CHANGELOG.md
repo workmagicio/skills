@@ -18,6 +18,9 @@ its `SKILL.md` frontmatter (`version:` / `last-updated:`).
   文件结构等细节交给 deck skill 定义，不再在本 skill 重复（原文曾误称 MDL 随测试周期变化，MDL 只取决于设计）。
   另：solve loop 杠杆表纠正两行「要重新设计」——延长测试周期改为按公式 × √(D/N) 重选（设计引擎没有周期输入）；换方法优先用同一次
   设计里另一种方法的结果，没有时把当前设计按另一种方法跑：skill 按目标方法公式自算门槛、给用户确认后再建（create / create-or-update 保存时按同一公式重算）。
+  另：补平台别名（ChatGPT / OpenAI、AppLovin、Reddit、Roku、MNTN、TikTok GMV Max），以 scan 的平台列表为准；写明 custom / imported
+  销售渠道可正常测试、§3 的「imported / offline feed」只针对指标定义；销售渠道直接用 scan 的 `salesChannel`（已按 lift test 就绪过滤），
+  不在其中即未就绪，引导去数据健康 / Settings 页查原因。
 
 ## 2026-10-26
 

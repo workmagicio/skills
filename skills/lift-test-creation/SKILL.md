@@ -63,6 +63,7 @@ This skill builds **standard geo lift tests on standard metrics**. Anything outs
 
 - Geo-based lift tests, 2–5 cells (up to 4 impact groups), on the 8 supported countries (US / UK — passed as `GB` / CA / DE / FR / AU / ES / SE) and their geo levels
 - Standard metrics from the platform metric registry — **orders** and **new customers**
+- Any lift-test-ready sales channel — including **custom** (a self-built store) and **imported** sales channels. The "imported / offline feed" boundary below is about a non-standard **metric definition**, not about which sales channel the orders come from
 - Scope at platform / tactic / campaign level
 - The six constraint types in §4.C
 
@@ -118,7 +119,7 @@ These are two ways of describing the same thing. The user supplies **one side**;
 
 |Field|Required?|Description / default|
 |---|---|---|
-|salesChannel|Has default<br>|Query DB for the tenant's connected sales channels, show them for confirmation. Default all selected (every channel in **Ready** or **Not optimal**).|
+|salesChannel|Has default<br>|Use lift-test-scan's `salesChannel` — already only the channels that are lift-test ready (same readiness source as the product's data-health page). Show them for confirmation; default all selected. `custom` / imported channels are ordinary sales channels here.|
 |primaryMetric|Has default|**orders** or **new customers** — these are the only two. Default orders; switch to new customers when the user says "acquisition / new customer". Anything else → out of boundary (§3).|
 |country|Has default|Query trailing-90-day sales share, auto-pick the dominant country. Supported (**8 countries**): **US / UK / CA / DE / FR / AU / ES / SE** — the UK is passed as **`GB`**. Others error out — never hard-build.|
 |geoLevel|Has default|Derive from country: US → DMA; every other country → postcode only (DMA / state are US-only — prepare rejects them elsewhere). **US state only when the user explicitly says so.**|
