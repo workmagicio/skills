@@ -83,6 +83,14 @@ The same shape extends to 4- and 5-cell tests: one column per cell, shared facts
 
 **Labeling note**: method-specific labels — "Holdout group" in the PTM column, "Exposed group" in the LTM column. Never reuse "Holdout group" for LTM. Never invent "Treatment group."
 
+**When the numbers aren't real** — read each platform's `estimator.channel` entry before writing ✓ / ✗:
+
+- `cpa` is null → the threshold couldn't be computed from a CPA. Write the threshold cell as "platform minimum — no CPA" and the spend row as "not checked", never ✓.
+- `ads_daily_reported_spend` is null → no spend in the last 7 days. Write "no recent spend — not checked", never ✓.
+- `threshold_at_floor: true` with a CPA → the threshold is the platform minimum, not CPA-driven. Add one line under the table, quoting the threshold amount as shown (no formula, no LTM / PTM distinction):
+
+> The feasibility threshold ($1,120/day) is the platform minimum, not a CPA-based figure — your CPA ($6.77) is low enough that the minimum applies.
+
 ## Step 5 — Test period × feasibility threshold (second table)
 
 Show this **in addition** to the design result / comparison table above — the first table keeps its native (~21-day) test period and feasibility threshold; this second table shows how the threshold moves with the test length so the user can pick the shortest sufficient length.

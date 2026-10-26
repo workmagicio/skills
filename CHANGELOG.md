@@ -4,6 +4,32 @@ All notable changes to the WorkMagic public skills are recorded here. This repo 
 [Agent Skills open standard](https://agentskills.io); each skill is independently versioned in
 its `SKILL.md` frontmatter (`version:` / `last-updated:`).
 
+## 2026-10-26
+
+### Fixed
+
+- **`lift-test-creation` 2.2.2：门槛落到下限、缺 CPA / 缺花费时如实告诉用户，不再当成「充足」。**
+  配合 platform-mcp 的 `lift-test-design-analyze` 修正（只传 CPA 也查 7 天花费、30 天 CPA 不依赖 7 天花费、
+  `origin_*` 永远是平台值、缺值输出 `null`、新增 `threshold_at_floor`）。skill 侧：Step 5 写 ✓ / ✗ 前先读
+  estimator：`cpa` 或 `ads_daily_reported_spend` 为 null 时写「未检查」及原因；`threshold_at_floor` 为 true 时说明门槛是
+  平台最低花费、不是按 CPA 算的。并纠正 `auto-solve.md` 里「看到 $200 门槛说明真实需求低于 $200」的错误推论（缺 CPA 时同样是 $200）。
+  **上线顺序**：须在 platform-mcp 该修正部署之后发布。
+
+## 2026-10-21
+
+### Fixed
+
+- **`lift-test-creation` 2.2.1：纠正 `create-update-params.md` 里 test / control 侧别写反的三行。**
+  原文把 `geoGroup.test` 写成 treatment side、`testGeo` 写成 treatment-side codes、`controlGeo` 写成 reference-side codes。
+  平台 `lift_test_group` 的实际语义相反：`control` = 被处理的 cell（PTM 的 Holdout group / LTM 的 Exposed group），
+  `test` = Reference group（多 cell 时跨 cell 共享）。用三个草稿（手工 PTM、在线 PTM、在线 LTM）的产品 setup 页逐一核对
+  （Holdout / Exposed group 显示的 DMA 数与订单占比全部等于 `control` 侧；多 cell 设计的 `test` 侧跨 cell 完全相同），并与 `lift-test-design-analyze`
+  （`order_share_pct` = control 侧占比）、`lift-test-create`（`holdout_pct` = control group 比例）一致。
+  同时在 `geoGroup` 一节加了一条「按字段不按字面」的侧别说明，要求 Step 5 表和交接里的 treatment geo
+  名单与个数一律取自 `geoGroup.control[cell]`，并注明该映射只适用于草稿 / `geoGroup` 模型，readout 结果字段（`test_orders` / `ctrl_orders`）仍是统计惯例。
+  **为什么要改**：实跑中 Justin 按工具描述报占比时是对的，但一旦照本文件列 treatment DMA 名单就会列成 reference 侧；
+  审计报告里一条 P0 也是照旧文误判后撤回的。仅改文案，不改流程与工具调用。
+
 ## 2026-10-16
 
 ### Changed
