@@ -4,6 +4,16 @@ All notable changes to the WorkMagic public skills are recorded here. This repo 
 [Agent Skills open standard](https://agentskills.io); each skill is independently versioned in
 its `SKILL.md` frontmatter (`version:` / `last-updated:`).
 
+## 2026-10-26（2.2.4）
+
+### Fixed
+
+- **`lift-test-creation` 2.2.4：纠正 `create-update-params.md` 里关于 readout 侧别的说明。** 2.2.1 写的是「readout 结果字段
+  按统计惯例，`test_orders` = 被处理组」，与数据相反：`lift-test-readout` 的 `ctrl_orders` 才是被处理组（Holdout / Exposed group），
+  `test_orders` 是 Reference group，和草稿 `geoGroup` 模型同一套映射。2026-10-26 在三个已完成测试上核实（2795 PTM、2442 PTM、
+  1908 LTM）：`test_orders ÷ ctrl_orders` 等于设计里 Reference 占比 ÷ 被处理组占比，`ctrl_orders` 按天折算等于设计的
+  `shopify_daily_control_orders`。`lift-test-readout` 的 `references/terminology.md` 同步改正（原写「counterfactual / treatment-side」）。
+
 ## 2026-10-26（2.2.3）
 
 ### Changed
