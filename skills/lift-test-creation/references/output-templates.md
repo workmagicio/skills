@@ -203,13 +203,31 @@ Updating an existing draft:
 
 ## Step 8 — Design deck
 
-Before building, one line:
+Straight after the draft, in the same turn — no question in between:
 
-> Building the design deck from draft [draft link] — give me a few minutes.
+> Draft created: [draft link]
+>
+> Building the design deck now — a few minutes.
 
-Deck done — send the links the deck skill returns, never the deck's contents retyped:
+Deck filed — send the link the deck skill returns, never the deck's contents retyped:
 
-> Design deck ready: [Slides link]
+> Design deck is in the client's Drive: [Slides link] (Lift Test Design folder).
+
+If the deck skill returned a local file and the folder instead of a Drive link:
+
+> Design deck built: [file name]. It goes in [folder link] — the upload is still to do.
+
+The user opted out ("draft only", "no deck for now"):
+
+> Draft created: [draft link]. Skipped the design deck as you asked — say "design deck for draft [N]" when you want it.
+
+Surface without the deck skills (Justin AI, MCP-only):
+
+> Draft created: [draft link]. The design deck is built in Claude Code / Cowork with the wm-cs plugin — run it there on this draft.
+
+Deleting a draft — the confirmation names the deck files that go to Drive trash with it:
+
+> Delete draft [N] ([name])? Its design deck goes to Drive trash too: [file name(s)].
 
 If the deck skill refuses the draft, relay its reason and the choice the user has to make. Don't work around it, and don't build slides by hand. What goes into the deck — pages, figures, labels — is the deck skill's, not this skill's.
 
