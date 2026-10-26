@@ -29,7 +29,7 @@ UI labels not directly from lift-test-readout — source and rendering
 
 Fields NOT exposed in the readout
 
-- ctrl_orders, test_orders, nc_ctrl_orders, nc_test_orders — counterfactual / treatment-side raw counts; inputs to the lift % calc, not user-facing.
+- ctrl_orders, test_orders, nc_ctrl_orders, nc_test_orders — raw order counts per side; `ctrl_*` is the treated side (the Holdout / Exposed group, the design's `geoGroup.control`) and `test_*` the Reference group, the same map as the draft model and not the statistical convention. Inputs to the lift % calc, not user-facing.
 - iaov, nc_iaov — UI doesn’t surface these by default; do not render unless user explicitly asks.
 - summable, update_time, test_channel_index — metadata.
 - ads_platform_data JSON — out-of-scope (attribution comparison view).
