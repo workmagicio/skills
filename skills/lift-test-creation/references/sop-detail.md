@@ -38,7 +38,7 @@ The Step 4 confirmation is a **two-column table** — label on the left, value o
 
 |**Row label**|**Value**|**Shown when**|
 |---|---|---|
-|**Test scope**|Platform + level + the named tactics / campaigns. When the user gave only a cell count: "left open — you'll set each cell's scope in the draft"|Always|
+|**Test scope**|Platform + level + the named tactics / campaigns, **per cell** — the level is always written out ("Google — tactic level: Non-Brand Search, Non-Brand Shopping", "ChatGPT — platform level (whole account)"); the Default tactic (`tacticNames: ['']`) reads "Default tactic", never "(none)"; a level the user never stated is asked here, never taken from prepare's silent `tactic` default or from an earlier test. When the user gave only a cell count: "left open — you'll set each cell's scope in the draft"|Always|
 |**Shape**|"N-cell — [N−1] test cells measured against one shared reference group"|Always|
 |**Country**|Country + geo level, e.g. "United States (DMA level)"|Always|
 |**Sales channels**|The channel list, noting "all your connected channels" when it's all of them|Always|

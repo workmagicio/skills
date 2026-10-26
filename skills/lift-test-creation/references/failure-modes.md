@@ -1,4 +1,4 @@
-Complete catalog. The top 8 most-violated are inline in SKILL.md §9 CRITICAL; the rest live here.
+Complete catalog. The top 9 most-violated are inline in SKILL.md §9 CRITICAL; the rest live here.
 
 ## On the either/or structure
 
@@ -128,6 +128,10 @@ Complete catalog. The top 8 most-violated are inline in SKILL.md §9 CRITICAL; t
 ❌ **Deleting a draft and leaving its design deck in the client's Drive** — when this skill deletes a draft, its deck files go to Drive trash in the same confirmed step
 ❌ **Continuing to ask after the user has already picked a design** — their pick (LTM, a test length, a trade-off point, "proceed as-is") *is* the confirmation; create directly, don't re-ask.
 ❌ **Double-confirming the config** — asking the user to confirm the full configuration a second time after Step 4. Step 4 is the only full-config gate. "Shall I create the draft now?" after the design is the required design confirmation, not a double-confirm; Step 7 calls create once the user approves the design.
+❌ **Inheriting an earlier test's setup** — copying the platforms, level, targets or cell structure of a test discussed earlier (or of a pasted thread / draft link) into a new test without it appearing in the new Step 4 table
+❌ **Skipping the Step 4 table** — because the user said "nothing else to factor in", because an earlier test already had the answers, or because a split / redesign "is the same test"
+❌ **Leaving the test level to prepare's default** — a level the user never stated is asked at Step 4; "tactic: (none)" in the summary means the Default tactic and must be written as such
+❌ **Creating the draft on an implausible CPA without asking** — a CPA below $10 per conversion, or a threshold at the platform minimum while a CPA exists, gets one confirmation question first (output-templates.md, Step 5)
 ❌ **Field labels not matching the UI** — Experiment days → Test period; treatment-side labels follow the method
 ❌ **Omitting the start-date note** when testStartTime is unset
 ❌ **Omitting the proceed-as-is caveat** when the user chose it

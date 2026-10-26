@@ -93,6 +93,17 @@ The same shape extends to 4- and 5-cell tests: one column per cell, shared facts
 
 > The feasibility threshold ($1,120/day) is the platform minimum, not a CPA-based figure — your CPA ($6.77) is low enough that the minimum applies.
 
+**CPA plausibility — ask before creating.** The CPA drives every threshold, so check each platform's `cpa` before the design confirmation. Flag it when either holds:
+
+- the CPA is below **$10** per conversion (orders or new customers, whichever the test measures), or
+- `threshold_at_floor: true` while a CPA exists — the CPA is too low to move the threshold off the platform minimum.
+
+A flagged CPA is a question, never a stop: real low CPAs exist. Ask once, in the same closing line as the design confirmation, naming the platform, the CPA and where it came from:
+
+> The CPA behind Google's threshold is $6.77 per order (last 30 days, attributed). Is that right? If yes, I'll create the draft; if not, tell me your CPA and I'll recompute the threshold first.
+
+A different CPA is recomputed by re-running lift-test-design-analyze with that platform's `platformSpend[].cpa` — no new design. Show the new tables, then the usual design confirmation. A user who confirms the flagged CPA has confirmed the design too; create directly.
+
 ## Step 5 — Test period × feasibility threshold (second table)
 
 Show this **in addition** to the design result / comparison table above — the first table keeps its native (~21-day) test period and feasibility threshold; this second table shows how the threshold moves with the test length so the user can pick the shortest sufficient length.

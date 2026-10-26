@@ -4,6 +4,16 @@ All notable changes to the WorkMagic public skills are recorded here. This repo 
 [Agent Skills open standard](https://agentskills.io); each skill is independently versioned in
 its `SKILL.md` frontmatter (`version:` / `last-updated:`).
 
+## 2026-10-27（2.2.7）
+
+### Changed
+
+- **`lift-test-creation` 2.2.7：新实验不继承旧设置、Step 4 不许跳；CPA 不合理时先请用户确认。**
+  ① 新增 CRITICAL rule 9：每个新实验都从 Step 1 开始。对话里之前的实验、粘贴的 Slack / Lark 讨论、草稿或设计链接都只是背景；平台、test level、目标、cell 结构、geo size、时长、方法、CPA 只有出现在新的 Step 4 表里并被用户确认，才算数。把一个多 cell 实验拆成几个（如 3-cell 拆成两个并行 2-cell）、合并、按新需求重设计，都算新实验，各自走 Step 3–7。只有用户点名改已有草稿时才走 update。
+  ② Step 4 永不跳过（用户说「没有别的了」、或者旧实验似乎已经给齐信息，都不是跳过的理由）；scope 行按 cell 写出 test level，用户没说 level 就在这里问——prepare 会静默默认 tactic；Default tactic（`tacticNames: ['']`）写成「Default tactic」，不写「(none)」。
+  ③ CPA 合理性检查：设计回来后，任一平台 CPA 低于 $10 / 转化，或 CPA 存在但门槛落在平台最低花费，就在设计确认那句里请用户确认 CPA 或给出自己的 CPA；确认即建草稿，给新 CPA 就重跑 analyze（不重新设计）再确认。不拦截——真实的低 CPA 存在。auto-solve 遇到这种 CPA 先确认再搜索。
+  来源：Amy 10/22（3-cell 拆成两个 2-cell 时沿用了 tactic level、跳过 Step 4）与 10/23（CPA 与门槛）两条反馈；Xiaojun 10/26「200 是兜底，可在此基础上加一层 CPA 合理性判断」。
+
 ## 2026-10-26（2.2.6）
 
 ### Changed
