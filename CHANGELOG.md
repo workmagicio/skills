@@ -14,6 +14,8 @@ its `SKILL.md` frontmatter (`version:` / `last-updated:`).
   × √(D/N) 换算，多平台逐个展示、全部达标才算充足；auto-solve 换算基准改用 D（不再写死 21，搜索提交的 21 天不变）。
   改周期 / 换方法 / 改 CPA 时只改输入，每 cell 派生的 `expect_cpa` / `minimum_daily_budget_required` 由 create-or-update 保存时重算，
   skill 不再手算或手改；`custom_test_length` 由工具自动对齐。**须在 platform-mcp 该改动部署后发布。**
+  另：Step 8 只保留「何时生成 deck、按 cell 数调哪个 deck skill、回复链接、不把 deck 内容抄回对话」，deck 的页面、数字（含 MDL）、
+  文件结构等细节交给 deck skill 定义，不再在本 skill 重复（原文曾误称 MDL 随测试周期变化，MDL 只取决于设计）。
 
 ## 2026-10-26
 

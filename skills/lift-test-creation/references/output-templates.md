@@ -203,19 +203,15 @@ Updating an existing draft:
 
 ## Step 8 — Design deck
 
-Before building — the two intake answers, one line:
+Before building, one line:
 
-> Building the design deck from draft [draft link] (3-cell, CTV + TikTok). Feasibility threshold on the deck: yes · PTM-vs-LTM comparison page: yes · theme / title: default. Give me a few minutes.
->
->
+> Building the design deck from draft [draft link] — give me a few minutes.
 
-Deck done — the link and what's in it, never the deck's tables retyped:
+Deck done — send the links the deck skill returns, never the deck's contents retyped:
 
-> Design deck ready: [Slides link] — [n] slides, [checks] checks passed. The validation deck is in the same folder, filename ending _INTERNAL-Validation. Want the LTM comparison page added? It re-publishes to the same link.
->
->
+> Design deck ready: [Slides link]
 
-If the deck skill refuses — duplicate-geo variants, identical holdouts across cells, mixed countries or geo levels — relay its reason and the choice the user has to make. Don't work around it, and don't build slides by hand.
+If the deck skill refuses the draft, relay its reason and the choice the user has to make. Don't work around it, and don't build slides by hand. What goes into the deck — pages, figures, labels — is the deck skill's, not this skill's.
 
 ## Out-of-boundary response
 
