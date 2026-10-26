@@ -118,8 +118,11 @@ budget is inferred from current spend the two are identical.
 - **Geo size moves PTM and LTM in opposite directions.** Bigger → LTM *more* expensive,
 PTM *cheaper*. This sets the binary-search direction on a shortfall (LTM smaller, PTM larger).
 
-- **A $200 LTM feasibility threshold is the floor** (MIN_EXPECTED_DAILY_SPEND), not a real
-value — if you see it, the real required is below $200, usually a wrong CPA.
+- **A threshold at the floor is not a real requirement.** The floor (MIN_EXPECTED_DAILY_SPEND) is
+$200 for LTM and 200 ÷ order share for PTM; analyze marks it `threshold_at_floor: true`. It is used
+when the CPA is missing (`cpa: null`) or CPA × MDL falls below it — so it says nothing about how
+cheap the test is, and a missing CPA is the common cause. Resolve the CPA before searching on it;
+don't read a floor threshold as "the real need is below $200".
 
 ## CPA — one unified query (same basis the UI and analyze use)
 

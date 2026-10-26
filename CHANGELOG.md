@@ -4,6 +4,17 @@ All notable changes to the WorkMagic public skills are recorded here. This repo 
 [Agent Skills open standard](https://agentskills.io); each skill is independently versioned in
 its `SKILL.md` frontmatter (`version:` / `last-updated:`).
 
+## 2026-10-26
+
+### Fixed
+
+- **`lift-test-creation` 2.2.2：门槛落到下限、缺 CPA / 缺花费时如实告诉用户，不再当成「充足」。**
+  配合 platform-mcp 的 `lift-test-design-analyze` 修正（只传 CPA 也查 7 天花费、30 天 CPA 不依赖 7 天花费、
+  `origin_*` 永远是平台值、缺值输出 `null`、新增 `threshold_at_floor`）。skill 侧：Step 5 写 ✓ / ✗ 前先读
+  estimator：`cpa` 或 `ads_daily_reported_spend` 为 null 时写「未检查」及原因；`threshold_at_floor` 为 true 时说明门槛是
+  平台最低花费、不是按 CPA 算的。并纠正 `auto-solve.md` 里「看到 $200 门槛说明真实需求低于 $200」的错误推论（缺 CPA 时同样是 $200）。
+  **上线顺序**：须在 platform-mcp 该修正部署之后发布。
+
 ## 2026-10-21
 
 ### Fixed
