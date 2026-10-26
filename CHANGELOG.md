@@ -4,6 +4,18 @@ All notable changes to the WorkMagic public skills are recorded here. This repo 
 [Agent Skills open standard](https://agentskills.io); each skill is independently versioned in
 its `SKILL.md` frontmatter (`version:` / `last-updated:`).
 
+## 2026-10-26（2.2.6）
+
+### Changed
+
+- **`lift-test-creation` 2.2.6：新建草稿后自动接 design deck，删草稿时把 deck 一起移到 Drive 回收站。**
+  这个 skill 从 2026-10-26 起统一在 Claude（Claude Code / Cowork）里用，deck skill 在那里可用，所以 Step 8 从「用户要了才做」改成流程的一部分：
+  Step 7 建完草稿，同一轮直接按 cell 数调 2-cell-test-design-deck / multicell-design-deck，不再单独问；用户明说「先不要 deck」才跳过。
+  design 确认门的那次 yes 同时覆盖草稿和 deck。更新草稿只在改动影响 deck 内容时重做 deck。
+  通过本 skill 删草稿时，在客户 Lift Test Design 文件夹里按 test id 找到对应 deck，列进删除确认，确认后移到 Drive 回收站（不永久删除）；在产品 UI 里删的草稿本 skill 感知不到。
+  Justin AI 等跑不了本地 skill 的入口：明说 deck 要在 Claude 里做，给草稿链接。
+  **依赖：** 「落到 Drive」由 deck skill 负责；2-cell-test-design-deck 目前写的是「CSM 自己上传、skill 不上传」，在它支持上传之前，这里会给出本地文件和目标文件夹并说明还没上传。
+
 ## 2026-10-26（2.2.5）
 
 ### Fixed

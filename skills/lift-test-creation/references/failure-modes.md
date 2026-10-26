@@ -124,6 +124,8 @@ Complete catalog. The top 8 most-violated are inline in SKILL.md §9 CRITICAL; t
 ## On the final draft
 
 ❌ **Creating the draft without asking "Shall I create the draft now?"** — including creating it in the same turn the design returns. The design confirmation is a required gate; create only after the user says yes.
+❌ **Waiting to be asked for the design deck, or asking "do you want a deck?"** — after a new draft the deck is built in the same turn; only an explicit opt-out skips it
+❌ **Deleting a draft and leaving its design deck in the client's Drive** — when this skill deletes a draft, its deck files go to Drive trash in the same confirmed step
 ❌ **Continuing to ask after the user has already picked a design** — their pick (LTM, a test length, a trade-off point, "proceed as-is") *is* the confirmation; create directly, don't re-ask.
 ❌ **Double-confirming the config** — asking the user to confirm the full configuration a second time after Step 4. Step 4 is the only full-config gate. "Shall I create the draft now?" after the design is the required design confirmation, not a double-confirm; Step 7 calls create once the user approves the design.
 ❌ **Field labels not matching the UI** — Experiment days → Test period; treatment-side labels follow the method
