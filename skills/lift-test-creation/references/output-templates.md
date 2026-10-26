@@ -83,6 +83,8 @@ The same shape extends to 4- and 5-cell tests: one column per cell, shared facts
 
 **Labeling note**: method-specific labels — "Holdout group" in the PTM column, "Exposed group" in the LTM column. Never reuse "Holdout group" for LTM. Never invent "Treatment group."
 
+**Which number is the threshold** — the Feasibility threshold row is each platform's `estimator.channel[i][j].minimum_daily_budget_required` (one line per platform and per cell; never add them up). Never use `expected_daily_spend` — it is a deprecated snapshot.
+
 **When the numbers aren't real** — read each platform's `estimator.channel` entry before writing ✓ / ✗:
 
 - `cpa` is null → the threshold couldn't be computed from a CPA. Write the threshold cell as "platform minimum — no CPA" and the spend row as "not checked", never ✓.
@@ -95,13 +97,13 @@ The same shape extends to 4- and 5-cell tests: one column per cell, shared facts
 
 Show this **in addition** to the design result / comparison table above — the first table keeps its native (~21-day) test period and feasibility threshold; this second table shows how the threshold moves with the test length so the user can pick the shortest sufficient length.
 
-Derive each period's threshold from the design's native one with the same formula the product uses — no re-run:
+Derive each period's threshold from the design's native one with the same formula the product uses — no re-run. The native threshold is analyze's `estimator.channel[i][j].minimum_daily_budget_required` (per platform); the native length D is `geo_group.estimator.experiment_days`:
 
-> threshold(N) = (feasibility threshold at the design's own length) × √(design length / N)
+> threshold(N) = minimum_daily_budget_required × √(D / N)
 >
 >
 
-Rows: 14 / 21 / 28 days (21 = the design's native length). "Clears it?" = current spend ≥ threshold × 0.95.
+Rows: 14 / 21 / 28 days (D is usually 21 — read it). "Clears it?" = current spend ≥ threshold × 0.95, per platform; with several platforms, show one threshold per platform and a length clears only when every platform does.
 
 > Test-length options — how the daily threshold moves with duration:
 >

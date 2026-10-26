@@ -4,6 +4,17 @@ All notable changes to the WorkMagic public skills are recorded here. This repo 
 [Agent Skills open standard](https://agentskills.io); each skill is independently versioned in
 its `SKILL.md` frontmatter (`version:` / `last-updated:`).
 
+## 2026-10-26（2.2.3）
+
+### Changed
+
+- **`lift-test-creation` 2.2.3：可行性门槛改读 `minimum_daily_budget_required`，不再用 `expected_daily_spend`。**
+  配合 platform-mcp 门槛统一计算（analyze / create / create-or-update 共用一个与前端一致的函数）。门槛 = analyze 每个平台的
+  `estimator.channel[i][j].minimum_daily_budget_required`（设计周期 D = `geo_group.estimator.experiment_days`），其他周期按
+  × √(D/N) 换算，多平台逐个展示、全部达标才算充足；auto-solve 换算基准改用 D（不再写死 21，搜索提交的 21 天不变）。
+  改周期 / 换方法 / 改 CPA 时只改输入，每 cell 派生的 `expect_cpa` / `minimum_daily_budget_required` 由 create-or-update 保存时重算，
+  skill 不再手算或手改；`custom_test_length` 由工具自动对齐。**须在 platform-mcp 该改动部署后发布。**
+
 ## 2026-10-26
 
 ### Fixed
