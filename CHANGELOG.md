@@ -19,6 +19,14 @@ its `SKILL.md` frontmatter (`version:` / `last-updated:`).
 
 ### Fixed
 
+- **`lift-test-creation`：测试结束日期对齐前端（闭区间，少算的那一天）。**
+  配合 platform-mcp 的结束日期修正：`lift-test-create` 不传 `testEndTime` 时按前端算法算
+  `开始日 + test_length + cooling_length − 1`（开始当天算第 1 天，冷却期读 `geoGroup.cooling_length`、缺省 7，按客户时区的本地日期），
+  不再是原来的 `+ test_length + 7`（多一天、冷却写死 7）；`lift-test-create-or-update` 在开始时间 / 测试周期 / 冷却期变化且 body
+  不带 `testEndTime` 时自动重算。skill 侧：`create-update-params.md` 的 `testEndTime` 行改成前端算法；`sop-detail.md`
+  的直接编辑路径说明结束日期由工具重算、agent 不手算，推回 body 时去掉 `testEndTime`，只有用户明确指定结束日期才保留。
+  **上线顺序**：须在 platform-mcp 该修正部署之后发布（旧版 create-or-update 不会重算，按新文案去掉 `testEndTime` 会留下旧的结束日期）。
+
 - **`lift-test-creation` 2.2.2：门槛落到下限、缺 CPA / 缺花费时如实告诉用户，不再当成「充足」。**
   配合 platform-mcp 的 `lift-test-design-analyze` 修正（只传 CPA 也查 7 天花费、30 天 CPA 不依赖 7 天花费、
   `origin_*` 永远是平台值、缺值输出 `null`、新增 `threshold_at_floor`）。skill 侧：Step 5 写 ✓ / ✗ 前先读

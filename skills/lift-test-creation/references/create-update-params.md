@@ -31,7 +31,7 @@ The `lift_test_group` body and where every field comes from. `lift-test-create` 
 |`method`|user (after analyze)|`PTM` / `LTM` — matches the chosen design side|
 |`testLevel`|user → prepare|`platform` / `tactic` / `campaign`|
 |`testStartTime`|user|user's local date/time converted to **UTC** ISO; never a past date|
-|`testEndTime`|derived|given `testEndTime` (→UTC), else `testStartTime + test_length + 7d cooling`|
+|`testEndTime`|derived|given `testEndTime` (→UTC), else computed by the tool like the UI: `testStartTime + test_length + cooling_length − 1` days (start day = day 1; `cooling_length` read from `geoGroup`, default 7; customer-local dates). On update, `lift-test-create-or-update` recomputes it when the start / `test_length` / `cooling_length` changes — omit it unless the user names a specific end date|
 |`geoGroup`|**analyze**|chosen design's `geo_group` (see below); design ids from design-result|
 |`testChannel`|prepare + analyze + derived|one inner array per cell — see the per-cell table below|
 |`locationSetting`|prepare|`{ locationType, locations:[{value,label}] }` — user geo + concurrent + account-geo, already merged; default `exclude/[]`|
@@ -77,7 +77,7 @@ The `lift_test_group` body and where every field comes from. `lift-test-create` 
 |`lift_test_group_id`|null until the group exists / attached|
 |`method`|`PTM` / `LTM`|
 |`country`|verbatim|
-|`cooling_length`|days (may serialize as string); range 1–28|
+|`cooling_length`|days (may serialize as string); range 1–28 — **0 is invalid** (the tool refuses it); absent → 7|
 |`test_length`|days (default 21); **overridable** for custom period (14–60, test+cooling ≤ 60)|
 |`test`|`{ code[], name[], orders, sales, geoLevel }` — the **Reference group** (business-as-usual side; in a multi-cell test it is shared by every cell), verbatim. ⚠️ Despite the name, `test` is NOT the treated side|
 |`control`|the **treated cell** (PTM → Holdout group, LTM → Exposed group); its `orders` share is the % the product shows for that group. **top-level = ARRAY**`[{…}]`; **inside `testChannel[].geoGroup.control` = OBJECT**`{…}`. Fields: `{ id, code[], name[], orders, sales, geoLevel, minimum_detectable_lift, shopify_daily_control_orders, factor }`|
