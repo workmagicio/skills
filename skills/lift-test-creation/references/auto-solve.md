@@ -52,9 +52,11 @@ Two axes, handled differently:
 0.25, 0.30} with a three-state binary search anchored at **21 days**. No formula —
 every geo size reported was actually designed + analyzed.
 
-- **Test period → one formula.** From the 21-day design's feasibility threshold,
-extrapolate any other length by `required(T) = required₂₁ × √(21/T)` (more days →
-lower threshold, both methods).
+- **Test period → one formula.** From the design's feasibility threshold — analyze's
+`estimator.channel[i][j].minimum_daily_budget_required`, per platform, at D =
+`geo_group.estimator.experiment_days` (21 for these probes, but read D) — extrapolate any
+other length by `required(T) = required_D × √(D/T)` (more days → lower threshold, both
+methods).
 
 **Method:** explore **both PTM and LTM** unless the user pinned one — one design run
 returns both `ptmDesignId` + `ltmDesignId`, so both methods come from the same runs at
@@ -80,24 +82,24 @@ budget is inferred from current spend the two are identical.
           the 0.15 result. 0.05 fail → keep its result and fall into the binary with 0.15
           already in hand (reused, not re-run).
        ② Binary from 0.15's result, then:
-          PASS (budget ≥ 0.95×required₂₁, every platform) → record; seek smaller (hi=mid-1)
+          PASS (budget ≥ 0.95×required_D, every platform) → record; seek smaller (hi=mid-1)
           NO SOLUTION (design returns "no feasible geo pair", fast) → log the round as
                                                              "no solution"; too small; seek larger (lo=mid+1)
           TIMED OUT (design-result ends failed with no rows, ~5 min) → log the round as
                                                              "timed out"; move on to the next larger
                                                              size — do NOT stop the search
-          spend shortfall (required₂₁ > budget/0.95)      → LTM: hi=mid-1 · PTM: lo=mid+1
+          spend shortfall (required_D > budget/0.95, any platform)      → LTM: hi=mid-1 · PTM: lo=mid+1
           until lo>hi → smallest feasible geo size.
        Each probe waits for design-result's terminal state (success / failed; solves
        are P95 < 300s). Keep a ROUND LOG — one line per probe: geo size → passed /
        short by $X per day / no solution / timed out — and put it in the final answer.
 2. Test-period fit (formula, no extra runs), per method, at that geo size:
-   - period pinned T0 → required = required₂₁·√(21/T0); pass iff budget ≥ 0.95×required.
-   - else smallest fitting length: T_need = 21 × (0.95 × required₂₁ / budget)²
+   - period pinned T0 → required = required_D·√(D/T0); pass iff budget ≥ 0.95×required (every platform).
+   - else smallest fitting length: T_need = D × (0.95 × required_D / budget)², the largest over platforms
        Snap to the standard lengths first — they are what the product recommends:
          T_need ≤ 21 → 21;  21 < T_need ≤ 28 → 28;
          only above 28 use a custom length T = ⌈T_need⌉ (create then needs
-         geoGroup.test_length = T and estimator.custom_test_length = T).
+         geoGroup.test_length = T; the tool keeps estimator.custom_test_length in step).
        T ≤ 35 → take it.  35 < T ≤ 60 → take ONLY if geo size is at a rail.
        T > 60 → infeasible at this geo size.
 3. EARLY STOP → single design. The moment a comfortable solution appears (geo size ≤20%

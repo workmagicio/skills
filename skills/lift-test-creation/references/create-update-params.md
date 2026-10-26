@@ -8,7 +8,7 @@ The `lift_test_group` body and where every field comes from. `lift-test-create` 
 >
 > - **simple edits** (name, testStartTime, other no-dependency fields) → change on the loaded body, push. No pipeline.
 >
-> - **test period change** or **method switch (PTM ↔ LTM)** → **NO re-design.** Recompute the estimator on the *existing*`geoGroup` — `expected_daily_spend`, `expect_cpa`, `minimum_daily_budget_required` — for a period change via the √ formula below, for a method switch via the target method's formula (PTM divides by the control-side order rate; LTM does not). lift-test-get supplies the `geoGroup` (MDL / control order rate); a method switch may also need the tactic CPA, the same input analyze uses.
+> - **test period change**, **method switch (PTM ↔ LTM)** or **CPA change** → **NO re-design.** Change only the input — `geoGroup.test_length`, the group's `method`, or the shared `geoGroup.estimator.channel[i][j].cpa` — and push with lift-test-create-or-update. The tool recomputes every cell's `expect_cpa` / `minimum_daily_budget_required` (and keeps `estimator.custom_test_length` in step) on save, like the product UI. Never hand-edit those derived fields.
 >
 > - **design-input changes** (locationSetting / geo size / salesChannel / metric / primaryMetric / country / geoLevel) or **cell / scope restructure** → re-run **scan → prepare → design → analyze in this session** (seed prepare with the draft's current config) to regenerate `geoGroup` / `testChannel`, then push.
 >
@@ -31,7 +31,7 @@ The `lift_test_group` body and where every field comes from. `lift-test-create` 
 |`method`|user (after analyze)|`PTM` / `LTM` — matches the chosen design side|
 |`testLevel`|user → prepare|`platform` / `tactic` / `campaign`|
 |`testStartTime`|user|user's local date/time converted to **UTC** ISO; never a past date|
-|`testEndTime`|derived|given `testEndTime` (→UTC), else `testStartTime + test_length + 7d cooling`|
+|`testEndTime`|derived|given `testEndTime` (→UTC), else computed by the tool like the UI: `testStartTime + test_length + cooling_length − 1` days (start day = day 1; `cooling_length` read from `geoGroup`, default 7; customer-local dates). On update, `lift-test-create-or-update` recomputes it when the start / `test_length` / `cooling_length` changes — omit it unless the user names a specific end date|
 |`geoGroup`|**analyze**|chosen design's `geo_group` (see below); design ids from design-result|
 |`testChannel`|prepare + analyze + derived|one inner array per cell — see the per-cell table below|
 |`locationSetting`|prepare|`{ locationType, locations:[{value,label}] }` — user geo + concurrent + account-geo, already merged; default `exclude/[]`|
@@ -77,22 +77,14 @@ The `lift_test_group` body and where every field comes from. `lift-test-create` 
 |`lift_test_group_id`|null until the group exists / attached|
 |`method`|`PTM` / `LTM`|
 |`country`|verbatim|
-|`cooling_length`|days (may serialize as string); range 1–28|
+|`cooling_length`|days (may serialize as string); range 1–28 — **0 is invalid** (the tool refuses it); absent → 7|
 |`test_length`|days (default 21); **overridable** for custom period (14–60, test+cooling ≤ 60)|
 |`test`|`{ code[], name[], orders, sales, geoLevel }` — the **Reference group** (business-as-usual side; in a multi-cell test it is shared by every cell), verbatim. ⚠️ Despite the name, `test` is NOT the treated side|
 |`control`|the **treated cell** (PTM → Holdout group, LTM → Exposed group); its `orders` share is the % the product shows for that group. **top-level = ARRAY**`[{…}]`; **inside `testChannel[].geoGroup.control` = OBJECT**`{…}`. Fields: `{ id, code[], name[], orders, sales, geoLevel, minimum_detectable_lift, shopify_daily_control_orders, factor }`|
-|`estimator.experiment_days`|design's native length (~21) — never changes|
-|`estimator.channel[i][j]`|`{ ad_platform, channel_index, expected_daily_spend, ads_daily_reported_spend?, origin_ads_daily_reported_spend?, cpa?, origin_cpa? }` — **`cpa`/`origin_cpa`/`ads_daily_reported_spend` are OPTIONAL, not always present**|
+|`estimator.experiment_days`|the design's native length D (usually 21 — read it, never assume) — never changes|
+|`estimator.channel[i][j]`|`{ ad_platform, channel_index, ads_daily_reported_spend?, origin_ads_daily_reported_spend?, cpa?, origin_cpa?, expected_daily_spend }` — the shared per-platform inputs; `cpa` is the CPA every cell's threshold is computed from. **`cpa`/`origin_cpa`/`ads_daily_reported_spend` are OPTIONAL**. `expected_daily_spend` is a deprecated geo-pairing snapshot — never read it as a threshold|
 
-**Per-cell derived (only in `testChannel[].geoGroup.estimator`):** the per-cell estimator carries `expect_cpa` and `minimum_daily_budget_required` per channel, computed at the cell's `test_length`. Two edits recompute these **without a re-design**:
-
-- **test period change** → scale the threshold with the √ formula (same as the product):
-
-    > threshold at N days = (threshold at the design's native length) × √(native length ÷ N)
-    >
-    >
-
-- **method switch (PTM ↔ LTM)** → recompute on the same `geoGroup` with the target method's formula (PTM divides by the control-side order rate; LTM does not); `experiment_days` / geos stay unchanged.
+**Per-cell derived (only in `testChannel[].geoGroup.estimator`):** `expect_cpa` and `minimum_daily_budget_required` — the saved draft's feasibility threshold for that cell's platform, at the group's `test_length`, from the group's `method` and the shared `cpa`. lift-test-create and lift-test-create-or-update compute them on every save; read them from lift-test-get, never compute or edit them by hand. For a quick answer in chat (e.g. "what would 35 days need?"): threshold(N) = threshold at D × √(D ÷ N), D = `estimator.experiment_days` — the saved value comes from the tool.
 
 Changing geo size / any online-design input is NOT a recompute — it needs a fresh design (sop-detail Step 7 cat C).
 
