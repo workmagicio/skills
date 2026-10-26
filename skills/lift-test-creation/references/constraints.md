@@ -115,7 +115,7 @@ Keeping a new test from colliding with tests the tenant already has.
 
 ### Default behavior (no constraint stated)
 
-lift-test-design-prepare auto-excludes the union of the **treatment + reference geos** of every test in **scheduled** or **active** state (same country + geo level) and reports them in `concurrentTestInfo` / `autoExcludedGeoCodes`; lift-test-scan's `runningTests` lists those tests for awareness. Mention it in the Step 4 summary in one line — the user should know their pool was reduced, without being asked to manage it:
+lift-test-design-prepare auto-excludes the union of the **treatment + reference geos** of every test in **scheduled** or **active** state (same country + **same geo level only**: a DMA-level running test is not excluded from a state-level design, nor the reverse — when scan lists one at another level, say so and offer manual exclusion or a later start) and reports them in `concurrentTestInfo` / `autoExcludedGeoCodes`; lift-test-scan's `runningTests` lists those tests for awareness. Mention it in the Step 4 summary in one line — the user should know their pool was reduced, without being asked to manage it:
 
 > "Steering clear of the geos in your Google test that runs through Apr 18."
 
