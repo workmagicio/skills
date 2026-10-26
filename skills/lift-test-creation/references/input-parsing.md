@@ -7,10 +7,18 @@
 |"TT", "TikTok"|TikTok Ads|
 |"Snap"|Snapchat Ads|
 |"Pin", "Pinterest"|Pinterest Ads|
+|"ChatGPT", "OpenAI", "OpenAI Ads", "ChatGPT ads"|OpenAI Ads (`openaiAds`)|
+|"AppLovin", "Axon"|AppLovin (`applovin`)|
+|"Reddit"|Reddit Ads (`reddit`)|
+|"Roku"|Roku (`roku`)|
+|"MNTN", "Mountain"|MNTN (`mntn`)|
+|"GMV Max", "TikTok GMV Max"|TikTok GMV Max (`tiktokGMVMax`) — distinct from TikTok Ads|
 |"Amazon Ads"|**Not a lift-test platform** — say so; don't map it|
 |"UK", "United Kingdom", "Britain"|country `GB`|
 |"PTM", "pause", "pause to measure"|PTM|
 |"LTM", "launch", "launch to measure"|LTM|
+
+The table only maps spoken names to the canonical platform; which platforms the tenant can actually test is lift-test-scan's platform list — a name that maps but isn't in that list is not available for this account.
 
 Spelling tolerance: "Goggle Ads", "Snapcaht" → silently corrected; surface the canonical name in the Step 4 summary.
 

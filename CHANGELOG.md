@@ -14,6 +14,13 @@ its `SKILL.md` frontmatter (`version:` / `last-updated:`).
   × √(D/N) 换算，多平台逐个展示、全部达标才算充足；auto-solve 换算基准改用 D（不再写死 21，搜索提交的 21 天不变）。
   改周期 / 换方法 / 改 CPA 时只改输入，每 cell 派生的 `expect_cpa` / `minimum_daily_budget_required` 由 create-or-update 保存时重算，
   skill 不再手算或手改；`custom_test_length` 由工具自动对齐。**须在 platform-mcp 该改动部署后发布。**
+  另：Step 8 只保留「何时生成 deck、按 cell 数调哪个 deck skill、回复链接、不把 deck 内容抄回对话」，deck 的页面、数字（含 MDL）、
+  文件结构等细节交给 deck skill 定义，不再在本 skill 重复（原文曾误称 MDL 随测试周期变化，MDL 只取决于设计）。
+  另：solve loop 杠杆表纠正两行「要重新设计」——延长测试周期改为按公式 × √(D/N) 重选（设计引擎没有周期输入）；换方法优先用同一次
+  设计里另一种方法的结果，没有时把当前设计按另一种方法跑：skill 按目标方法公式自算门槛、给用户确认后再建（create / create-or-update 保存时按同一公式重算）。
+  另：补平台别名（ChatGPT / OpenAI、AppLovin、Reddit、Roku、MNTN、TikTok GMV Max），以 scan 的平台列表为准；写明 custom / imported
+  销售渠道可正常测试、§3 的「imported / offline feed」只针对指标定义；销售渠道直接用 scan 的 `salesChannel`（已按 lift test 就绪过滤），
+  不在其中即未就绪，引导去数据健康 / Settings 页查原因。
 
 ## 2026-10-26
 

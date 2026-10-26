@@ -10,7 +10,7 @@
 |User specifies LTM but PTM is recommended|State the difference once. If they hold firm, use LTM. **Don't lecture twice.**|
 |User picks an unsupported country ("Japan", "Brazil")|Error out, list the 8 supported countries (US / UK / CA / DE / FR / AU / ES / SE), ask which. **Don't hard-build, don't route to DS** — this is a product limit, not a modeling question.|
 |User-named tactic / campaign doesn't exist|Campaigns: after lift-test-impact-campaigns. Tactics: after tactic-list — impact-campaigns doesn't return tactics. Either way: "Couldn't find a tactic called 'X' — candidates are: …"|
-|User picked a Not-ready sales channel|Name the specific failing readiness check, point to Settings. **Don't silently drop the channel.**|
+|User picked a sales channel that isn't lift-test ready (not in scan's `salesChannel`)|Say it isn't ready yet and point to the data-health / Settings page for the reason — the failing checks aren't visible to this skill. Offer to drop it. **Don't silently drop the channel.**|
 |Design fails to form a geo pair|Solve loop round 1 — structural reason + levers. **Never expose "holdoutPct"** — say "more geos on the holdout side".|
 |Design comes back Insufficient|Solve loop round 1 with quantified gap.|
 |Design violates a stated constraint|Treated as a failure, not a success. Solve loop with the trade-off stated.|

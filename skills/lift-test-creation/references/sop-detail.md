@@ -9,7 +9,7 @@
 
 ## Step 3 — Default-resolution detail
 
-- **salesChannel** — query connected channels (Ready / Not optimal only); default all selected.
+- **salesChannel** — lift-test-scan's `salesChannel` (already filtered to lift-test-ready channels; a channel missing from it isn't ready); default all selected.
 - **country** — trailing-90-day sales share; auto-pick the dominant country. Pass the UK as `GB` (supported: US / GB / CA / DE / FR / AU / ES / SE).
 - **geoLevel** — derive from country (US → DMA; every other country → postcode). DMA / state are US-only: overriding country to a non-US one without a geoLevel falls back to postcode; passing dma / state with a non-US country is an error from prepare.
 - **locationSetting** — lift-test-design-prepare auto-excludes the geos of every scheduled / active test (same country + geo level) and reports `concurrentTestInfo { concurrentTestCount, rangeEndTime, geoCodes }` + `autoExcludedGeoCodes`; scan's `runningTests` lists those tests for awareness. `restrictStartDate: true` skips the auto-exclusion — the sequenced-reuse form in references/constraints.md. A draft is excluded only when the user names it, pulled via lift-test-get. Layer the user's own geo includes / excludes and any concurrency instruction on top → references/constraints.md. The account-level geo limitation comes back on `scan.geoExclusion` — design-prepare folds it into the design, and you surface `geoExclusionSummary` in the Step 4 table's account-geo row.
@@ -55,7 +55,7 @@ All of these now route into the solve loop rather than terminating:
 |---|---|
 |Geo size too low for the data volume|"We'd need more geos on the holdout side than your current setting allows" — then the geo-size lever|
 |Too many locationSetting excludes / no feasible solution (the raw error is a Chinese solver message plus solver parameters — never show it raw)|Name the count and the share of orders removed — split into the user's own excludes and prepare's `autoExcludedGeoCodes` (concurrent tests); offer the geo-exclusion lever and, when concurrent tests took the geos, the sequenced-reuse lever (`restrictStartDate: true`)|
-|Sales-channel readiness insufficient|Name the channel + the failing check; offer to drop it or fix it in Settings (not a solve-loop lever — a prerequisite)|
+|Sales-channel readiness insufficient|Name the channel and say it isn't lift-test ready yet; point to the data-health / Settings page for the reason; offer to drop it (not a solve-loop lever — a prerequisite)|
 |Country not supported / data volume too low|Name the limit. Unsupported country is a hard stop, not a loop.|
 
 ## Step 7 — Create / update payload field mapping
