@@ -4,6 +4,16 @@ All notable changes to the WorkMagic public skills are recorded here. This repo 
 [Agent Skills open standard](https://agentskills.io); each skill is independently versioned in
 its `SKILL.md` frontmatter (`version:` / `last-updated:`).
 
+## 2026-10-26（2.2.5）
+
+### Fixed
+
+- **`lift-test-creation` 2.2.5：DS 验收 issue tracker 后剩下的 5 处文案护栏（只改 skill 文本，不改工具调用）。**
+  ① sop-detail.md + constraints.md：写明 prepare 只对**同 geo level** 的并发测试自动排除，跨层级（如 state 级设计遇到 DMA 级 running test）要在 Step 4 明说并给手动排除 / 顺延两条路（tracker #12 的文本兜底，根治在 prepare）。
+  ② sop-detail.md Step 5：新增引擎 `data_gate` 一行——不是 solve loop 能修的失败，常见原因是单 geo 订单占比 > 30%（fit 窗口 121 天），转 DS、不重试（#16）。
+  ③ failure-modes.md：平台拒绝同轮重复 design-result 时只报进度继续轮询，禁止重新提交 design 或改派后台任务（#3）；展示设计时不讲 setup 方式（#5）；不转述 analyze 的「什么时候开始」追问（#7）；门槛落到下限且无 CPA 时回推出的 `expect_cpa` 不得当成本给用户（#24，承接 2.2.2 的下限说明）。
+  2.2.2 / 2.2.3 已覆盖的别名、custom 渠道、solve loop 改周期、Step 8 精简不再重复。
+
 ## 2026-10-26（2.2.4）
 
 ### Fixed
