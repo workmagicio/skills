@@ -175,9 +175,9 @@ Rows: 14 / 21 / 28 days (D is usually 21 — read it). "Clears it?" = current sp
 >
 >
 
-## Step 6 — DS handoff
+## Step 6 — DS hand-off
 
-> I've hit the limit of what I can design here. Passing to Data Science with the full picture:
+> I've hit the limit of what I can design here. Here's the full picture for Data Science:
 >
 > **You asked for**: Meta lift test, tactic level ("Prospecting"), finish before July 15, under $3k/day, New York and LA excluded **Resolved**: US / DMA level · DTC + Amazon · Orders · PTM
 >
@@ -194,6 +194,42 @@ Rows: 14 / 21 / 28 days (D is usually 21 — read it). "Clears it?" = current sp
 > Data Science can look at whether a different design or a longer horizon gets you a readable result.
 >
 >
+
+Then the CS task preview — ask once and end the turn:
+
+> I can file this as a task for Data Science and open a Lark group for it:
+>
+> | | |
+> |---|---|
+> | Title | [Lift Test] Meta Prospecting 2-cell: no feasible design |
+> | Team | Data Science |
+> | Priority | P0 |
+> | Account | Acme (150024) |
+> | Description | *(the exact text that will be filed, verbatim — not "the summary above")* What was asked: … What was resolved: … What was tried: … Blocker: … |
+> | Lark group | Your CSM · you · Lift Test team: amyzhou@, liangbo@, lixiaoke@, liminghang@workmagic.io · CS triage: wangyanghua@, jessiezhang@, jessie@, xukai@workmagic.io |
+> | Also add | None — name anyone else from WorkMagic you want in it |
+>
+> Shall I file it?
+
+The Description row carries the exact `description` you will pass to cs-task-create, word for word — the user is confirming what gets filed, so a pointer to "the summary above" is not enough.
+
+Default members come from solve-loop.md ("you" only when the user is a WorkMagic employee); the server adds them — don't put them in `inviteEmails`. Only names the user adds go there (WorkMagic emails only). After the user's yes, call cs-task-create, then:
+
+> Filed — Data Science has it. Ticket: [CRM ticket link] · they'll follow up in the Lark group: [chatShareUrl]
+
+The ticket link is `taskUrl` when the tool returns it; otherwise build it from the returned `todoId` as `https://crm.workmagic.io/csm-workspace?task=<todoId>`. Give each link only when its field came back (`todoId` and `chatShareUrl` are returned to WorkMagic employees only) — never invent one; drop a missing link and its label.
+
+Duplicate:
+
+> This one is already with the team — an open task covers the same problem, so I didn't file a second one.
+
+Group not created:
+
+> Filed — Data Science has the task. The Lark group couldn't be created; the team can open it from the task.
+
+Declined:
+
+> No problem — the summary above has everything if you want to pass it on yourself.
 
 ## Step 7 — After the design confirmation
 
@@ -257,7 +293,9 @@ If the deck skill refuses the draft, relay its reason and the choice the user ha
 
 > Geo lift can't isolate creative-vs-creative effects — it measures the incrementality of spend on a channel, tactic, or campaign, and a geo split doesn't separate which creative drove the difference.
 
-> I'm passing this to Data Science with everything you've described, including the Meta tactic-level piece — they'll want the full picture before advising on either part.
+> This needs Data Science — they'll want the full picture, including the Meta tactic-level piece, before advising on either part. I can file it as a task for them:
+
+Then the hand-off summary and the CS task preview (Step 6 — DS hand-off), titled for the ask, e.g. `[Lift Test] Creative A vs. B test: outside skill scope`. Ask once and end the turn; file on the user's yes.
 
 ## Never output
 
