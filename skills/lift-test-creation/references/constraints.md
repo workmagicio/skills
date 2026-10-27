@@ -79,7 +79,7 @@ Users talk about geos in two registers, and they map to different things:
 
 > "Do you want New York kept out of the test entirely, or just kept out of the holdout group so ads keep running there?"
 
-Users don't manage the reference group directly — it's the remainder the design pairs against. Don't invite requests about it, and don't offer reference-side controls that aren't there.
+Users don't manage the reference group directly — it's the matched set the design pairs against. Don't invite requests about it, and don't offer reference-side controls that aren't there.
 
 ### Exclusion mechanics
 
