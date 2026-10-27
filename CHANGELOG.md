@@ -4,6 +4,26 @@ All notable changes to the WorkMagic public skills are recorded here. This repo 
 [Agent Skills open standard](https://agentskills.io); each skill is independently versioned in
 its `SKILL.md` frontmatter (`version:` / `last-updated:`).
 
+## 2026-10-27（2.3.1）
+
+### Changed
+
+- **`lift-test-creation` 2.3.1：并发实验 geo 规则改为按组判定 + 时间窗口，地区约束统一由 platform-api 计算。**
+  对齐 platform-mcp `lift-test-design-prepare` / `lift-test-create` 的新行为：
+  - 其他实验**改动组**占用的 geo：本实验两组都避开；只被其他实验**对照组**占用的 geo：只避开本实验改动组（两边对照组重叠允许，不再当作冲突）。
+  - 只算本实验开始日（prepare 的 `startTime`，不传取今天）仍被 scheduled / executing / active 实验占用的 geo；DMA 实验同时计入 state 级实验（换算成 DMA）。
+  - 去掉 `restrictStartDate`：错峰复用改为用更晚的 `startTime` 重新调 prepare，只释放到那天已结束实验的 geo。
+  - prepare 输出由 `concurrentTestInfo` / `autoExcludedGeoCodes` 改为 `geoConstraints.occupancy`；重新出已有实验的方案时传 `liftTestGroupId`。
+  - 实验级 include / exclude 只约束改动组（holdout / exposed），不再追问「整个实验都排除还是只是不放进 holdout」；账户级 Allowed / Restricted 约束两组。设计后的校验按此调整。
+  - `lift-test-create` 返回 `geoConflict` 时，转述冲突实验与共享 geo，建议在 `conflictEndTime` 之后开始或用该日期重新 prepare。
+  - 开始日与在跑实验重叠时不再由模型自己判断重叠：设计前作为 `startTime` 传给 prepare，设计后直接带给 `lift-test-create`；`geoConflict` 表示未保存，`conflictEndTime` 为空时只能保留日期并重新设计。
+  - `geoConstraints` 为 `null`（platform-api 不可达）时，并发排除和账户级限制都没生效，Step 4 两行都要说明并建议重试；Step 4 账户行改用 prepare 返回的 `geoExclusion`（按设计粒度）。
+  - 重新出已有草稿的方案时，prepare 传 `liftTestGroupId` 和草稿开始日（客户本地日期）。
+  - 未填开始日期时草稿仍不填，但 `lift-test-create` 的冲突检查按保守口径（今天开始、结束无界）执行；出现 `geoConflict` 时建议定一个 `conflictEndTime` 之后的开始日或重新出方案。
+  - 不带年份的日期（如「5 月 1 日」）默认今年；落在过去就按过去日期处理，不自动顺延到明年。
+  - 保存方案时把它对应的 prepare `startTime` 作为 `restrictStartTime` 传给 `lift-test-create` / `lift-test-create-or-update`（新方案），存进草稿 `extraInfo`，换 session 后可读回；重出已有实验时从 `extraInfo.restrictStartTime` 读出作为 `startTime`；开始日早于它会被拒绝，需按新日期重出方案。
+  **上线顺序**：须与 platform-api `geoConstraints` / `concurrentConflictCheck` 接口、platform-mcp 同名分支（workmagicio/platform-mcp#447）一起发布；单独先发会让模型调用尚不存在的参数。
+
 ## 2026-10-27（2.3.0）
 
 ### Changed

@@ -99,7 +99,7 @@ Complete catalog. The top 9 most-violated are inline in SKILL.md §9 CRITICAL; t
 
 ## On geo
 
-❌ **Collapsing "don't pause X" into "exclude X entirely"** without clarifying
+❌ **Offering to remove a geo "from the test entirely"** — a per-test exclude only keeps it off the treatment side; say that instead of asking
 ❌ **Returning a design that puts a geo on the treatment side the user asked to keep off it** without saying so
 ❌ **Offering the user control over the reference group** — they don't manage it
 ❌ **Dropping a geo the user asked to exclude**
@@ -112,10 +112,10 @@ Complete catalog. The top 9 most-violated are inline in SKILL.md §9 CRITICAL; t
 
 ## On concurrency
 
-❌ **Auto-excluding draft-state tests** — only scheduled and active
+❌ **Auto-excluding draft-state tests** — only scheduled, executing and active
 ❌ **Not telling the user their geo pool was reduced** by a running test
 ❌ **Relaxing concurrency silently** to make a design solve
-❌ **Allowing simultaneous overlap** — reuse is only ever sequenced, on a start date after the other test ends
+❌ **Allowing simultaneous overlap involving a treatment group** — that reuse is only ever sequenced, on a start date after the other test ends (reference × reference overlap is fine)
 ❌ **Passing holdout_pct as a prepare argument** — prepare has none; change only `suggested.holdout_pct` inside the scan result
 
 ❌ **Offering sequenced reuse without naming the delay** — the gain and the wait go in the same sentence

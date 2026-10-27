@@ -247,6 +247,10 @@ Single cell:
 
 > Start date isn't set — pick it when you schedule. One thing to know: your Google test runs through Apr 18, so starting after that keeps the two clean.
 
+When the design was generated for a later start (`restrictStartTime` saved), say it as a firm floor instead:
+
+> Start date isn't set — it can be any day from Apr 20 on. This design reuses geos your Google test frees up on Apr 18, so an earlier start isn't possible without a new design.
+
 Multi-cell — still one draft, with the cells named:
 
 > Draft created with both cells — Meta Ads and Google Ads, sharing one reference group: [draft link]
