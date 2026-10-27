@@ -18,6 +18,19 @@ Always a table, always with the treatment geos listed by name and a numeric thre
 
 **Required rows**: test period · geo size (both the % of orders **and** the geo count) · the treatment geos **by name** · feasibility threshold **as a specific number** · the spend it's being compared against.
 
+**Where each geo fact comes from — read the field, never the word.** In analyze's `geo_group`, `control` is the **treated** side and `test` is the **Reference group** (references/create-update-params.md, "Side naming"). So, for cell *i*:
+
+|Row|Source|
+|---|---|
+|Geo size — % of orders|`cell_order_share_pct[i]`, verbatim|
+|Geo size — geo count|the length of `geo_group.control[i].code`|
+|Holdout / Exposed group names|`geo_group.control[i].name`|
+|Reference group size (the line under the table)|the length of `geo_group.test.code`, and `geo_group.test.orders` as a %|
+
+Never put a name from `geo_group.test` in the Holdout / Exposed row. Before sending, check that the count you print equals the length of `control[i].name` — the names you list plus any "+ N more" — and that the count, the names and the % all come from `control[i]` / `cell_order_share_pct[i]`. A count and a % from different sides is the sign of a swap (it happened on 2026-10-27: the design table listed the Reference group as the Holdout group).
+
+**Separate geo names with " · "**, not commas — DMA names carry commas of their own ("CHARLESTON, SC", "JACKSON, TN"), so a comma list can't be counted.
+
 ### 2-cell
 
 > Design's back:
@@ -29,7 +42,7 @@ Always a table, always with the treatment geos listed by name and a numeric thre
 |Feasibility threshold|**$1,820 / day**|
 |Your current Meta spend|$2,100 / day — clears it, and under your $3k/day cap ✓|
 
-> Reference group: the remaining 198 DMAs.
+> Reference group: a matched set of 14 DMAs (6.1% of orders), chosen by the design.
 
 > Shall I create the draft now?
 
@@ -46,7 +59,7 @@ One column per cell. The test period and the reference group are shared, so they
 |Feasibility threshold|**$1,820 / day**|**$960 / day**|
 |Your current spend|$2,100 / day ✓|$1,150 / day ✓|
 
-> Reference group: the shared remaining 189 DMAs — no geo appears in more than one holdout group.
+> Reference group: one shared matched set of 18 DMAs (6.4% of orders), chosen by the design — no geo appears in more than one holdout group.
 
 > Both cells clear their thresholds. Shall I create the draft now?
 
@@ -56,7 +69,7 @@ The same shape extends to 4- and 5-cell tests: one column per cell, shared facts
 
 ### Rules for both
 
-**Label the geo row by method** — "Holdout group" for PTM, "Exposed group" for LTM. The reference group is the remainder: give its size, never its member list.
+**Label the geo row by method** — "Holdout group" for PTM, "Exposed group" for LTM. The reference group is a matched set the design chooses — not the rest of the country: give its size (geo count and % of orders, from `geo_group.test`), never its member list.
 
 **Long geo lists**: at postcode level the list can run to hundreds. Show the top 10 by order volume and "+ N more", and note the full list is on the draft.
 

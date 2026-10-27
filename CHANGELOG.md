@@ -4,6 +4,16 @@ All notable changes to the WorkMagic public skills are recorded here. This repo 
 [Agent Skills open standard](https://agentskills.io); each skill is independently versioned in
 its `SKILL.md` frontmatter (`version:` / `last-updated:`).
 
+## 2026-10-27（2.2.8）
+
+### Fixed
+
+- **`lift-test-creation` 2.2.8：design 表的实验组名单写明从哪个字段读，修正 Holdout / Reference 写反。**
+  2026-10-27 端到端测试（Chirp 150968，PTM）里，Step 5 的 design 表把 Reference group 的 12 个 DMA 列成了 Holdout group，真正暂停 Meta 的 16 个 DMA（含 Atlanta、Miami）反而没列出来；占比 5.82% 是对的，所以同一行里的占比和 DMA 个数来自两边。根因：output-templates.md 只要求「实验组按名字列出」，没写读哪个字段，正确的侧别映射只在 create-update-params.md 里。
+  ① output-templates.md Step 5：新增「每行从哪个字段读」表——占比读 `cell_order_share_pct[i]`，个数和名单读 `geo_group.control[i]`，Reference group 只报 `geo_group.test` 的个数和占比；发送前核对个数等于 `control[i].name` 的长度（列出的名字加「+ N more」），个数、名单、占比同出一侧；地区名用「 · 」分隔（DMA 名自带逗号）。
+  ② Reference group 改称「design 选出的匹配地区」，不再写成「剩下的所有 DMA」（output-templates.md 示例与规则、constraints.md、failure-modes.md）；failure-modes.md 新增「把 `geo_group.test` 当实验组」一条。
+  ③ SKILL.md 的 design 表要求补一句侧别提示。只改文案，不改工具调用。
+
 ## 2026-10-27（2.2.7）
 
 ### Changed
