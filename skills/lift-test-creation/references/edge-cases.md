@@ -21,12 +21,12 @@
 |cs-task-create returns `groupError`|The task was filed but the Lark group wasn't — say so; the team still has it.|
 |cs-task-create fails|Tell the user it failed. Retry only if they ask.|
 |User states a start date in the past|Error out, ask what they meant. **Never hard-build.**|
-|User's stated start date overlaps a scheduled / active test|Check that test's geos against this design's pool. No geo overlap → one line noting the dates overlap but the geos don't. Geo overlap → name the shared geos and what it costs the readouts, and suggest starting after [end date]. Then respect their choice.|
+|User's stated start date overlaps a scheduled / executing / active test|Before design: pass it as prepare's `startTime` — only geos that test still holds on that date are excluded, per group. After design: pass it straight to lift-test-create (a later start only frees geos; no re-design needed). A conflict needs the windows to overlap **and** a group-level clash (reference × reference is fine). If lift-test-create returns `geoConflict`, it saved nothing — name the conflicting tests and shared geos and offer: start after its `conflictEndTime`, or keep the date and re-run prepare with it to regenerate the design. When `conflictEndTime` is empty (a conflicting test has no end date), only the second option exists.|
 |User states no start date|**Don't ask.** Leave unset; note it in the draft handoff.|
-|User names a draft in a concurrency constraint that doesn't exist|List their scheduled / active tests and ask which one they meant.|
+|User names a draft in a concurrency constraint that doesn't exist|List their scheduled / executing / active tests and ask which one they meant.|
 |User says a draft is "dead, ignore it"|Remove from the exclusion set; state what geos that gives back.|
-|User says overlap is fine|Simultaneous overlap isn't offered. Give the one form that is: reuse those geos with a start date after the other test ends.|
-|"Don't touch New York"|Clarify once: out of the test entirely, or just out of the holdout group?|
+|User says overlap is fine|Reference × reference overlap is already allowed automatically. Simultaneous overlap involving a treatment group isn't offered — give the form that is: reuse those geos with a start date after the other test ends.|
+|"Don't touch New York"|Exclude it (treatment side only) and confirm in one line: "I'll keep New York out of the group where ads change — they keep running there as usual." Once the method is known, name that group (PTM: holdout group; LTM: exposed group). Don't offer "out of the test entirely"; per-test settings can't do that. If "New York" is ambiguous at this geo level, resolve it first (input-parsing).|
 |Ambiguous geo name ("New York" at DMA level, "the coasts")|Clarify with a proposed resolved list — don't guess.|
 |Ambiguous budget unit ("under $5k")|Clarify once: daily cap or total test budget?|
 |User supplies a CPA far off their trailing data|Flag once, then use their number. Never quietly substitute your own.|

@@ -10,7 +10,7 @@ The `lift_test_group` body and where every field comes from. `lift-test-create` 
 >
 > - **test period change**, **method switch (PTM ↔ LTM)** or **CPA change** → **NO re-design.** Change only the input — `geoGroup.test_length`, the group's `method`, or the shared `geoGroup.estimator.channel[i][j].cpa` — and push with lift-test-create-or-update. The tool recomputes every cell's `expect_cpa` / `minimum_daily_budget_required` (and keeps `estimator.custom_test_length` in step) on save, like the product UI. Never hand-edit those derived fields.
 >
-> - **design-input changes** (locationSetting / geo size / salesChannel / metric / primaryMetric / country / geoLevel) or **cell / scope restructure** → re-run **scan → prepare → design → analyze in this session** (seed prepare with the draft's current config) to regenerate `geoGroup` / `testChannel`, then push.
+> - **design-input changes** (locationSetting / geo size / salesChannel / metric / primaryMetric / country / geoLevel) or **cell / scope restructure** → re-run **scan → prepare → design → analyze in this session** (seed prepare with the draft's current config, plus `liftTestGroupId` = the draft's id and its start as `startTime` — the customer-local date, not the first 10 chars of the stored UTC time) to regenerate `geoGroup` / `testChannel`, then push.
 >
 > So the Source column tells you **which tool to (re-)invoke when an edit forces a field to change**; for everything left unchanged, the source is the existing draft from lift-test-get. Which edits fall in which bucket → `references/sop-detail.md` Step 7 categories.
 >
@@ -34,7 +34,7 @@ The `lift_test_group` body and where every field comes from. `lift-test-create` 
 |`testEndTime`|derived|given `testEndTime` (→UTC), else computed by the tool like the UI: `testStartTime + test_length + cooling_length − 1` days (start day = day 1; `cooling_length` read from `geoGroup`, default 7; customer-local dates). On update, `lift-test-create-or-update` recomputes it when the start / `test_length` / `cooling_length` changes — omit it unless the user names a specific end date|
 |`geoGroup`|**analyze**|chosen design's `geo_group` (see below); design ids from design-result|
 |`testChannel`|prepare + analyze + derived|one inner array per cell — see the per-cell table below|
-|`locationSetting`|prepare|`{ locationType, locations:[{value,label}] }` — user geo + concurrent + account-geo, already merged; default `exclude/[]`|
+|`locationSetting`|prepare|`{ locationType, locations:[{value,label}] }` — the user's own include / exclude only (binds the treatment side); concurrent and account-geo exclusions are not merged in (they live in the design request's `treatmentExclusion` / `controlExclusion`); default `exclude/[]`|
 |`dmaExclusion`|const|`[]`|
 |`geoSizeValue`|derived|GEO_SIZE enum index derived from holdout_pct (**also set inside extraInfo, same value**)|
 |`metricFilters`|user/config|default `[]`|

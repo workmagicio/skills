@@ -62,7 +62,7 @@ Spelling tolerance: "Goggle Ads", "Snapcaht" → silently corrected; surface the
 |"exclude Texas, Florida, Arizona"|locationSetting = exclude + [TX, FL, AZ]|
 |"only run in California"|locationSetting = include + [CA]|
 |A geo not in the geo reference|Error out, list closest candidates|
-|Anything about which geos get paused vs. excluded entirely|→ references/constraints.md|
+|Anything about which geos get paused / excluded|→ references/constraints.md (a per-test include / exclude binds the treatment side only)|
 
 ## Constraint detection
 

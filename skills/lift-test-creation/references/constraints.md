@@ -68,33 +68,34 @@ Parsing lives in references/input-parsing.md. Behavior in design:
 
 ## Geo constraints
 
-Users talk about geos in two registers, and they map to different things:
+Users talk about geos in several ways — "exclude Texas", "only run in the Midwest", "don't pause New York", "I want LA in the holdout". They all land on **one mechanism**: the test's locationSetting include / exclude, which binds the **treatment side only** (PTM: Holdout group; LTM: Exposed group).
 
-|User means|Maps to|Example phrasing|
-|---|---|---|
-|Where the test may operate at all|locationSetting include / exclude (the candidate pool)|"only run this in the US Midwest", "exclude Canada"|
-|What goes on the treatment side|Treatment-side composition (PTM: Holdout group; LTM: Exposed group)|"don't pause New York", "I want LA in the holdout"|
+|User says|Maps to|
+|---|---|
+|"exclude X", "avoid X", "don't pause / don't touch X"|locationSetting exclude — X never goes on the treatment side|
+|"only run in Y", "only pause in Y"|locationSetting include — the treatment side is chosen only from Y|
 
-**Never collapse the two.** "Don't touch New York" almost always means *don't put it on the treatment side* — but it can mean *exclude it entirely*. When the phrasing is "don't touch / leave alone / keep running", clarify once:
+The reference group is drawn from geos where ads keep running as usual, so an excluded geo may still show up there — that's harmless, nothing changes in it. There is **no per-test way to remove a geo from the test entirely**, so don't ask "out of the test entirely, or just out of the holdout?" — both answers produce the same design. Confirm in one line instead:
 
-> "Do you want New York kept out of the test entirely, or just kept out of the holdout group so ads keep running there?"
+> "I'll keep New York out of the group where ads change — they keep running there as usual." (Name it by method once known: PTM → holdout group, LTM → exposed group.)
 
-Users don't manage the reference group directly — it's the matched set the design pairs against. Don't invite requests about it, and don't offer reference-side controls that aren't there.
+Users don't manage the reference group directly — it's the matched set the design pairs against. Don't invite requests about it, and don't offer reference-side controls that aren't there. If the user explicitly needs a geo kept out of the comparison too (e.g. "NY has a promo running, don't compare against it"), say plainly that a per-test setting can't do that; the only control that binds both groups is the account-level **Restricted locations** (Lift Test list page → Geo limitation settings), and it applies to every test in the account.
 
 ### Exclusion mechanics
 
-- The candidate pool is bounded by the **account's own geo exclusions**, which lift-test-design-prepare applies — a user constraint can narrow the pool, never widen it past what the account is configured to measure. If the design comes back having dropped a geo the user named, attribute it to the account setting rather than letting it disappear quietly.
-- Exclusions shrink the candidate pool for **both** sides. A long exclusion list is the most common cause of a no-solve at Step 5.
-- Excluding a high-volume geo (a top-5 DMA) disproportionately raises the feasibility threshold — surface that when it happens: "Excluding New York and LA takes ~18% of your orders out of the pool, which pushes the threshold up."
-- Inclusion lists ("only run in California") are exclusions of everything else. Treat a narrow include list as a likely no-solve risk and say so *before* design if the named pool is very small.
+- The candidate pool is bounded by the **account-level geo limitation** (Allowed / Restricted locations), which binds **both** groups and is applied by lift-test-design-prepare — a user constraint can narrow the pool, never widen it past what the account is configured to measure. If the design comes back having dropped a geo the user named, attribute it to the account setting rather than letting it disappear quietly.
+- A user include / exclude shrinks the **treatment** candidate pool only. A long exclusion list is still the most common cause of a no-solve at Step 5.
+- Excluding a high-volume geo (a top-5 DMA) from the treatment side disproportionately raises the feasibility threshold — surface that when it happens: "Keeping New York and LA out of the holdout takes ~18% of your orders out of the treatment pool, which pushes the threshold up."
+- An include list ("only run in California") limits the treatment side to those geos; the reference group may still come from elsewhere. Treat a narrow include list as a likely no-solve risk and say so *before* design if the named pool is very small.
 
 ### Validation after design
 
 Every geo constraint gets checked against the returned design before moving on:
 
-1. Every excluded geo absent from both sides ✓
-2. Every geo the user asked to keep out of the treatment side actually out of it ✓
-3. Treatment side within the stated geo-size cap ✓
+1. Every geo the user excluded (or asked to keep off the treatment side) absent from the treatment side ✓
+2. With an include list, every treatment geo inside it ✓
+3. Every account-restricted geo (and anything outside the account's Allowed list) absent from both sides ✓
+4. Treatment side within the stated geo-size cap ✓
 
 A violation is **never** presented as a success. Report it as a solve-loop gap: "The design couldn't keep Texas out of the holdout and still clear the threshold — here's the trade-off."
 
@@ -115,7 +116,15 @@ Keeping a new test from colliding with tests the tenant already has.
 
 ### Default behavior (no constraint stated)
 
-lift-test-design-prepare auto-excludes the union of the **treatment + reference geos** of every test in **scheduled** or **active** state (same country + **same geo level only**: a DMA-level running test is not excluded from a state-level design, nor the reverse — when scan lists one at another level, say so and offer manual exclusion or a later start) and reports them in `concurrentTestInfo` / `autoExcludedGeoCodes`; lift-test-scan's `runningTests` lists those tests for awareness. Mention it in the Step 4 summary in one line — the user should know their pool was reduced, without being asked to manage it:
+lift-test-design-prepare keeps this test clear of every test in **scheduled**, **executing** or **active** state (same country), **per group** — the rule platform-api computes and the launch-time check enforces:
+
+- A geo held by another test's **treatment** group (holdout / exposed) is kept out of **both** groups of this test.
+- A geo held only by another test's **reference** group is kept out of this test's **treatment** group only — two reference groups may overlap.
+- Only what is still occupied on this test's start counts: pass `startTime` once the user states a start date; omitted → today (the safe default). Other tests release their geos in batches as they end, so a later start keeps more geo.
+- A DMA-level design also counts state-level tests (their states converted to DMAs); a state-level design does not count DMA-level tests — when scan lists one, say so and offer a start after its end date.
+- The test's own sibling cells (re-designing an existing multi-cell test → pass `liftTestGroupId`) never count.
+
+prepare reports the result in `geoConstraints.occupancy` (`concurrentTestCount`, `rangeEndTime`, `geoCodes`, `treatmentGeoCodes`, `releaseTimeline`); lift-test-scan's `runningTests` lists those tests for awareness. If `geoConstraints` comes back `null`, platform-api was unreachable: the design ran **without the concurrent exclusion and without the account geo limitation** (`geoExclusion` is `null` too, which here does not mean "no limitation") — say both in the Step 4 rows (prepare's summary carries the warning) and offer to retry prepare. lift-test-create's check only runs when a start date is set and platform-api is reachable; the launch-time check always enforces the rule. Mention it in the Step 4 summary in one line — the user should know their pool was reduced, without being asked to manage it:
 
 > "Steering clear of the geos in your Google test that runs through Apr 18."
 
@@ -130,13 +139,17 @@ lift-test-design-prepare auto-excludes the union of the **treatment + reference 
 |"that draft is dead / not going to run — ignore it"|Remove it from the exclusion set. Say what that gives back: "That frees up 11 DMAs including Chicago."|
 |"it's fine to overlap"|Only in the two forms below — never unconditionally|
 |"don't start until the other one finishes"|Records a start date. Since the skill doesn't ask for one, put it in the draft handoff note; if the user states the date outright, honor it.|
-|Names a test that doesn't exist|List their scheduled / active tests and ask which one|
+|Names a test that doesn't exist|List their scheduled / executing / active tests and ask which one|
 
-### The one permitted form of overlap
+### What overlap is allowed
 
-Simultaneous overlap is never allowed — two live tests sharing geos in the same window contaminate both readouts. There is exactly one way to reuse another test's geos:
+Two tests conflict only when their **time windows overlap** (start → end, including cooling) **and** a group-level clash exists — this test's treatment group touches either group of the other test, or this test's reference group touches the other test's treatment group. So:
 
-**Full overlap, sequenced** — any geo may be reused, **provided this test starts after the other test's end date**. Mechanism: re-call prepare with `restrictStartDate: true` (skips the auto-exclusion) and a start date after `concurrentTestInfo.rangeEndTime`. This releases **every** concurrent test's geos at once, so the start must clear the latest end date; to reuse only one test's geos, keep the others out by passing their geos (lift-test-get) as locationSetting excludes. That records a start date on the draft (the one case where the skill sets one without being asked for it), so say the date and why it's there.
+- **Reference × reference overlap is allowed** at any time; prepare already lets it through — nothing to offer or ask.
+- **Simultaneous overlap involving a treatment group is never allowed** — it contaminates both readouts.
+- **Sequenced reuse** — any geo may be reused once the test holding it has ended. Mechanism: re-call prepare with `startTime` after that test's end date (`geoConstraints.occupancy.releaseTimeline` gives each batch's release date; `rangeEndTime` is when everything is released). Only geos still occupied on that date stay excluded, so starting after one test ends frees that test's geos while still keeping clear of the ones running longer. That records a start date on the draft (the one case where the skill sets one without being asked for it), so say the date and why it's there.
+
+lift-test-create re-runs the same conflict check before saving. If it returns `geoConflict`, relay its message (conflicting tests, shared geos) and offer starting after its `conflictEndTime`, or re-running prepare with that start and regenerating the design.
 
 If the user asks to overlap while the other test is still running, say what it costs and offer the sequenced form instead:
 
