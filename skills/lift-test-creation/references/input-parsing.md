@@ -43,6 +43,7 @@ Spelling tolerance: "Goggle Ads", "Snapcaht" → silently corrected; surface the
 |User says|Parse as|
 |---|---|
 |"starts June 1"|testStartTime = June 1 (validate: not in the past)|
+|A date without a year ("May 1", "6/15")|Current year (customer-local). If that lands in the past, it is a past date — handle it as the row below; never roll it to next year silently. Echo the full date (YYYY-MM-DD) back in Step 4|
 |"finish before July 15" / "ends by July 15"|**Deadline** — back-solve, leaving room for design-computed test period + cooling period|
 |"run for 4 weeks" / "4-week test"|testPeriod target = 28 days|
 |"as fast as possible"|Shortest viable test period (14d); flag the higher daily-budget requirement|
