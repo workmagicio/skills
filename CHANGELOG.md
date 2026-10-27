@@ -112,6 +112,16 @@ its `SKILL.md` frontmatter (`version:` / `last-updated:`).
   **未改**：「只给 cell 数」入口原样保留——当前 prepare 要求每个 cell 至少带一个平台，这条入口暂时跑不通，待 MCP 支持后再议。
   **上线顺序**：必须在 platform-mcp 的 testChannel 按 cell 分组改动部署之后再发布本条。
 
+## 2026-09-30
+
+### Changed
+
+- **`lift-test-creation` 回退到 1.1.0（2026-09-23 版）。** 2026-09-29 经
+  [#44](https://github.com/workmagicio/skills/pull/44) 上线的 v2.1.0 重写（双入口 + 约束求解 +
+  auto-solve）整体撤回，10 个文件逐字节还原到 #44 合入前的 `84a8241`。v2 内容仍保留在
+  `feature-lift-test-creation` 分支与 platform-mcp 的 `doc/skills/lift-test-creation-v2.md`，
+  修订后再重新合入。采用正向还原而非改写 master 历史，#43 不受影响。
+
 ## 2026-09-28
 
 ### Changed
