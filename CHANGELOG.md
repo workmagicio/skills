@@ -21,6 +21,7 @@ its `SKILL.md` frontmatter (`version:` / `last-updated:`).
   - 重新出已有草稿的方案时，prepare 传 `liftTestGroupId` 和草稿开始日（客户本地日期）。
   - 未填开始日期时草稿仍不填，但 `lift-test-create` 的冲突检查按保守口径（今天开始、结束无界）执行；出现 `geoConflict` 时建议定一个 `conflictEndTime` 之后的开始日或重新出方案。
   - 不带年份的日期（如「5 月 1 日」）默认今年；落在过去就按过去日期处理，不自动顺延到明年。
+  - 保存方案时把它对应的 prepare `startTime` 作为 `restrictStartTime` 传给 `lift-test-create` / `lift-test-create-or-update`（新方案），存进草稿 `extraInfo`，换 session 后可读回；重出已有实验时从 `extraInfo.restrictStartTime` 读出作为 `startTime`；开始日早于它会被拒绝，需按新日期重出方案。
   **上线顺序**：须与 platform-api `geoConstraints` / `concurrentConflictCheck` 接口、platform-mcp 同名分支（workmagicio/platform-mcp#447）一起发布；单独先发会让模型调用尚不存在的参数。
 
 ## 2026-10-27（2.3.0）
