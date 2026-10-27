@@ -27,7 +27,9 @@ Always a table, always with the treatment geos listed by name and a numeric thre
 |Holdout / Exposed group names|`geo_group.control[i].name`|
 |Reference group size (the line under the table)|the length of `geo_group.test.code`, and `geo_group.test.orders` as a %|
 
-Never put a name from `geo_group.test` in the Holdout / Exposed row. Before sending, check that the count you print equals the number of names you list and that both come from `control[i]` — a count and a % from different sides is the sign of a swap (it happened on 2026-10-27: the design table listed the Reference group as the Holdout group).
+Never put a name from `geo_group.test` in the Holdout / Exposed row. Before sending, check that the count you print equals the length of `control[i].name` — the names you list plus any "+ N more" — and that the count, the names and the % all come from `control[i]` / `cell_order_share_pct[i]`. A count and a % from different sides is the sign of a swap (it happened on 2026-10-27: the design table listed the Reference group as the Holdout group).
+
+**Separate geo names with " · "**, not commas — DMA names carry commas of their own ("CHARLESTON, SC", "JACKSON, TN"), so a comma list can't be counted.
 
 ### 2-cell
 
