@@ -4,6 +4,49 @@ All notable changes to the WorkMagic public skills are recorded here. This repo 
 [Agent Skills open standard](https://agentskills.io); each skill is independently versioned in
 its `SKILL.md` frontmatter (`version:` / `last-updated:`).
 
+
+## 2026-10-28（2.4.0）
+
+### Added
+
+- **`lift-test-creation` 2.4.0：每轮用 `conversation-log` 记录一组问答，可按 `conversation_id` 还原一次意图的完整过程。**
+  配合 platform-mcp 新工具 `conversation-log`（通用，所有 skill 可用；调用本身即记录，落 `platform.audit_event`，不建新表）
+  和全部工具上注入的可选参数 `conversation_id`。
+  - SKILL.md 新增 §5.4：一个 `conversation_id` = 一个意图（做出一个 draft，含对它的修改、design deck 和后续追问），由 agent 自定
+    （`ltc-YYYYMMDD-xxxxxx`），每轮按表判断 `new` / `continue` / `related`；新窗口里说"继续 draft 3301"也是 `new` + `related_draft_id`；
+    与创建 lift test 无关的轮次不记。
+  - 每轮一次，作为最后一个工具调用、紧挨回复之前：本轮用户原话 + 即将发出的回复（发出时不改）。
+    每条记录就是一组完整问答；切换意图、用户中途离开都不会漏。
+  - 结束或暂停意图的那一轮带 `outcome`：同一轮既建 / 改 draft 又建 deck 时取 draft 那个；只是重发已有 deck 链接不带；"下周再说"是 `paused`（之后同窗口回来沿用原 id），明确不做了才是 `stopped_by_user`。`draft_id` 只在本轮建了 / 改了 draft 时带。
+  - 凡是指向本窗口某个 draft 的问题（含"怎么分享给 CFO"这类用法问题）都按 `continue` 记。
+  - 其它 platform-MCP 工具调用都带同一个 `conversation_id`；§6 工具表加 `conversation-log`。
+  **上线顺序**：须在 platform-mcp 的 `conversation-log`（workmagicio/platform-mcp `feature-conversation-log`）发布后或同时发；
+  工具不存在时按 §5.4 的失败规则（重试一次后跳过）不影响建测试。
+
+## 2026-10-28（2.3.3）
+
+### Changed
+
+- **`lift-test-creation` 2.3.3：把「Holdout/Exposed 地区取自 treated 侧」提成全局硬规则,并改掉失效的自查。**
+  2.3.2 的 `display_groups` 修好了 Step 5 表格那条路,但离线自测里 2/4 次搞反发生在**表格之外的散文**(补充说明、最终总结)——规则只在 output-templates(模型没读)里,SKILL 正文只有一句。
+  - SKILL.md 新增 **§9 CRITICAL 规则 10**(并 §7 同步):任何地方提到 Holdout/Exposed 地区——设计表、draft 总结、DS 交接摘要、solve-loop 说明、补充文字——一律取 `display_groups.treated[i]`(回退 `geo_group.control[i]`);`geo_group.test` 是 Reference,永不列成员名,永不出现在 treatment 行;不确定就不列名字。
+  - output-templates.md 回退自查:从「数量和占比来自不同侧」弱启发式(两侧大小接近时查不出,如 3 vs 3 DMA、17.8% vs 17.6%)改为**直接核对 Holdout/Exposed 名单 == `geo_group.control[i].name`**;用 `display_groups` 时无需自查。
+  纯文案,不改工具调用。(CPA 的 `database-query-ask` 前置经实测确认非必需——`ctx` 必填但不校验,编造时间戳不会被拒,故未改。)
+
+## 2026-10-28（2.3.2）
+
+### Changed
+
+- **`lift-test-creation` 2.3.2：Step 5 的实验组改为优先读 `display_groups`,不再手动在 `geo_group` 的 test/control 间导航。**
+  配合 platform-mcp：`lift-test-design-analyze` 和 `lift-test-get` 现在在每个 design 上返回只读的 `display_groups`
+  （`treated[i]` = 已按方法贴好 label 的 Holdout/Exposed 组,带 geo_names / geo_count / order_share_pct;
+  `reference` = 只给 count 和 order_share,不含成员名）。
+  - output-templates.md Step 5 取数表改为「优先 `display_groups`,无该字段时回退 `geo_group.control[i]` / `geo_group.test`」;
+    因 `display_groups.treated[i]` 是单个对象,占比/个数/名单不可能跨侧拆分,原「发送前核对两侧」的防呆简化为仅回退路径适用。
+  - SKILL.md §7 设计表要求同步:优先 `display_groups`,回退 `control[i]`,treatment 行永不取 `geo_group.test`。
+  背景:字面 `test`/`control` 与实验角色相反,模型读原始 JSON 常把 Reference 列成 Holdout(离线 A/B:列错 reference 5→0 次)。
+  **上线顺序**:须在 platform-mcp 的 `display_groups`(workmagicio/platform-mcp `feature-lift-test-analyze-display-groups`)发布后或同时发;回退路径保证 MCP 未发时也不出错。
+
 ## 2026-10-27（2.3.1）
 
 ### Changed
@@ -155,6 +198,16 @@ its `SKILL.md` frontmatter (`version:` / `last-updated:`).
   Amazon Ads 不支持；没有可选目标的平台以 `[]` 存为 skip for now。
   **未改**：「只给 cell 数」入口原样保留——当前 prepare 要求每个 cell 至少带一个平台，这条入口暂时跑不通，待 MCP 支持后再议。
   **上线顺序**：必须在 platform-mcp 的 testChannel 按 cell 分组改动部署之后再发布本条。
+
+## 2026-09-30
+
+### Changed
+
+- **`lift-test-creation` 回退到 1.1.0（2026-09-23 版）。** 2026-09-29 经
+  [#44](https://github.com/workmagicio/skills/pull/44) 上线的 v2.1.0 重写（双入口 + 约束求解 +
+  auto-solve）整体撤回，10 个文件逐字节还原到 #44 合入前的 `84a8241`。v2 内容仍保留在
+  `feature-lift-test-creation` 分支与 platform-mcp 的 `doc/skills/lift-test-creation-v2.md`，
+  修订后再重新合入。采用正向还原而非改写 master 历史，#43 不受影响。
 
 ## 2026-09-28
 

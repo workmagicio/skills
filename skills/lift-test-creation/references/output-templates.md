@@ -18,16 +18,16 @@ Always a table, always with the treatment geos listed by name and a numeric thre
 
 **Required rows**: test period · geo size (both the % of orders **and** the geo count) · the treatment geos **by name** · feasibility threshold **as a specific number** · the spend it's being compared against.
 
-**Where each geo fact comes from — read the field, never the word.** In analyze's `geo_group`, `control` is the **treated** side and `test` is the **Reference group** (references/create-update-params.md, "Side naming"). So, for cell *i*:
+**Where each geo fact comes from — prefer `display_groups`.** analyze and lift-test-get return a ready-made, correctly-labeled `display_groups` on each design; read from it and you never touch the inverted `geo_group` naming. For cell *i*:
 
-|Row|Source|
-|---|---|
-|Geo size — % of orders|`cell_order_share_pct[i]`, verbatim|
-|Geo size — geo count|the length of `geo_group.control[i].code`|
-|Holdout / Exposed group names|`geo_group.control[i].name`|
-|Reference group size (the line under the table)|the length of `geo_group.test.code`, and `geo_group.test.orders` as a %|
+|Row|Source (preferred)|Fallback — no `display_groups`|
+|---|---|---|
+|Geo size — % of orders|`display_groups.treated[i].order_share_pct`|`cell_order_share_pct[i]`|
+|Geo size — geo count|`display_groups.treated[i].geo_count`|length of `geo_group.control[i].code`|
+|Holdout / Exposed group names|`display_groups.treated[i].geo_names`|`geo_group.control[i].name`|
+|Reference group size (the line under the table)|`display_groups.reference.geo_count` + `.order_share_pct`|length of `geo_group.test.code`, and `geo_group.test.orders` as a %|
 
-Never put a name from `geo_group.test` in the Holdout / Exposed row. Before sending, check that the count you print equals the length of `control[i].name` — the names you list plus any "+ N more" — and that the count, the names and the % all come from `control[i]` / `cell_order_share_pct[i]`. A count and a % from different sides is the sign of a swap (it happened on 2026-10-27: the design table listed the Reference group as the Holdout group).
+`display_groups.treated[i]` already carries the method-correct label ("Holdout group" for PTM, "Exposed group" for LTM); its count, names and % are one object and can't be split across sides, so no self-check is needed on this path. **Fallback only** (older drafts / missing field): `control` is the **treated** side and `test` is the **Reference group** (references/create-update-params.md, "Side naming") — the names are inverted. Before sending, verify the Holdout / Exposed names you print are exactly `geo_group.control[i].name` (the names you list, plus any "+ N more") — a direct name check, **not** a "count and % come from different sides" heuristic, which misses a swap whenever the two sides are close in size (3 vs 3 DMAs, 17.8% vs 17.6%, as on 2026-10-27, when the Reference group was listed as the Holdout group). Never put a `geo_group.test` geo in the Holdout / Exposed row.
 
 **Separate geo names with " · "**, not commas — DMA names carry commas of their own ("CHARLESTON, SC", "JACKSON, TN"), so a comma list can't be counted.
 
