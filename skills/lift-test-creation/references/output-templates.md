@@ -27,7 +27,9 @@ Always a table, always with the treatment geos listed by name and a numeric thre
 |Holdout / Exposed group names|`display_groups.treated[i].geo_names`|`geo_group.control[i].name`|
 |Reference group size (the line under the table)|`display_groups.reference.geo_count` + `.order_share_pct`|length of `geo_group.test.code`, and `geo_group.test.orders` as a %|
 
-`display_groups.treated[i]` already carries the method-correct label ("Holdout group" for PTM, "Exposed group" for LTM); its count, names and % are one object and can't be split across sides, so no self-check is needed on this path. **Fallback only** (older drafts / missing field): `control` is the **treated** side and `test` is the **Reference group** (references/create-update-params.md, "Side naming") — the names are inverted. Before sending, verify the Holdout / Exposed names you print are exactly `geo_group.control[i].name` (the names you list, plus any "+ N more") — a direct name check, **not** a "count and % come from different sides" heuristic, which misses a swap whenever the two sides are close in size (3 vs 3 DMAs, 17.8% vs 17.6%, as on 2026-10-27, when the Reference group was listed as the Holdout group). Never put a `geo_group.test` geo in the Holdout / Exposed row.
+`display_groups.treated[i]` already carries the method-correct label ("Holdout group" for PTM, "Exposed group" for LTM); its count, names and % are one object and can't be split across sides. **Fallback only** (older drafts / missing field): `control` is the **treated** side and `test` is the **Reference group** (references/create-update-params.md, "Side naming") — the names are inverted. Before sending, verify the Holdout / Exposed names you print are exactly `geo_group.control[i].name` (the names you list, plus any "+ N more") — a direct name check, **not** a "count and % come from different sides" heuristic, which misses a swap whenever the two sides are close in size (3 vs 3 DMAs, 17.8% vs 17.6%, as on 2026-10-27, when the Reference group was listed as the Holdout group). Never put a `geo_group.test` geo in the Holdout / Exposed row.
+
+**Name check — both paths, the whole reply.** Before sending, take every geo you name as Holdout / Exposed anywhere in the reply — the table, the line under it, a supplementary note, a solve-loop round, a DS-handoff summary — and confirm each one is in `display_groups.treated[i].geo_names` for that cell (fallback `geo_group.control[i].name`). `display_groups` keeps the table right, but prose written outside it can still pull from `geo_group.test`; that is where the 2026-10-28 offline runs swapped sides. A name that isn't in the list comes out — don't replace it with a guess.
 
 **Separate geo names with " · "**, not commas — DMA names carry commas of their own ("CHARLESTON, SC", "JACKSON, TN"), so a comma list can't be counted.
 
@@ -69,7 +71,7 @@ The same shape extends to 4- and 5-cell tests: one column per cell, shared facts
 
 ### Rules for both
 
-**Label the geo row by method** — "Holdout group" for PTM, "Exposed group" for LTM. The reference group is a matched set the design chooses — not the rest of the country: give its size (geo count and % of orders, from `geo_group.test`), never its member list.
+**Label the geo row by method** — "Holdout group" for PTM, "Exposed group" for LTM. The reference group is a matched set the design chooses — not the rest of the country: give its size (geo count and % of orders, from `display_groups.reference`; fallback `geo_group.test`), never its member list.
 
 **Long geo lists**: at postcode level the list can run to hundreds. Show the top 10 by order volume and "+ N more", and note the full list is on the draft.
 

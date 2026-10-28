@@ -129,6 +129,9 @@ don't read a floor threshold as "the real need is below $200".
 ## CPA — one unified query (same basis the UI and analyze use)
 
 Resolve CPA per platform and pass it to `lift-test-design-analyze` via `platformSpend[].cpa`.
+
+**Before the first `database-query-run`, call `database-query-ask` once** (e.g. "per-platform 30-day CPA on the attr_all_orders basis for tenant <tid>"), then pass the time of that ask call (ISO 8601) as run's required `ctx`. The tool contract asks for it; the SQL below stays as written — the ask answer doesn't change it. One ask covers every CPA query of the run.
+
 Priority: `database-query-run` → ask the user → stop. A CPA that fails the plausibility check (below $10 per conversion, or `threshold_at_floor` with a CPA — output-templates.md, Step 5) is confirmed with the user **before** the search starts; never search on an unconfirmed flagged CPA. Resolve it **up front** so the one CPA is
 explicit, user-overridable, and stays identical across every probe. Analyze's auto-CPA (when
 `platformSpend[].cpa` is omitted) now uses the **same basis as the UI** — 30-day, grain-aware,

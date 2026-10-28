@@ -5,6 +5,19 @@ All notable changes to the WorkMagic public skills are recorded here. This repo 
 its `SKILL.md` frontmatter (`version:` / `last-updated:`).
 
 
+## 2026-10-28（2.4.1）
+
+### Changed
+
+- **`lift-test-creation` 2.4.1：Holdout/Exposed 名单自查扩到整条回复、两条取数路径都做；补齐剩余几处仍只写 `geo_group` 的地方；CPA 查询前先 ask。**
+  2.3.2 / 2.3.3 已让 Step 5 表格优先读 `display_groups`、把侧别规则提成 §9 规则 10；本版收尾 Amy 10/28 离线复测的建议：
+  - output-templates.md Step 5：原来「走 `display_groups` 时无需自查」改为**两条路径都做名字核对，并覆盖整条回复**——表格、表下一行、补充说明、solve-loop、DS 交接里出现的每个 Holdout/Exposed 地区名，都必须在 `display_groups.treated[i].geo_names`（回退 `geo_group.control[i].name`）里；不在就删掉，不猜。原因：`display_groups` 只保证表格，表外散文仍可能从 `geo_group.test` 取名。
+  - SKILL.md §7 与 §9 规则 10 同步加上这条发送前名字核对。
+  - output-templates.md「Rules for both」：Reference 组大小原写「from `geo_group.test`」→ 改为优先 `display_groups.reference`，回退 `geo_group.test`（与 Step 5 取数表一致）。
+  - failure-modes.md：「把 `geo_group.test` 列成 Holdout/Exposed」一条，treated 来源补上 `display_groups.treated[i].geo_names` 并注明表外同样适用。
+  - auto-solve.md CPA 一节 + SKILL.md §6 工具表：第一次 `database-query-run` 前先调一次 `database-query-ask`，用该次调用时间（ISO 8601）填 run 必填的 `ctx`；SQL 不变。§5.4 的 `conversation_id` 工具清单同步加上 ask。
+  纯文案，不改工具。
+
 ## 2026-10-28（2.4.0）
 
 ### Added
