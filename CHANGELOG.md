@@ -5,6 +5,24 @@ All notable changes to the WorkMagic public skills are recorded here. This repo 
 its `SKILL.md` frontmatter (`version:` / `last-updated:`).
 
 
+## 2026-10-28（2.4.0）
+
+### Added
+
+- **`lift-test-creation` 2.4.0：每轮用 `conversation-log` 记录一组问答，可按 `conversation_id` 还原一次意图的完整过程。**
+  配合 platform-mcp 新工具 `conversation-log`（通用，所有 skill 可用；调用本身即记录，落 `platform.audit_event`，不建新表）
+  和全部工具上注入的可选参数 `conversation_id`。
+  - SKILL.md 新增 §5.4：一个 `conversation_id` = 一个意图（做出一个 draft，含对它的修改、design deck 和后续追问），由 agent 自定
+    （`ltc-YYYYMMDD-xxxxxx`），每轮按表判断 `new` / `continue` / `related`；新窗口里说"继续 draft 3301"也是 `new` + `related_draft_id`；
+    与创建 lift test 无关的轮次不记。
+  - 每轮一次，作为最后一个工具调用、紧挨回复之前：本轮用户原话 + 即将发出的回复（发出时不改）。
+    每条记录就是一组完整问答；切换意图、用户中途离开都不会漏。
+  - 结束或暂停意图的那一轮带 `outcome`：同一轮既建 / 改 draft 又建 deck 时取 draft 那个；只是重发已有 deck 链接不带；"下周再说"是 `paused`（之后同窗口回来沿用原 id），明确不做了才是 `stopped_by_user`。`draft_id` 只在本轮建了 / 改了 draft 时带。
+  - 凡是指向本窗口某个 draft 的问题（含"怎么分享给 CFO"这类用法问题）都按 `continue` 记。
+  - 其它 platform-MCP 工具调用都带同一个 `conversation_id`；§6 工具表加 `conversation-log`。
+  **上线顺序**：须在 platform-mcp 的 `conversation-log`（workmagicio/platform-mcp `feature-conversation-log`）发布后或同时发；
+  工具不存在时按 §5.4 的失败规则（重试一次后跳过）不影响建测试。
+
 ## 2026-10-28（2.3.3）
 
 ### Changed
