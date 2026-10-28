@@ -4,6 +4,159 @@ All notable changes to the WorkMagic public skills are recorded here. This repo 
 [Agent Skills open standard](https://agentskills.io); each skill is independently versioned in
 its `SKILL.md` frontmatter (`version:` / `last-updated:`).
 
+
+## 2026-10-27（2.3.1）
+
+### Changed
+
+- **`lift-test-creation` 2.3.1：并发实验 geo 规则改为按组判定 + 时间窗口，地区约束统一由 platform-api 计算。**
+  对齐 platform-mcp `lift-test-design-prepare` / `lift-test-create` 的新行为：
+  - 其他实验**改动组**占用的 geo：本实验两组都避开；只被其他实验**对照组**占用的 geo：只避开本实验改动组（两边对照组重叠允许，不再当作冲突）。
+  - 只算本实验开始日（prepare 的 `startTime`，不传取今天）仍被 scheduled / executing / active 实验占用的 geo；DMA 实验同时计入 state 级实验（换算成 DMA）。
+  - 去掉 `restrictStartDate`：错峰复用改为用更晚的 `startTime` 重新调 prepare，只释放到那天已结束实验的 geo。
+  - prepare 输出由 `concurrentTestInfo` / `autoExcludedGeoCodes` 改为 `geoConstraints.occupancy`；重新出已有实验的方案时传 `liftTestGroupId`。
+  - 实验级 include / exclude 只约束改动组（holdout / exposed），不再追问「整个实验都排除还是只是不放进 holdout」；账户级 Allowed / Restricted 约束两组。设计后的校验按此调整。
+  - `lift-test-create` 返回 `geoConflict` 时，转述冲突实验与共享 geo，建议在 `conflictEndTime` 之后开始或用该日期重新 prepare。
+  - 开始日与在跑实验重叠时不再由模型自己判断重叠：设计前作为 `startTime` 传给 prepare，设计后直接带给 `lift-test-create`；`geoConflict` 表示未保存，`conflictEndTime` 为空时只能保留日期并重新设计。
+  - `geoConstraints` 为 `null`（platform-api 不可达）时，并发排除和账户级限制都没生效，Step 4 两行都要说明并建议重试；Step 4 账户行改用 prepare 返回的 `geoExclusion`（按设计粒度）。
+  - 重新出已有草稿的方案时，prepare 传 `liftTestGroupId` 和草稿开始日（客户本地日期）。
+  - 未填开始日期时草稿仍不填，但 `lift-test-create` 的冲突检查按保守口径（今天开始、结束无界）执行；出现 `geoConflict` 时建议定一个 `conflictEndTime` 之后的开始日或重新出方案。
+  - 不带年份的日期（如「5 月 1 日」）默认今年；落在过去就按过去日期处理，不自动顺延到明年。
+  - 保存方案时把它对应的 prepare `startTime` 作为 `restrictStartTime` 传给 `lift-test-create` / `lift-test-create-or-update`（新方案），存进草稿 `extraInfo`，换 session 后可读回；重出已有实验时从 `extraInfo.restrictStartTime` 读出作为 `startTime`；开始日早于它会被拒绝，需按新日期重出方案。
+  **上线顺序**：须与 platform-api `geoConstraints` / `concurrentConflictCheck` 接口、platform-mcp 同名分支（workmagicio/platform-mcp#447）一起发布；单独先发会让模型调用尚不存在的参数。
+
+## 2026-10-27（2.3.0）
+
+### Changed
+
+- **`lift-test-creation` 2.3.0：设计做不出来时转 Data Science 改为建 CS 任务 + Lark 群（需用户确认）。**
+  solve loop 第 3 轮仍无可行设计、或 auto-solve 在边界上也无解且用户不要手动杠杆时：先给转交总结，再展示 CS 任务预览
+  （标题 / 负责团队 Data Science / 优先级（默认 P0）/ 账户 / 描述 / 拉群成员），结束本轮；用户明确同意后才调 platform-mcp 的
+  `cs-task-create`（`category: "Lift Test"`），只调一次，按返回的 `duplicate` / `groupError` 如实转述，群链接只在返回时给。
+  用户拒绝则只留总结、不建任务。**超出 skill 能力范围的需求（创意测试、自定义 / 导入指标、非地域测试、≥6 cell）同样走预览 → 确认 → 建任务**；
+  用户能自己改的产品限制（不支持的国家、过去的开始日期、未就绪的销售渠道）不转交、不建任务。
+  **上线顺序**：须在 cs-support `todos-with-group`、platform-api `/cs-todo/create-with-group`、platform-mcp `cs-task-create`
+  全部部署之后再发布本条。
+- **2.3.0 合入时补充（2026-10-27 端到端测试反馈）**：CS 任务预览的描述一栏放实际提交的描述原文，不再写「见上面的总结」；建完任务后回复里除群链接外，再给 CRM ticket 链接（返回 `taskUrl` 时用它，否则用 `todoId` 拼 `https://crm.workmagic.io/csm-workspace?task=<todoId>`，只在返回了 `todoId` 时给）。rebase 到 2.2.8：保留 2.2.4–2.2.8 的全部改动，Step 7 仍直接接 Step 8 的 design deck。
+
+## 2026-10-27（2.2.8）
+
+### Fixed
+
+- **`lift-test-creation` 2.2.8：design 表的实验组名单写明从哪个字段读，修正 Holdout / Reference 写反。**
+  2026-10-27 端到端测试（Chirp 150968，PTM）里，Step 5 的 design 表把 Reference group 的 12 个 DMA 列成了 Holdout group，真正暂停 Meta 的 16 个 DMA（含 Atlanta、Miami）反而没列出来；占比 5.82% 是对的，所以同一行里的占比和 DMA 个数来自两边。根因：output-templates.md 只要求「实验组按名字列出」，没写读哪个字段，正确的侧别映射只在 create-update-params.md 里。
+  ① output-templates.md Step 5：新增「每行从哪个字段读」表——占比读 `cell_order_share_pct[i]`，个数和名单读 `geo_group.control[i]`，Reference group 只报 `geo_group.test` 的个数和占比；发送前核对个数等于 `control[i].name` 的长度（列出的名字加「+ N more」），个数、名单、占比同出一侧；地区名用「 · 」分隔（DMA 名自带逗号）。
+  ② Reference group 改称「design 选出的匹配地区」，不再写成「剩下的所有 DMA」（output-templates.md 示例与规则、constraints.md、failure-modes.md）；failure-modes.md 新增「把 `geo_group.test` 当实验组」一条。
+  ③ SKILL.md 的 design 表要求补一句侧别提示。只改文案，不改工具调用。
+
+## 2026-10-27（2.2.7）
+
+### Changed
+
+- **`lift-test-creation` 2.2.7：新实验不继承旧设置、Step 4 不许跳；CPA 不合理时先请用户确认。**
+  ① 新增 CRITICAL rule 9：每个新实验都从 Step 1 开始。对话里之前的实验、粘贴的 Slack / Lark 讨论、草稿或设计链接都只是背景；平台、test level、目标、cell 结构、geo size、时长、方法、CPA 只有出现在新的 Step 4 表里并被用户确认，才算数。把一个多 cell 实验拆成几个（如 3-cell 拆成两个并行 2-cell）、合并、按新需求重设计，都算新实验，各自走 Step 3–7。只有用户点名改已有草稿时才走 update。
+  ② Step 4 永不跳过（用户说「没有别的了」、或者旧实验似乎已经给齐信息，都不是跳过的理由）；scope 行按 cell 写出 test level，用户没说 level 就在这里问——prepare 会静默默认 tactic；Default tactic（`tacticNames: ['']`）写成「Default tactic」，不写「(none)」。
+  ③ CPA 合理性检查：设计回来后，任一平台 CPA 低于 $10 / 转化，或 CPA 存在但门槛落在平台最低花费，就在设计确认那句里请用户确认 CPA 或给出自己的 CPA；确认即建草稿，给新 CPA 就重跑 analyze（不重新设计）再确认。不拦截——真实的低 CPA 存在。auto-solve 遇到这种 CPA 先确认再搜索。
+  来源：Amy 10/22（3-cell 拆成两个 2-cell 时沿用了 tactic level、跳过 Step 4）与 10/23（CPA 与门槛）两条反馈；Xiaojun 10/26「200 是兜底，可在此基础上加一层 CPA 合理性判断」。
+
+## 2026-10-26（2.2.6）
+
+### Changed
+
+- **`lift-test-creation` 2.2.6：新建草稿后自动接 design deck，删草稿时把 deck 一起移到 Drive 回收站。**
+  这个 skill 从 2026-10-26 起统一在 Claude（Claude Code / Cowork）里用，deck skill 在那里可用，所以 Step 8 从「用户要了才做」改成流程的一部分：
+  Step 7 建完草稿，同一轮直接按 cell 数调 2-cell-test-design-deck / multicell-design-deck，不再单独问；用户明说「先不要 deck」才跳过。
+  design 确认门的那次 yes 同时覆盖草稿和 deck。更新草稿只在改动影响 deck 内容时重做 deck。
+  通过本 skill 删草稿时，在客户 Lift Test Design 文件夹里按 test id 找到对应 deck，列进删除确认，确认后移到 Drive 回收站（不永久删除）；在产品 UI 里删的草稿本 skill 感知不到。
+  Justin AI 等跑不了本地 skill 的入口：明说 deck 要在 Claude 里做，给草稿链接。
+  **依赖：** 「落到 Drive」由 deck skill 负责；2-cell-test-design-deck 目前写的是「CSM 自己上传、skill 不上传」，在它支持上传之前，这里会给出本地文件和目标文件夹并说明还没上传。
+
+## 2026-10-26（2.2.5）
+
+### Fixed
+
+- **`lift-test-creation` 2.2.5：DS 验收 issue tracker 后剩下的 5 处文案护栏（只改 skill 文本，不改工具调用）。**
+  ① sop-detail.md + constraints.md：写明 prepare 只对**同 geo level** 的并发测试自动排除，跨层级（如 state 级设计遇到 DMA 级 running test）要在 Step 4 明说并给手动排除 / 顺延两条路（tracker #12 的文本兜底，根治在 prepare）。
+  ② sop-detail.md Step 5：新增引擎 `data_gate` 一行——不是 solve loop 能修的失败，常见原因是单 geo 订单占比 > 30%（fit 窗口 121 天），转 DS、不重试（#16）。
+  ③ failure-modes.md：平台拒绝同轮重复 design-result 时只报进度继续轮询，禁止重新提交 design 或改派后台任务（#3）；展示设计时不讲 setup 方式（#5）；不转述 analyze 的「什么时候开始」追问（#7）；门槛落到下限且无 CPA 时回推出的 `expect_cpa` 不得当成本给用户（#24，承接 2.2.2 的下限说明）。
+  2.2.2 / 2.2.3 已覆盖的别名、custom 渠道、solve loop 改周期、Step 8 精简不再重复。
+
+## 2026-10-26（2.2.4）
+
+### Fixed
+
+- **`lift-test-creation` 2.2.4：纠正 `create-update-params.md` 里关于 readout 侧别的说明。** 2.2.1 写的是「readout 结果字段
+  按统计惯例，`test_orders` = 被处理组」，与数据相反：`lift-test-readout` 的 `ctrl_orders` 才是被处理组（Holdout / Exposed group），
+  `test_orders` 是 Reference group，和草稿 `geoGroup` 模型同一套映射。2026-10-26 在三个已完成测试上核实（2795 PTM、2442 PTM、
+  1908 LTM）：`test_orders ÷ ctrl_orders` 等于设计里 Reference 占比 ÷ 被处理组占比，`ctrl_orders` 按天折算等于设计的
+  `shopify_daily_control_orders`。`lift-test-readout` 的 `references/terminology.md` 同步改正（原写「counterfactual / treatment-side」）。
+
+## 2026-10-26（2.2.3）
+
+### Changed
+
+- **`lift-test-creation` 2.2.3：可行性门槛改读 `minimum_daily_budget_required`，不再用 `expected_daily_spend`。**
+  配合 platform-mcp 门槛统一计算（analyze / create / create-or-update 共用一个与前端一致的函数）。门槛 = analyze 每个平台的
+  `estimator.channel[i][j].minimum_daily_budget_required`（设计周期 D = `geo_group.estimator.experiment_days`），其他周期按
+  × √(D/N) 换算，多平台逐个展示、全部达标才算充足；auto-solve 换算基准改用 D（不再写死 21，搜索提交的 21 天不变）。
+  改周期 / 换方法 / 改 CPA 时只改输入，每 cell 派生的 `expect_cpa` / `minimum_daily_budget_required` 由 create-or-update 保存时重算，
+  skill 不再手算或手改；`custom_test_length` 由工具自动对齐。**须在 platform-mcp 该改动部署后发布。**
+  另：Step 8 只保留「何时生成 deck、按 cell 数调哪个 deck skill、回复链接、不把 deck 内容抄回对话」，deck 的页面、数字（含 MDL）、
+  文件结构等细节交给 deck skill 定义，不再在本 skill 重复（原文曾误称 MDL 随测试周期变化，MDL 只取决于设计）。
+  另：solve loop 杠杆表纠正两行「要重新设计」——延长测试周期改为按公式 × √(D/N) 重选（设计引擎没有周期输入）；换方法优先用同一次
+  设计里另一种方法的结果，没有时把当前设计按另一种方法跑：skill 按目标方法公式自算门槛、给用户确认后再建（create / create-or-update 保存时按同一公式重算）。
+  另：补平台别名（ChatGPT / OpenAI、AppLovin、Reddit、Roku、MNTN、TikTok GMV Max），以 scan 的平台列表为准；写明 custom / imported
+  销售渠道可正常测试、§3 的「imported / offline feed」只针对指标定义；销售渠道直接用 scan 的 `salesChannel`（已按 lift test 就绪过滤），
+  不在其中即未就绪，引导去数据健康 / Settings 页查原因。
+
+## 2026-10-26
+
+### Fixed
+
+- **`lift-test-creation`：测试结束日期对齐前端（闭区间，少算的那一天）。**
+  配合 platform-mcp 的结束日期修正：`lift-test-create` 不传 `testEndTime` 时按前端算法算
+  `开始日 + test_length + cooling_length − 1`（开始当天算第 1 天，冷却期读 `geoGroup.cooling_length`、缺省 7，按客户时区的本地日期），
+  不再是原来的 `+ test_length + 7`（多一天、冷却写死 7）；`lift-test-create-or-update` 在开始时间 / 测试周期 / 冷却期变化且 body
+  不带 `testEndTime` 时自动重算。skill 侧：`create-update-params.md` 的 `testEndTime` 行改成前端算法；`sop-detail.md`
+  的直接编辑路径说明结束日期由工具重算、agent 不手算，推回 body 时去掉 `testEndTime`，只有用户明确指定结束日期才保留。
+  **上线顺序**：须在 platform-mcp 该修正部署之后发布（旧版 create-or-update 不会重算，按新文案去掉 `testEndTime` 会留下旧的结束日期）。
+
+- **`lift-test-creation` 2.2.2：门槛落到下限、缺 CPA / 缺花费时如实告诉用户，不再当成「充足」。**
+  配合 platform-mcp 的 `lift-test-design-analyze` 修正（只传 CPA 也查 7 天花费、30 天 CPA 不依赖 7 天花费、
+  `origin_*` 永远是平台值、缺值输出 `null`、新增 `threshold_at_floor`）。skill 侧：Step 5 写 ✓ / ✗ 前先读
+  estimator：`cpa` 或 `ads_daily_reported_spend` 为 null 时写「未检查」及原因；`threshold_at_floor` 为 true 时说明门槛是
+  平台最低花费、不是按 CPA 算的。并纠正 `auto-solve.md` 里「看到 $200 门槛说明真实需求低于 $200」的错误推论（缺 CPA 时同样是 $200）。
+  **上线顺序**：须在 platform-mcp 该修正部署之后发布。
+
+## 2026-10-21
+
+### Fixed
+
+- **`lift-test-creation` 2.2.1：纠正 `create-update-params.md` 里 test / control 侧别写反的三行。**
+  原文把 `geoGroup.test` 写成 treatment side、`testGeo` 写成 treatment-side codes、`controlGeo` 写成 reference-side codes。
+  平台 `lift_test_group` 的实际语义相反：`control` = 被处理的 cell（PTM 的 Holdout group / LTM 的 Exposed group），
+  `test` = Reference group（多 cell 时跨 cell 共享）。用三个草稿（手工 PTM、在线 PTM、在线 LTM）的产品 setup 页逐一核对
+  （Holdout / Exposed group 显示的 DMA 数与订单占比全部等于 `control` 侧；多 cell 设计的 `test` 侧跨 cell 完全相同），并与 `lift-test-design-analyze`
+  （`order_share_pct` = control 侧占比）、`lift-test-create`（`holdout_pct` = control group 比例）一致。
+  同时在 `geoGroup` 一节加了一条「按字段不按字面」的侧别说明，要求 Step 5 表和交接里的 treatment geo
+  名单与个数一律取自 `geoGroup.control[cell]`，并注明该映射只适用于草稿 / `geoGroup` 模型，readout 结果字段（`test_orders` / `ctrl_orders`）仍是统计惯例。
+  **为什么要改**：实跑中 Justin 按工具描述报占比时是对的，但一旦照本文件列 treatment DMA 名单就会列成 reference 侧；
+  审计报告里一条 P0 也是照旧文误判后撤回的。仅改文案，不改流程与工具调用。
+
+## 2026-10-16
+
+### Changed
+
+- **`lift-test-creation` 2.2.0：对齐 platform-mcp 按 cell 分组的 `testChannel`（v2 线）。**
+  `lift-test-design-prepare` 改收按 cell 分组的 `testChannel`（二维数组：外层 = test cell，内层 = 该 cell 的平台条目
+  `{adPlatform, impactCampaignInfos}`），由 prepare 推导 numberOfCells / testChannelIndex / extraInfo。skill 同步：
+  一个 cell = 一个 lift 结果、未说分组默认每样一个 cell、用户说「一起」才合进同一 cell；prepare 挪到 Step 3（Step 4
+  确认前），并发测试地域的自动排除由 prepare 完成，「推迟到对方结束后复用地域」= `restrictStartDate: true`；
+  加大 geo size 只改 scan 结果的 `suggested.holdout_pct`；支持 8 国（英国传 `GB`），非 US 只支持 postcode；
+  Amazon Ads 不支持；没有可选目标的平台以 `[]` 存为 skip for now。
+  **未改**：「只给 cell 数」入口原样保留——当前 prepare 要求每个 cell 至少带一个平台，这条入口暂时跑不通，待 MCP 支持后再议。
+  **上线顺序**：必须在 platform-mcp 的 testChannel 按 cell 分组改动部署之后再发布本条。
+
 ## 2026-09-30
 
 ### Changed
