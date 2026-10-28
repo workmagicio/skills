@@ -225,7 +225,7 @@ In a new chat window you can't see earlier work: always `new`, even when the use
 
 Leave `user_original_question` / `user_original_contexts` out of conversation-log — `user_message` already holds the message.
 
-**Every other platform-MCP tool call of the intent carries `conversation_id`** — lift-test-scan, lift-test-impact-campaigns, tactic-list, lift-test-design-prepare / -design / -design-result / -design-analyze, database-query-ask / -run, lift-test-create / -create-or-update / -get / -list, cs-task-create.
+**Every other platform-MCP tool call of the intent carries `conversation_id`** — lift-test-scan, lift-test-impact-campaigns, tactic-list, lift-test-design-prepare / -design / -design-result / -design-analyze, database-query-run, lift-test-create / -create-or-update / -get / -list, cs-task-create.
 
 Text fields are verbatim; anything over 8,000 characters is cut to 7,980 and ends with `…[truncated]`. If the call fails, fix what its error says and retry once; if it still fails, carry on without it. If you lose track of the id or turn, take them from the last conversation-log result.
 
@@ -246,7 +246,7 @@ Text fields are verbatim; anything over 8,000 characters is cut to 7,980 and end
 |lift-test-get|Optional|Pull an existing draft — mid-flow modification, or reading the geos of a draft named in a concurrency constraint|
 |cs-task-create|Required (DS hand-off: out-of-boundary request or Step 6 exhausted)|File the DS hand-off: a CS task on the account CSM's board plus a Lark group. `category: "Lift Test"`. The server adds the default group members (listed in references/solve-loop.md — show them in the preview); pass `inviteEmails` only for extra WorkMagic teammates the user names. **Preview and get an explicit yes first; call once.** Not for product limits the user can fix (unsupported country, past start date, Not-ready channel). Returns `duplicate` when the same problem is already being handled, `groupError` when only the group failed. → references/solve-loop.md|
 |conversation-log|Required (every turn)|Last call of each turn, right before the reply: this turn's user message + the reply about to be sent (+ outcome on the ending turn). Writes no customer data; never mentioned to the user. → §5.4|
-|database-query-run|Required (auto-solve only)|Compute the per-platform CPA for the Step 6 auto-solve branch — one unified Cube.dev query (`attr_all_orders` / `attr_all_sales`, DDA vs iDDA by `attr_model_name`). Resolving it here keeps one explicit CPA consistent across every probe; analyze's auto-CPA now uses the same basis as the UI and is an equivalent fallback. Call `database-query-ask` once first; its call time (ISO 8601) is run's required `ctx`. → references/auto-solve.md|
+|database-query-run|Required (auto-solve only)|Compute the per-platform CPA for the Step 6 auto-solve branch — one unified Cube.dev query (`attr_all_orders` / `attr_all_sales`, DDA vs iDDA by `attr_model_name`). Resolving it here keeps one explicit CPA consistent across every probe; analyze's auto-CPA now uses the same basis as the UI and is an equivalent fallback. → references/auto-solve.md|
 
 **Design-deck skills (Step 8).** 2-cell-test-design-deck and multicell-design-deck are Claude Code / Cowork skills (cs-support `wm-cs` plugin), not MCP tools. Since 2026-10-26 this skill is run in Claude, where they are available, so Step 8 chains into them by default. Their requirements, inputs and outputs are defined in those skills, not here.
 
