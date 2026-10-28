@@ -3,8 +3,8 @@ name: lift-test-creation
 description: Turn a natural-language request — a scope or just a cell count, plus any constraints — into an executable lift test draft.
 category: lift-test
 risk: R0
-version: 2.3.1
-last-updated: 2026-10-27
+version: 2.3.2
+last-updated: 2026-10-28
 references:
 - references/input-parsing.md
 - references/constraints.md
@@ -218,7 +218,7 @@ Multi-step SOP — the agent must pause and surface at these gates, never autopi
 - **Method-specific treatment-side labels** (matches product UI): PTM → "Holdout group"; LTM → "Exposed group"; reference side, any method → "Reference group". Never use "Holdout group" in an LTM column. Never invent a unified "Treatment group".
 - **First mention of PTM / LTM** gets a one-line inline explanation: "PTM (pause-to-measure — pause ads in a subset of geos)". After that, the acronym alone is fine.
 - **Constraints get read back explicitly** in Step 4, in the user's own terms ("Budget: under $3k/day", "Won't touch the geos in your scheduled Google test").
-- **The design result is a table**, not a sentence — test period, geo size, the treatment geos by name, and the feasibility threshold as a specific number against the spend it's compared to. The treatment geos are `geo_group.control[i]`, never `geo_group.test` (the Reference group) — output-templates.md, Step 5.
+- **The design result is a table**, not a sentence — test period, geo size, the treatment geos by name, and the feasibility threshold as a specific number against the spend it's compared to. Take the groups from `display_groups` (analyze / lift-test-get return it ready-labeled: `treated[i]` = Holdout/Exposed, `reference` = count + share only); fall back to `geo_group.control[i]` for treatment and `geo_group.test` for reference — never `geo_group.test` in the treatment row (its name is inverted). → output-templates.md, Step 5.
 - **Gaps get numbers**, never adjectives. "~$700/day short" beats "a bit under what's needed".
 
 All output templates (Step 4 summary, solve-loop rounds, design comparison, DS hand-off + CS task preview, draft link) → references/output-templates.md

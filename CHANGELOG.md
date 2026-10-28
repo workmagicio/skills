@@ -5,6 +5,20 @@ All notable changes to the WorkMagic public skills are recorded here. This repo 
 its `SKILL.md` frontmatter (`version:` / `last-updated:`).
 
 
+## 2026-10-28（2.3.2）
+
+### Changed
+
+- **`lift-test-creation` 2.3.2：Step 5 的实验组改为优先读 `display_groups`,不再手动在 `geo_group` 的 test/control 间导航。**
+  配合 platform-mcp：`lift-test-design-analyze` 和 `lift-test-get` 现在在每个 design 上返回只读的 `display_groups`
+  （`treated[i]` = 已按方法贴好 label 的 Holdout/Exposed 组,带 geo_names / geo_count / order_share_pct;
+  `reference` = 只给 count 和 order_share,不含成员名）。
+  - output-templates.md Step 5 取数表改为「优先 `display_groups`,无该字段时回退 `geo_group.control[i]` / `geo_group.test`」;
+    因 `display_groups.treated[i]` 是单个对象,占比/个数/名单不可能跨侧拆分,原「发送前核对两侧」的防呆简化为仅回退路径适用。
+  - SKILL.md §7 设计表要求同步:优先 `display_groups`,回退 `control[i]`,treatment 行永不取 `geo_group.test`。
+  背景:字面 `test`/`control` 与实验角色相反,模型读原始 JSON 常把 Reference 列成 Holdout(离线 A/B:列错 reference 5→0 次)。
+  **上线顺序**:须在 platform-mcp 的 `display_groups`(workmagicio/platform-mcp `feature-lift-test-analyze-display-groups`)发布后或同时发;回退路径保证 MCP 未发时也不出错。
+
 ## 2026-10-27（2.3.1）
 
 ### Changed
