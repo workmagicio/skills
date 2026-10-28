@@ -9,13 +9,10 @@ its `SKILL.md` frontmatter (`version:` / `last-updated:`).
 
 ### Changed
 
-- **`lift-test-creation` 2.4.1：Holdout/Exposed 名单自查扩到整条回复、两条取数路径都做；补齐剩余几处仍只写 `geo_group` 的地方。**
-  2.3.2 / 2.3.3 已让 Step 5 表格优先读 `display_groups`、把侧别规则提成 §9 规则 10；本版收尾 Amy 10/28 离线复测的建议：
-  - output-templates.md Step 5：原来「走 `display_groups` 时无需自查」改为**两条路径都做名字核对，并覆盖整条回复**——表格、表下一行、补充说明、solve-loop、DS 交接里出现的每个 Holdout/Exposed 地区名，都必须在 `display_groups.treated[i].geo_names`（回退 `geo_group.control[i].name`）里；不在就删掉，不猜。原因：`display_groups` 只保证表格，表外散文仍可能从 `geo_group.test` 取名。
-  - SKILL.md §7 与 §9 规则 10 同步加上这条发送前名字核对。
+- **`lift-test-creation` 2.4.1：补齐两处仍只写 `geo_group` 的地方，与 2.3.2 / 2.3.3 的 `display_groups` 优先规则对齐。**
   - output-templates.md「Rules for both」：Reference 组大小原写「from `geo_group.test`」→ 改为优先 `display_groups.reference`，回退 `geo_group.test`（与 Step 5 取数表一致）。
-  - failure-modes.md：「把 `geo_group.test` 列成 Holdout/Exposed」一条，treated 来源补上 `display_groups.treated[i].geo_names` 并注明表外同样适用。
-  纯文案，不改工具。（CPA 查询前先调 `database-query-ask` 一项不加，与 2.3.3 的决定一致。）
+  - failure-modes.md：「把 `geo_group.test` 列成 Holdout/Exposed」一条，treated 来源原写 `geo_group.control[i].name` → 改为优先 `display_groups.treated[i].geo_names`（回退 `geo_group.control[i].name`），并注明表外文字同样适用（即 §9 规则 10）。
+  其余按 2.3.3 / 2.4.0 原样（Step 5 自查、§7 / §9 规则 10、auto-solve 均未改）；A/B 抽样（Chirp，2.4.0 与本版各 2 轮）两版均 0 错。纯文案，不改工具。
 
 ## 2026-10-28（2.4.0）
 
