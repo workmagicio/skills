@@ -3,7 +3,7 @@ name: lift-test-creation
 description: Turn a natural-language request — a scope or just a cell count, plus any constraints — into an executable lift test draft.
 category: lift-test
 risk: R0
-version: 2.3.2
+version: 2.3.3
 last-updated: 2026-10-28
 references:
 - references/input-parsing.md
@@ -218,7 +218,8 @@ Multi-step SOP — the agent must pause and surface at these gates, never autopi
 - **Method-specific treatment-side labels** (matches product UI): PTM → "Holdout group"; LTM → "Exposed group"; reference side, any method → "Reference group". Never use "Holdout group" in an LTM column. Never invent a unified "Treatment group".
 - **First mention of PTM / LTM** gets a one-line inline explanation: "PTM (pause-to-measure — pause ads in a subset of geos)". After that, the acronym alone is fine.
 - **Constraints get read back explicitly** in Step 4, in the user's own terms ("Budget: under $3k/day", "Won't touch the geos in your scheduled Google test").
-- **The design result is a table**, not a sentence — test period, geo size, the treatment geos by name, and the feasibility threshold as a specific number against the spend it's compared to. Take the groups from `display_groups` (analyze / lift-test-get return it ready-labeled: `treated[i]` = Holdout/Exposed, `reference` = count + share only); fall back to `geo_group.control[i]` for treatment and `geo_group.test` for reference — never `geo_group.test` in the treatment row (its name is inverted). → output-templates.md, Step 5.
+- **The design result is a table**, not a sentence — test period, geo size, the treatment geos by name, and the feasibility threshold as a specific number against the spend it's compared to. → output-templates.md, Step 5.
+- **Holdout / Exposed geos come from the treated side — everywhere, not just the Step 5 table.** Take them from `display_groups.treated[i]` (analyze / lift-test-get return it ready-labeled; fall back to `geo_group.control[i]`). `geo_group.test` is the **Reference group** — its members are never named (count + share only), and it must never appear in a Holdout / Exposed row. This holds in *every* place you name geos: the design table, a draft summary, a DS-handoff summary, a solve-loop explanation, any supplementary note. If you're unsure which side a geo is on, don't name it. See §9 rule 10.
 - **Gaps get numbers**, never adjectives. "~$700/day short" beats "a bit under what's needed".
 
 All output templates (Step 4 summary, solve-loop rounds, design comparison, DS hand-off + CS task preview, draft link) → references/output-templates.md
@@ -229,7 +230,7 @@ All output templates (Step 4 summary, solve-loop rounds, design comparison, DS h
 
 See references/edge-cases.md — covering unsupported country, cell-count conflicts, mid-flow modification, ambiguous geo names, Not-ready sales channels, design failures, dead drafts in concurrency constraints, out-of-boundary requests.
 
-## 9. CRITICAL rules (top 9)
+## 9. CRITICAL rules (top 10)
 
 1. **Never hard-build when constraints aren't satisfiable.** State the gap with numbers. Give the levers. Unsupported country, past start date, infeasible budget — surface, never silently default.
 2. **Two confirmation gates, each asked once: the config at Step 4, the design before create.** Step 4 confirms *what to test* — the full config, asked once and never restated afterward. When a design comes back — from Step 5, a solve-loop re-solve, or an auto-solve run — present it, close with "Shall I create the draft now?", and end the turn. When a CPA in the design looks implausible (below $10 per conversion, or the threshold sits at the platform minimum while a CPA exists), that same closing question asks the user to confirm the CPA or give theirs first — references/output-templates.md, Step 5. Call create only after the user says yes; that yes also covers the design deck that follows (Step 8) — don't ask about the deck separately. This question confirms *which design*, not the config — it is required, not a double-confirm. The user's own pick (switching to LTM, choosing a test length or a trade-off point, or "proceed as-is") already counts as the confirmation — create directly, don't ask again. Creating the draft in the same turn the design returns is the most common regression; re-asking after the user already chose is the second. The CS-task preview at a Step 6 hand-off (rule 4) is its own yes for a different action — filing a task — not a double-confirm of either gate.
@@ -240,6 +241,7 @@ See references/edge-cases.md — covering unsupported country, cell-count confli
 7. **Never expose internal parameter names or engine IDs.** `holdoutPct`, `MDL`, `experiment_days`, `attr_model_name`, raw API platform IDs, the raw design-engine fields `design_id`, `minimum_detectable_lift`, `factor`, and the design `task_id` (the async solve token from lift-test-design). None of these ever appear in chat — not in a progress line while the solve polls, **and not in a handoff / continuation note when a solve is still running** (keep the `task_id` internally to resume polling; never print it for the user to "hold"). (numberOfCells is the exception — it is user-facing *when the user raises it*.)
 8. **`minimum_detectable_lift` is an internal field, NOT the user-facing MDL.** It may be used in internal step calculations, but it must never appear in chat and must never be presented or labeled as the test's MDL. Its name is misleading — showing its value to the user, or passing it off as MDL, gives a wrong number.
 9. **Every new test starts from Step 1 — nothing is inherited.** A test discussed earlier in the conversation, a draft or design link, or a pasted Slack / Lark thread is background, never the setup. Platforms, test level, targets, cell structure, geo size, period, method and CPA carry over only when they show up in the new Step 4 table and the user confirms them there. Splitting one multi-cell test into separate tests (e.g. a 3-cell into two concurrent 2-cell tests), merging tests, or redesigning for a changed request makes new tests: each one runs Steps 3–7 on its own, with its own Step 4 table and its own design confirmation. Only the update path (an existing draft the user names, via lift-test-create-or-update) edits a setup in place.
+10. **Holdout / Exposed geos come from the treated side — everywhere, not only the Step 5 table.** The Holdout (PTM) / Exposed (LTM) group is `display_groups.treated[i]` (fallback `geo_group.control[i]`); `geo_group.test` is the **Reference group**, whose members are never named (count + share only). The platform naming is inverted (`control` = treated, `test` = reference), so the swaps happen most in prose *outside* the table — a draft summary, a DS-handoff summary, a solve-loop explanation, a supplementary note. Any such mention of Holdout / Exposed geos takes names from the treated side only, never from `geo_group.test`; if unsure which side a geo is on, don't name it. → references/output-templates.md, Step 5.
 
 Full failure-modes catalog → references/failure-modes.md
 

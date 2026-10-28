@@ -5,6 +5,16 @@ All notable changes to the WorkMagic public skills are recorded here. This repo 
 its `SKILL.md` frontmatter (`version:` / `last-updated:`).
 
 
+## 2026-10-28（2.3.3）
+
+### Changed
+
+- **`lift-test-creation` 2.3.3：把「Holdout/Exposed 地区取自 treated 侧」提成全局硬规则,并改掉失效的自查。**
+  2.3.2 的 `display_groups` 修好了 Step 5 表格那条路,但离线自测里 2/4 次搞反发生在**表格之外的散文**(补充说明、最终总结)——规则只在 output-templates(模型没读)里,SKILL 正文只有一句。
+  - SKILL.md 新增 **§9 CRITICAL 规则 10**(并 §7 同步):任何地方提到 Holdout/Exposed 地区——设计表、draft 总结、DS 交接摘要、solve-loop 说明、补充文字——一律取 `display_groups.treated[i]`(回退 `geo_group.control[i]`);`geo_group.test` 是 Reference,永不列成员名,永不出现在 treatment 行;不确定就不列名字。
+  - output-templates.md 回退自查:从「数量和占比来自不同侧」弱启发式(两侧大小接近时查不出,如 3 vs 3 DMA、17.8% vs 17.6%)改为**直接核对 Holdout/Exposed 名单 == `geo_group.control[i].name`**;用 `display_groups` 时无需自查。
+  纯文案,不改工具调用。(CPA 的 `database-query-ask` 前置经实测确认非必需——`ctx` 必填但不校验,编造时间戳不会被拒,故未改。)
+
 ## 2026-10-28（2.3.2）
 
 ### Changed
