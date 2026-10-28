@@ -5,6 +5,15 @@ All notable changes to the WorkMagic public skills are recorded here. This repo 
 its `SKILL.md` frontmatter (`version:` / `last-updated:`).
 
 
+## 2026-10-28（2.4.1）
+
+### Changed
+
+- **`lift-test-creation` 2.4.1：补齐两处仍只写 `geo_group` 的地方，与 2.3.2 / 2.3.3 的 `display_groups` 优先规则对齐。**
+  - output-templates.md「Rules for both」：Reference 组大小原写「from `geo_group.test`」→ 改为优先 `display_groups.reference`，回退 `geo_group.test`（与 Step 5 取数表一致）。
+  - failure-modes.md：「把 `geo_group.test` 列成 Holdout/Exposed」一条，treated 来源原写 `geo_group.control[i].name` → 改为优先 `display_groups.treated[i].geo_names`（回退 `geo_group.control[i].name`），并注明表外文字同样适用（即 §9 规则 10）。
+  其余按 2.3.3 / 2.4.0 原样（Step 5 自查、§7 / §9 规则 10、auto-solve 均未改）；A/B 抽样（Chirp，2.4.0 与本版各 2 轮）两版均 0 错。纯文案，不改工具。
+
 ## 2026-10-28（2.4.0）
 
 ### Added
