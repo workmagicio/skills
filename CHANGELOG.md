@@ -5,6 +5,22 @@ All notable changes to the WorkMagic public skills are recorded here. This repo 
 its `SKILL.md` frontmatter (`version:` / `last-updated:`).
 
 
+## 2026-10-29（2.5.0）
+
+### Added
+
+- **`lift-test-creation` 2.5.0：任意步骤可以直接指定一个 design id，存在就不再走生成 design 的步骤。**
+  配合 platform-mcp `lift-test-design-result` 新增的 `design_id` 参数（与 `task_id` 二选一，一次查询、不轮询）。
+  - SKILL.md 新增 §5.5：识别到用户给的 design id（页面卡片上的 `online-<id>_<n>`、`<id>_<n>` 或 `<id>`）→ 用 `design_id` 查；
+    `not_found`（本账号没有）/ `expired`（生成超过 33 天，与产品页面同口径）→ 提示 `user_message`，问换 ID 还是重新生成，不进 analyze；
+    `success` → 跳过 lift-test-design 和轮询，直接 analyze。
+  - 用户没给的配置项取 design 的生成参数（国家 / 粒度 / 店铺 / 主指标 / cell 数 / geo size），在 Step 4 表里标「来自指定的 design」；
+    用户给了但和 design 不一致的逐项列出，**由用户选**；选自己的配置即 design 不适用，走正常生成。Step 4 仍是唯一的全配置确认。
+  - 只展示 design 自身那一种方法，说明另一种没有生成；用户指定了具体方案（`_<n>`）时就用这一个。
+  - 并发冲突不提前查，交给 lift-test-create 拦截；不传 `restrictStartTime`（指定 design 的生成起始日未知）。
+  - §9 规则 7：用户自己给的 design id 说成「你指定的方案」，不回显；规则 9：用户明确要用的 design id 是指令，不是背景。
+  **上线顺序**：须在 platform-mcp `lift-test-design-result` 的 `design_id` 参数（workmagicio/platform-mcp `feature-lift-test-design-id`）发布后或同时发。
+
 ## 2026-10-28（2.4.1）
 
 ### Changed
