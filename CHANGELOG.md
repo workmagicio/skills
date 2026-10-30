@@ -5,6 +5,16 @@ All notable changes to the WorkMagic public skills are recorded here. This repo 
 its `SKILL.md` frontmatter (`version:` / `last-updated:`).
 
 
+## 2026-10-30（2.5.2）
+
+### Changed
+
+- **`lift-test-creation` 2.5.2：换 method 时让用户二选一，跨 method 运行必须单独确认。** 来自 150104（Comfrt）3141：选了 PTM design（`6fec…`）的 geo 分组、实验设成 LTM。
+  - solve-loop「Switch method」不再默认改用另一 method 自己的 design：列出 **A** 用另一 method 自己的 design（geo 分组会变）与 **B** 保留当前 design 的 geo 分组、换 method 运行，**由用户选**；另一 method 没出 design 时只有 B。
+  - 选 B 时设计确认里必须单独一行写明「这是 PTM design 的 geo 分组（`<design id>`），按 LTM 跑」并附重算后的门槛，用户 yes 才 create；create 传该 design 的 `geo_group` 原样，不换成另一 method 的。
+  - Step 7 新增 create 前自检：`method` 与所选 `geo_group` 自带的 `method` 不一致而未做上述确认 → 先补问，不静默创建。
+  - 配套 platform-mcp：lift-test-create 以 geoGroup 引用的 design 为准（不再按 method 取 ptm/ltmDesignId），summary 显示 `Geo-Pairing (LTM, using PTM design …)`。
+
 ## 2026-10-29（2.5.1）
 
 ### Fixed
