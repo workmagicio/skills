@@ -22,7 +22,7 @@ complete:
 
 |Input|Complete when|
 |---|---|
-|**Budget target**|The user stated a daily budget, **or** it's inferable from scan current spend (tactic → 30-day `ad_spend ÷ window_days`; account / platform → `scan.platformMetrics[platform].daily_spend`). No budget and none inferable → **nothing to fit** — auto-solve doesn't run; stay in the manual loop.|
+|**Budget target**|The user stated a daily budget **or a total budget** (kept as a total — step 2's total branch; never frozen into one daily number), **or** it's inferable from scan current spend (tactic → 30-day `ad_spend ÷ window_days`; account / platform → `scan.platformMetrics[platform].daily_spend`). No budget and none inferable → **nothing to fit** — auto-solve doesn't run; stay in the manual loop. **A test budget bounds LTM only** — PTM is checked against current (or user-stated) platform daily spend, never searched to fit a test budget (references/constraints.md, Budget).|
 |**CPA**|Resolvable via `database-query-run` (basis below), or the user gives it. Analyze's auto-CPA now uses the **same basis as the UI** and is a valid fallback — auto-solve resolves it up front so one explicit CPA stays identical across every probe (see CPA section).|
 |Scope / level / geo / metric|Already resolved by Step 4 — always present at this point.|
 
@@ -65,7 +65,8 @@ no extra cost.
 **Pass rule:** a platform passes when `budget ≥ required × 0.95` — the same 0.95 tolerance
 the product's **Sufficient** check uses. The only difference is the left-hand side: the
 product compares *current reported spend*, auto-solve compares the *budget target*; when the
-budget is inferred from current spend the two are identical.
+budget is inferred from current spend the two are identical. A total budget enters as B / T at the
+period being checked (21 in step 1), not as a fixed daily number.
 **Comfortable:** geo size ≤ 20% **and** test period ≤ 35 days (ideally 21 / 28).
 
 ```
@@ -94,6 +95,11 @@ budget is inferred from current spend the two are identical.
        are P95 < 300s). Keep a ROUND LOG — one line per probe: geo size → passed /
        short by $X per day / no solution / timed out — and put it in the final answer.
 2. Test-period fit (formula, no extra runs), per method, at that geo size:
+   - TOTAL budget B → the daily budget is B/T, so the check is B ≥ 0.95 × required_D × √(D × T)
+       (every platform): a longer test needs MORE in total, so there is no T_need — check the
+       pinned period, else 21. Fits → take it. Doesn't → no longer period can fix it; only geo
+       size (step 1) or more budget can. Report the implied daily B/T next to the total.
+     The two branches below are for a DAILY budget (stated, or inferred from current spend):
    - period pinned T0 → required = required_D·√(D/T0); pass iff budget ≥ 0.95×required (every platform).
    - else smallest fitting length: T_need = D × (0.95 × required_D / budget)², the largest over platforms
        Snap to the standard lengths first — they are what the product recommends:
@@ -108,7 +114,10 @@ budget is inferred from current spend the two are identical.
 4. Else (only geo size >20% or period >35 fits) → build a small geo-size ↔ period
    TRADE-OFF list on the iso-budget curve (e.g. 20% / 40d · 25% / 33d · 30% / 28d), each
    with its threshold + coverage, and **let the user pick** (still §9-3: the user chooses).
-5. Infeasible: even the rail geo size at 60 days won't fit (LTM 0.05/60, PTM 0.30/60) →
+   Total budget → the list varies geo size only, at the user's period (else 21): a longer
+   period never trades against a total.
+5. Infeasible: even the rail geo size at 60 days won't fit (LTM 0.05/60, PTM 0.30/60; with a
+   total budget, at the user's period or 21 instead of 60) →
    say so explicitly; don't silently drop a method. → DS hand-off (CS task, user's yes first — solve-loop.md) or manual levers.
 ```
 

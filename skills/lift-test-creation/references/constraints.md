@@ -21,7 +21,7 @@ How each constraint enters the design, how it's validated, and how it behaves in
 
 - Brackets: **Minimum → 5% → 10% → 15% -> 20% -> 25% ->30%**.
 - User-facing name is **"Geo size"**. Never "holdoutPct", never a raw decimal.
-- Larger geo size → more orders per side → **lower** feasibility threshold. Say that plainly when offering it as a lever.
+- Larger geo size moves the feasibility threshold **in opposite directions by method**: PTM → **lower** (a larger share of the platform's spend is paused), LTM → **higher or unchanged** (the new spend is spread over more geos). Say which, plainly, when offering it as a lever — and never offer a larger LTM exposed group as a way to lower the threshold.
 - A geo-size cap that blocks the design is a legitimate solve-loop gap: "To clear the threshold at your spend we'd need the 10% bracket; you asked to stay at 5%."
 
 ---
@@ -31,12 +31,13 @@ How each constraint enters the design, how it's validated, and how it behaves in
 |User phrasing|Interpretation|
 |---|---|
 |"under $3k/day"|Daily ceiling on the feasibility check|
-|"$50k for the test"|Total budget → divide by the design's test period to get an implied daily ceiling; **restate the implied daily number** so the user can sanity-check it|
+|"$50k for the test"|Total budget → the implied daily ceiling is total ÷ test period, so it **moves with the period**: restate it at the design's period ("$50k over 21 days ≈ $2,381/day") so the user can sanity-check it, and recompute it whenever the period changes|
 |"under $5k" (unit unstated)|**Clarify once**: "Is that a daily cap or the whole test budget?"|
 |"whatever it takes"|No ceiling — don't invent one|
 
-- The budget ceiling is compared against the **expected daily spend** in the design return. Ceiling < threshold → Insufficient → solve loop.
-- For LTM, the budget constraint bounds the *new* spend introduced in the exposed group; for PTM it bounds the spend that must be sustained in the reference geos. Don't conflate them when quoting numbers back.
+- The budget ceiling is compared against each platform's **feasibility threshold** — analyze's `estimator.channel[i][j].minimum_daily_budget_required`, scaled to the period in question by × √(D / N) — never `expected_daily_spend`. Budget < 0.95 × threshold (the product's tolerance) → Insufficient → solve loop.
+- **A test budget is an LTM number, not a PTM one.** LTM's threshold is the *new* spend run in the exposed group, so a test budget is compared with it directly. PTM's threshold is the platform's **ongoing daily spend** — the same number the product's Sufficient check holds against current spend; a PTM test buys no new media, so a test budget says nothing about whether PTM fits. With PTM in play, check it against the platform's current daily spend (or the daily spend the user says they will run during the test, e.g. "we'll cut Meta to $3k/day") and say so in one line. **Never raise the PTM geo size to make a test budget fit** — on a high-spend account that turns a PTM that already clears at the smallest geo size into a 30% holdout. Don't conflate the two when quoting numbers back.
+- **With a total budget, the shortest period is the cheapest.** Over T days a total B gives B / T per day, which falls faster than the threshold (× √(D / T)): B fits iff B ≥ 0.95 × threshold_D × √(D × T), so a longer test needs *more* in total. Extending the test period is a lever for a **daily** budget only — for a total budget it never helps; check the user's period, else 21 days.
 - Never treat a total budget as a daily cap, or vice versa. This is the single most damaging unit error in the skill.
 
 ---

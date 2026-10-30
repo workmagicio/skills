@@ -26,21 +26,21 @@ Every round, in order:
 |---|---|---|
 |Raise daily spend to $X|Insufficient, no budget ceiling stated|No — re-check with lift-test-design-analyze|
 |Increase geo size (Minimum → 5% → 10% → 15% -> 20% -> 25% -> 30%)|Geo-size headroom remains|**Yes** — re-call prepare with only `scanResult.suggested.holdout_pct` changed (prepare has no holdout parameter)|
-|Extend test period to N weeks|Period not pinned, or user willing to break it|**No** — re-pick by formula: threshold(N) = `minimum_daily_budget_required` × √(D / N), D = `geo_group.estimator.experiment_days`; N in 14–60 days, test + cooling ≤ 60. The design engine takes no test length, so a re-solve would only return another D-day design and may swap the geo pair|
+|Extend test period to N weeks|Period not pinned, or user willing to break it — **daily budget or current spend only**; with a total budget a longer test needs more in total, so never offer it (references/constraints.md, Budget)|**No** — re-pick by formula: threshold(N) = `minimum_daily_budget_required` × √(D / N), D = `geo_group.estimator.experiment_days`; N in 14–60 days, test + cooling ≤ 60. The design engine takes no test length, so a re-solve would only return another D-day design and may swap the geo pair|
 |Relax a geo exclusion (name the specific geos and what they give back)|User-stated exclusions exist|**Yes**|
 |Reuse a concurrent test's geos, starting after its end date|Concurrent tests hold geos (`geoConstraints.occupancy`), and the user can wait — a draft the user asked to avoid is a user exclude and isn't released by waiting|**Yes** — re-call prepare with `startTime` after that test's end (`geoConstraints.occupancy.releaseTimeline` / `rangeEndTime`); geos still held on that date stay excluded (references/constraints.md)|
 |Revise the CPA assumption — **only if the user says their real CPA differs**|A CPA estimate is driving the threshold|No — re-check with lift-test-design-analyze|
 |Drop a cell (5→4, 4→3, 3→2)|numberOfCells ≥ 3|**Yes**|
-|Switch method (PTM ⇄ LTM)|The other method is viable at this spend|**No** — one design run returns both methods: use the other method's design from the same analyze result first. If that method has no design, run the current design with the other method (a PTM design may run as LTM and vice versa): compute its threshold yourself (below) and confirm with the user before creating|
+|Switch method (PTM ⇄ LTM)|The other method is viable at this spend|**No** — offer both and **let the user pick** (never default to either): **(A)** the other method's own design from the same analyze result — a different geo split, so show its group sizes and thresholds like any design; **(B)** keep the current design's geo split and run it with the other method (a PTM design may run as LTM and vice versa) — compute its threshold yourself (below). When the other method has no design, only B exists|
 |Proceed as-is|Always|No — **exits the loop**|
 
-**Running a design with the other method (no design of that method).** Compute each platform's threshold yourself with the target method's formula — internal inputs, never shown: CPA = `estimator.channel[i][j].cpa`, MDL = `geo_group.control[i].minimum_detectable_lift`, r = `geo_group.control[i].orders`, D = `geo_group.estimator.experiment_days`, N = the chosen test length:
+**Running a design with the other method (option B, or no design of that method).** Compute each platform's threshold yourself with the target method's formula — internal inputs, never shown: CPA = `estimator.channel[i][j].cpa`, MDL = `geo_group.control[i].minimum_detectable_lift`, r = `geo_group.control[i].orders`, D = `geo_group.estimator.experiment_days`, N = the chosen test length:
 
 - LTM: threshold(N) = max(200, CPA × MDL) × √(D / N)
 - PTM: threshold(N) = max(200 / r, CPA × MDL × (1 − r) / r) × √(D / N)
 - No CPA → the max() is the platform minimum (200, or 200 / r for PTM) — say so, as in Step 5.
 
-Show the threshold per platform against current spend (Sufficient = spend ≥ threshold × 0.95), state that it's the same design run with the other method, and get the user's yes before creating. Then pass the target `method` to create / create-or-update — the tool recomputes the stored per-cell thresholds with the same formula.
+Show the threshold per platform against current spend (Sufficient = spend ≥ threshold × 0.95), and state on its own line which design's geos are used and how it runs — e.g. "This is the PTM design's geo split (`<design id>`), run as LTM." — then get the user's yes before creating. Then pass the target `method` to create / create-or-update with that design's `geo_group` verbatim (never swap in the other method's `geo_group`) — the tool recomputes the stored per-cell thresholds with the same formula, and its summary reads `Geo-Pairing (LTM, using PTM design …)`.
 
 **③ The user picks.** Never pick for them. Never re-solve with a lever they didn't name. If they say "whatever you recommend", state a recommendation **and** what it costs, then still get a yes.
 

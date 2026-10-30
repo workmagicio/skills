@@ -5,6 +5,58 @@ All notable changes to the WorkMagic public skills are recorded here. This repo 
 its `SKILL.md` frontmatter (`version:` / `last-updated:`).
 
 
+## 2026-10-30（2.5.2）
+
+### Changed
+
+- **`lift-test-creation` 2.5.2：换 method 时让用户二选一，跨 method 运行必须单独确认。** 来自 150104（Comfrt）3141：选了 PTM design（`6fec…`）的 geo 分组、实验设成 LTM。
+  - solve-loop「Switch method」不再默认改用另一 method 自己的 design：列出 **A** 用另一 method 自己的 design（geo 分组会变）与 **B** 保留当前 design 的 geo 分组、换 method 运行，**由用户选**；另一 method 没出 design 时只有 B。
+  - 选 B 时设计确认里必须单独一行写明「这是 PTM design 的 geo 分组（`<design id>`），按 LTM 跑」并附重算后的门槛，用户 yes 才 create；create 传该 design 的 `geo_group` 原样，不换成另一 method 的。
+  - Step 7 新增 create 前自检：`method` 与所选 `geo_group` 自带的 `method` 不一致而未做上述确认 → 先补问，不静默创建。
+  - 配套 platform-mcp：lift-test-create 以 geoGroup 引用的 design 为准（不再按 method 取 ptm/ltmDesignId），summary 显示 `Geo-Pairing (LTM, using PTM design …)`。
+
+## 2026-10-29（2.5.1）
+
+### Fixed
+
+- **`lift-test-creation` 2.5.1：总预算的换算，以及测试预算只对 LTM 生效。** 来自 Will 的「按 50K / 75K / 100K 预算档位出 holdout 和门槛」实测（Chirp 150968，Meta 整个账户，2.4.0）。
+  - **总预算换算（auto-solve.md 第 2 步、第 4 / 5 步，solve-loop.md 延长测试期的 lever，constraints.md Budget 表）**：原来 `T_need = D × (0.95 × required_D / budget)²` 把预算当成每天固定，于是总预算时会建议拉长测试期。
+    实际上总预算 B 固定时，每天预算是 B / T，下降得比门槛（× √(D / T)）快，条件是 B ≥ 0.95 × required_D × √(D × T)，测试越长需要的总额越多。
+    → 总预算时不再算 `T_need`，按用户给的测试期、否则按 21 天检查；不满足就只能动 geo size 或加预算，不提供「延长测试期」。
+    实测按原文会给出 $100K → PTM 20% / 28 天「舒适」，而 28 天时每天实际差 $1,240。
+  - **测试预算只和 LTM 比（constraints.md Budget、auto-solve.md 输入表、SKILL.md §4.C）**：PTM 的门槛是平台日常每天的总花费（产品 Sufficient 检查用的是同一个数），PTM 不买新流量，测试预算和它不可比。
+    → 有 PTM 时按当前（或用户说测试期间会跑的）日花费检查，不为凑测试预算去加大 PTM 的 geo size。
+    实测 Chirp Meta 每天 $28.5K，5% 已经够；原文会把 holdout 推到 28–31%。
+  - 顺手修掉 constraints.md 两处和 SKILL.md 矛盾的地方：
+    - 「geo size 越大门槛越低」→ 按方法分开写：PTM 降，LTM 升或不变（与 auto-solve Gotchas 一致）；
+    - 「预算和 expected daily spend 比」→ 和 `minimum_daily_budget_required` 比（SKILL §5 已写明不读 `expected_daily_spend`）。
+  纯文案，不改工具。platform-mcp `lift-test-design-analyze` 工具描述 Step D3 Phase 1（总预算时延长测试期）有同样的问题，需要另行同步。
+
+## 2026-10-29（2.5.0）
+
+### Added
+
+- **`lift-test-creation` 2.5.0：任意步骤可以直接指定一个 design id，存在就不再走生成 design 的步骤。**
+  配合 platform-mcp `lift-test-design-result` 新增的 `design_id` 参数（与 `task_id` 二选一，一次查询、不轮询）。
+  - SKILL.md 新增 §5.5：识别到用户给的 design id（页面卡片上的 `online-<id>_<n>`、`<id>_<n>` 或 `<id>`）→ 用 `design_id` 查；
+    `not_found`（本账号没有）/ `expired`（生成超过 33 天，与产品页面同口径）→ 提示 `user_message`，问换 ID 还是重新生成，不进 analyze；
+    `success` → 跳过 lift-test-design 和轮询，直接 analyze。
+  - 用户没给的配置项取 design 的生成参数（国家 / 粒度 / 店铺 / 主指标 / cell 数 / geo size），在 Step 4 表里标「来自指定的 design」；
+    用户给了但和 design 不一致的逐项列出，**由用户选**；选自己的配置即 design 不适用，走正常生成。Step 4 仍是唯一的全配置确认。
+  - 只展示 design 自身那一种方法，说明另一种没有生成；用户指定了具体方案（`_<n>`）时就用这一个。
+  - 并发冲突不提前查，交给 lift-test-create 拦截；不传 `restrictStartTime`（指定 design 的生成起始日未知）。
+  - §9 规则 7：用户自己给的 design id 说成「你指定的方案」，不回显；规则 9：用户明确要用的 design id 是指令，不是背景。
+  **上线顺序**：须在 platform-mcp `lift-test-design-result` 的 `design_id` 参数（workmagicio/platform-mcp `feature-lift-test-design-id`）发布后或同时发。
+
+## 2026-10-28（2.4.1）
+
+### Changed
+
+- **`lift-test-creation` 2.4.1：补齐两处仍只写 `geo_group` 的地方，与 2.3.2 / 2.3.3 的 `display_groups` 优先规则对齐。**
+  - output-templates.md「Rules for both」：Reference 组大小原写「from `geo_group.test`」→ 改为优先 `display_groups.reference`，回退 `geo_group.test`（与 Step 5 取数表一致）。
+  - failure-modes.md：「把 `geo_group.test` 列成 Holdout/Exposed」一条，treated 来源原写 `geo_group.control[i].name` → 改为优先 `display_groups.treated[i].geo_names`（回退 `geo_group.control[i].name`），并注明表外文字同样适用（即 §9 规则 10）。
+  其余按 2.3.3 / 2.4.0 原样（Step 5 自查、§7 / §9 规则 10、auto-solve 均未改）；A/B 抽样（Chirp，2.4.0 与本版各 2 轮）两版均 0 错。纯文案，不改工具。
+
 ## 2026-10-28（2.4.0）
 
 ### Added

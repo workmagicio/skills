@@ -69,7 +69,7 @@ The same shape extends to 4- and 5-cell tests: one column per cell, shared facts
 
 ### Rules for both
 
-**Label the geo row by method** — "Holdout group" for PTM, "Exposed group" for LTM. The reference group is a matched set the design chooses — not the rest of the country: give its size (geo count and % of orders, from `geo_group.test`), never its member list.
+**Label the geo row by method** — "Holdout group" for PTM, "Exposed group" for LTM. The reference group is a matched set the design chooses — not the rest of the country: give its size (geo count and % of orders, from `display_groups.reference`; fallback `geo_group.test`), never its member list.
 
 **Long geo lists**: at postcode level the list can run to hundreds. Show the top 10 by order volume and "+ N more", and note the full list is on the draft.
 
