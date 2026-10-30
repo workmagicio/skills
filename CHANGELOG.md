@@ -5,6 +5,23 @@ All notable changes to the WorkMagic public skills are recorded here. This repo 
 its `SKILL.md` frontmatter (`version:` / `last-updated:`).
 
 
+## 2026-10-29（2.5.1）
+
+### Fixed
+
+- **`lift-test-creation` 2.5.1：总预算的换算，以及测试预算只对 LTM 生效。** 来自 Will 的「按 50K / 75K / 100K 预算档位出 holdout 和门槛」实测（Chirp 150968，Meta 整个账户，2.4.0）。
+  - **总预算换算（auto-solve.md 第 2 步、第 4 / 5 步，solve-loop.md 延长测试期的 lever，constraints.md Budget 表）**：原来 `T_need = D × (0.95 × required_D / budget)²` 把预算当成每天固定，于是总预算时会建议拉长测试期。
+    实际上总预算 B 固定时，每天预算是 B / T，下降得比门槛（× √(D / T)）快，条件是 B ≥ 0.95 × required_D × √(D × T)，测试越长需要的总额越多。
+    → 总预算时不再算 `T_need`，按用户给的测试期、否则按 21 天检查；不满足就只能动 geo size 或加预算，不提供「延长测试期」。
+    实测按原文会给出 $100K → PTM 20% / 28 天「舒适」，而 28 天时每天实际差 $1,240。
+  - **测试预算只和 LTM 比（constraints.md Budget、auto-solve.md 输入表、SKILL.md §4.C）**：PTM 的门槛是平台日常每天的总花费（产品 Sufficient 检查用的是同一个数），PTM 不买新流量，测试预算和它不可比。
+    → 有 PTM 时按当前（或用户说测试期间会跑的）日花费检查，不为凑测试预算去加大 PTM 的 geo size。
+    实测 Chirp Meta 每天 $28.5K，5% 已经够；原文会把 holdout 推到 28–31%。
+  - 顺手修掉 constraints.md 两处和 SKILL.md 矛盾的地方：
+    - 「geo size 越大门槛越低」→ 按方法分开写：PTM 降，LTM 升或不变（与 auto-solve Gotchas 一致）；
+    - 「预算和 expected daily spend 比」→ 和 `minimum_daily_budget_required` 比（SKILL §5 已写明不读 `expected_daily_spend`）。
+  纯文案，不改工具。platform-mcp `lift-test-design-analyze` 工具描述 Step D3 Phase 1（总预算时延长测试期）有同样的问题，需要另行同步。
+
 ## 2026-10-29（2.5.0）
 
 ### Added
