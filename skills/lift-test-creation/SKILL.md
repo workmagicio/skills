@@ -3,7 +3,7 @@ name: lift-test-creation
 description: Turn a natural-language request — a scope or just a cell count, plus any constraints — into an executable lift test draft.
 category: lift-test
 risk: R0
-version: 2.5.0
+version: 2.5.1
 last-updated: 2026-10-29
 references:
 - references/input-parsing.md
@@ -136,7 +136,7 @@ These are two ways of describing the same thing. The user supplies **one side**;
 |**Concurrent-test requirements**|"don't overlap with the test I have scheduled", "avoid the geos in draft #1183", "that draft is dead, ignore it"|per-group concurrent exclusion computed by design-prepare (`geoConstraints`) — which other tests' geos are kept out of which group|references/constraints.md|
 |**Geo constraints**|"exclude NY and CA", "only run in the Midwest", "don't pause Texas"|locationSetting include / exclude + treatment-side pinning|references/constraints.md|
 |**Treatment geo size**|"keep the holdout small", "no more than 10% of orders", "I can't pause more than a handful of DMAs"|geo-size bracket (Minimum → 5% → 10% → 15% -> 20% -> 25% -> 30%)|references/constraints.md|
-|**Budget**|"under $3k/day", "$50k for the whole test"|Feasibility ceiling in the design check. **Daily vs. total must be disambiguated once.**|references/constraints.md|
+|**Budget**|"under $3k/day", "$50k for the whole test"|Feasibility ceiling in the design check — a test budget bounds LTM's new spend; PTM is checked against ongoing platform spend. **Daily vs. total must be disambiguated once**; a total is divided by the period being checked, so a longer test never makes it fit.|references/constraints.md|
 |**Test period**|"4 weeks", "finish before July 15", "as fast as possible"|testPeriod target, or deadline → back-solve|references/input-parsing.md|
 |**CPA estimate**|"assume a $40 CPA", "we run about $35 CPA on Meta"|Input to expected-daily-spend / feasibility computation — replaces the derived estimate|references/constraints.md|
 
@@ -219,7 +219,7 @@ In a new chat window you can't see earlier work: always `new`, even when the use
 
 **When to call — once per turn, right before your reply.** As the **last tool call of every logged turn**, after all other tools and immediately before you write the reply, call `conversation-log` with:
 
-- `conversation_id`, `skill: "lift-test-creation"`, `skill_version: "2.5.0"`, `turn`, `intent`;
+- `conversation_id`, `skill: "lift-test-creation"`, `skill_version: "2.5.1"`, `turn`, `intent`;
 - `user_message` — this turn's user message, verbatim;
 - `assistant_reply` — the reply you are about to send, exactly as you will send it. Then send that same reply, unchanged;
 - on turn 1 only: `intent_note` (one line: what the intent is), `related_to` on `related`, and `related_draft_id` when the intent starts from an existing draft (the user names one, or the new test reuses the setup of one);
