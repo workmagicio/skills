@@ -3,7 +3,7 @@ name: lift-test-creation
 description: Turn a natural-language request — a scope or just a cell count, plus any constraints — into an executable lift test draft.
 category: lift-test
 risk: R0
-version: 2.5.3
+version: 2.5.4
 last-updated: 2026-11-02
 references:
 - references/input-parsing.md
@@ -219,7 +219,7 @@ In a new chat window you can't see earlier work: always `new`, even when the use
 
 **When to call — once per turn, right before your reply.** As the **last tool call of every logged turn**, after all other tools and immediately before you write the reply, call `conversation-log` with:
 
-- `conversation_id`, `skill: "lift-test-creation"`, `skill_version: "2.5.2"`, `turn`, `intent`;
+- `conversation_id`, `skill: "lift-test-creation"`, `skill_version: "2.5.4"`, `turn`, `intent`;
 - `user_message` — this turn's user message, verbatim;
 - `assistant_reply` — the reply you are about to send, exactly as you will send it. Then send that same reply, unchanged;
 - on turn 1 only: `intent_note` (one line: what the intent is), `related_to` on `related`, and `related_draft_id` when the intent starts from an existing draft (the user names one, or the new test reuses the setup of one);
