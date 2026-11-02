@@ -5,6 +5,24 @@ All notable changes to the WorkMagic public skills are recorded here. This repo 
 its `SKILL.md` frontmatter (`version:` / `last-updated:`).
 
 
+## 2026-11-02（2.5.4）
+
+### Fixed
+
+- **`lift-test-creation` 2.5.4：测试预算一定给出 LTM 的答案；判断统一按 0.95 容差。** 来自 2.5.1（#80）的盲评回归：3 个账户、5 个场景，新旧版各回放 5 次。
+  - **constraints.md Budget（修 2.5.1 的副作用）**：
+    - 用户给了测试预算时，不管 PTM 按当前花费是否已经够，都单独给出 LTM 的结论（每档的最小 geo size 和门槛，或者差多少）。PTM 的结论并列给，不能替代 LTM。
+    - 每天预算在 21 天不够时，再给出能满足预算的最短测试期：T = D × (0.95 × 门槛 ÷ 预算)²。
+    - 写明触到平台下限的门槛同样按 × √(D / N) 随测试期变化。
+    - 回归时 2.5.1 在每天预算场景只有 2/10 给出延长测试期的方案。Beekeeper's 每天 $180 的场景，5 次都说「LTM 不可行」，实际 28 天就够。
+  - **constraints.md geo size**：「LTM 升或不变」→「通常上升，但不严格，以实际 design 为准」。Beekeeper's 150212 从 25% 到 30%，门槛由 $377 降到 $360。
+  - **output-templates.md**：
+    - 新增「Pass rule」：所有 ✓ / ✗、差额、最短测试期，都按「金额 ≥ 0.95 × 门槛」判断，临界时写明容差；
+    - 第二张表和自定义测试期的公式引用它，明确不用 D × (门槛 ÷ 金额)²。
+    - 回归时新旧版都常漏容差：每天 $3,000 对 21 天门槛 $3,641，应得 28 天，多数回复给的是 31～35 天。
+  - SKILL.md：版本号改为 2.5.4；顺带把 conversation-log 的 `skill_version` 从遗留的 "2.5.2" 改为 "2.5.4"。
+  纯文案，不改工具。
+
 ## 2026-11-02（2.5.3）
 
 ### Changed
