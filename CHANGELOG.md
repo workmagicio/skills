@@ -5,6 +5,20 @@ All notable changes to the WorkMagic public skills are recorded here. This repo 
 its `SKILL.md` frontmatter (`version:` / `last-updated:`).
 
 
+## 2026-11-02（2.5.3）
+
+### Changed
+
+- **`lift-test-creation` 2.5.3:viewer(只读)成员的权限预警。** 配合 platform-mcp:
+  `lift-test-scan` 现返回 `viewerMember`,`lift-test-create` / `-create-or-update` 写失败时对 viewer 返回可操作提示。
+  - Step 3:scan 回来若 `viewerMember=true`,在跑 ~3–4 分钟 design **之前**就提醒——你是 viewer,存不了草稿;
+    需客户 **owner/admin** 把你升为 Operator/Admin 或移除成员(本人都做不了),移除后可改用 join-as-admin;
+    再问用户是否仍要跑设计预览(不可保存)或就此停下。
+  - Step 7:create 因 viewer 被拒时,原样转述工具的可操作提示,不重试。
+  - 工具表 lift-test-scan 行补记 `viewerMember`。
+  背景:viewer 存不了 draft(platform-api 拒写),且因是 activated member,join-as-admin 会短路("already join")而不升权,也救不了——只能客户侧改。
+  **上线顺序**:与 platform-mcp 的 viewer 检测分支一起/其后发。
+
 ## 2026-10-30（2.5.2）
 
 ### Changed
