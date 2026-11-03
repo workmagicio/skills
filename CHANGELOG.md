@@ -5,6 +5,16 @@ All notable changes to the WorkMagic public skills are recorded here. This repo 
 its `SKILL.md` frontmatter (`version:` / `last-updated:`).
 
 
+## 2026-11-03（2.5.5）
+
+### Changed
+
+- **`lift-test-creation` 2.5.5：重新生成的 deck 原地替换已归档的那份。** 配合 cs-support（workmagic-crm 新工具 `lift_deck_publish`，wm-cs 的 2-cell-test-design-deck 2.2.0、multicell-design-deck 1.2.0）：deck skill 不再让 CSM 手动上传，第一次生成时在客户的 Lift Test Design 文件夹新建 Slides，之后每次重新生成都替换同一个文件，链接不变；有人在 Slides 里手改过时，不经用户同意不覆盖。
+  - SKILL.md Step 8：改草稿后重新生成 deck，用户手里的链接继续有效；deck skill 报告「Slides 里有人改过」时，转述是谁、什么时候改的，由用户决定，本 skill 不擅自覆盖。
+  - output-templates.md Step 8：新增「原地更新」和「有人改过、是否覆盖」两条回复。
+  - SKILL.md：版本号改为 2.5.5，conversation-log 的 `skill_version` 同步。
+  纯文案，不改工具。
+
 ## 2026-11-02（2.5.4）
 
 ### Fixed
