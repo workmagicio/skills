@@ -98,6 +98,8 @@ The same shape extends to 4- and 5-cell tests: one column per cell, shared facts
 
 **Which number is the threshold** — the Feasibility threshold row is each platform's `estimator.channel[i][j].minimum_daily_budget_required` (one line per platform and per cell; never add them up). Never use `expected_daily_spend` — it is a deprecated snapshot.
 
+**Pass rule — one tolerance, everywhere.** A platform clears when the amount it is compared with — current daily spend (the product's Sufficient check, and PTM always), or the user's daily budget / total ÷ test period (LTM, references/constraints.md, Budget) — is **≥ 0.95 × the feasibility threshold** at that test period. Every ✓ / ✗, every "$X/day short", every "shortest length that fits" in this file uses it — never a bare amount ≥ threshold. Near the line, say so: "$3,000/day vs $3,153/day at 28 days → clears (within the 5% tolerance: 0.95 × $3,153 = $2,995)". A gap is quoted against 0.95 × threshold too.
+
 **When the numbers aren't real** — read each platform's `estimator.channel` entry before writing ✓ / ✗:
 
 - `cpa` is null → the threshold couldn't be computed from a CPA. Write the threshold cell as "platform minimum — no CPA" and the spend row as "not checked", never ✓.
@@ -127,7 +129,7 @@ Derive each period's threshold from the design's native one with the same formul
 >
 >
 
-Rows: 14 / 21 / 28 days (D is usually 21 — read it). "Clears it?" = current spend ≥ threshold × 0.95, per platform; with several platforms, show one threshold per platform and a length clears only when every platform does.
+Rows: 14 / 21 / 28 days (D is usually 21 — read it). "Clears it?" = the pass rule above (current spend, or the user's budget when one is in play, ≥ threshold × 0.95), per platform; with several platforms, show one threshold per platform and a length clears only when every platform does.
 
 > Test-length options — how the daily threshold moves with duration:
 >
@@ -139,7 +141,7 @@ Rows: 14 / 21 / 28 days (D is usually 21 — read it). "Clears it?" = current sp
 |21 days|$1,250 / day|✗|
 |28 days|$1,080 / day|✗ — closest|
 
-> ★ Recommended = **the user's stated test length if they gave one** (say whether it clears; if it doesn't, name the shortest length that does as the alternative). Otherwise the **shortest length that clears**, chosen from **21 / 28 days** only. **14 days is shown for reference but is never the recommendation** (matches the product). If neither 21 nor 28 clears, a longer **custom length** lowers the threshold further — offer it.
+> ★ Recommended = **the user's stated test length if they gave one** (say whether it clears; if it doesn't, name the shortest length that does as the alternative). Otherwise the **shortest length that clears**, chosen from **21 / 28 days** only. **14 days is shown for reference but is never the recommendation** (matches the product). If neither 21 nor 28 clears, a longer **custom length** lowers the threshold further — offer it, at the shortest length the pass rule allows: T = D × (0.95 × threshold_D ÷ amount)², never D × (threshold_D ÷ amount)² (which overstates it — 31 days instead of 28 for $3,000/day vs $3,641/day at 21). For a **total** budget a longer length never helps (references/constraints.md, Budget).
 >
 >
 
@@ -276,6 +278,14 @@ Straight after the draft, in the same turn — no question in between:
 Deck filed — send the link the deck skill returns, never the deck's contents retyped:
 
 > Design deck is in the client's Drive: [Slides link] (Lift Test Design folder).
+
+Deck rebuilt after a draft update — the deck skill replaced the test's existing file:
+
+> Design deck updated in place: [Slides link] — same link as before, nothing to re-share.
+
+The deck skill found edits someone made in Slides since the deck was filed (it wrote nothing):
+
+> [Name] edited the design deck in Slides on [date]. Updating it replaces those edits (they stay in the Slides version history). Update it anyway?
 
 If the deck skill returned a local file and the folder instead of a Drive link:
 

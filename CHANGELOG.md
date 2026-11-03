@@ -5,6 +5,48 @@ All notable changes to the WorkMagic public skills are recorded here. This repo 
 its `SKILL.md` frontmatter (`version:` / `last-updated:`).
 
 
+## 2026-11-03（2.5.5）
+
+### Changed
+
+- **`lift-test-creation` 2.5.5：重新生成的 deck 原地替换已归档的那份。** 配合 cs-support（workmagic-crm 新工具 `lift_deck_publish`，wm-cs 的 2-cell-test-design-deck 2.2.0、multicell-design-deck 1.2.0）：deck skill 不再让 CSM 手动上传，第一次生成时在客户的 Lift Test Design 文件夹新建 Slides，之后每次重新生成都替换同一个文件，链接不变；有人在 Slides 里手改过时，不经用户同意不覆盖。
+  - SKILL.md Step 8：改草稿后重新生成 deck，用户手里的链接继续有效；deck skill 报告「Slides 里有人改过」时，转述是谁、什么时候改的，由用户决定，本 skill 不擅自覆盖。
+  - output-templates.md Step 8：新增「原地更新」和「有人改过、是否覆盖」两条回复。
+  - SKILL.md：版本号改为 2.5.5，conversation-log 的 `skill_version` 同步。
+  纯文案，不改工具。
+
+## 2026-11-02（2.5.4）
+
+### Fixed
+
+- **`lift-test-creation` 2.5.4：测试预算一定给出 LTM 的答案；判断统一按 0.95 容差。** 来自 2.5.1（#80）的盲评回归：3 个账户、5 个场景，新旧版各回放 5 次。
+  - **constraints.md Budget（修 2.5.1 的副作用）**：
+    - 用户给了测试预算时，不管 PTM 按当前花费是否已经够，都单独给出 LTM 的结论（每档的最小 geo size 和门槛，或者差多少）。PTM 的结论并列给，不能替代 LTM。
+    - 每天预算在 21 天不够时，再给出能满足预算的最短测试期：T = D × (0.95 × 门槛 ÷ 预算)²。
+    - 写明触到平台下限的门槛同样按 × √(D / N) 随测试期变化。
+    - 回归时 2.5.1 在每天预算场景只有 2/10 给出延长测试期的方案。Beekeeper's 每天 $180 的场景，5 次都说「LTM 不可行」，实际 28 天就够。
+  - **constraints.md geo size**：「LTM 升或不变」→「通常上升，但不严格，以实际 design 为准」。Beekeeper's 150212 从 25% 到 30%，门槛由 $377 降到 $360。
+  - **output-templates.md**：
+    - 新增「Pass rule」：所有 ✓ / ✗、差额、最短测试期，都按「金额 ≥ 0.95 × 门槛」判断，临界时写明容差；
+    - 第二张表和自定义测试期的公式引用它，明确不用 D × (门槛 ÷ 金额)²。
+    - 回归时新旧版都常漏容差：每天 $3,000 对 21 天门槛 $3,641，应得 28 天，多数回复给的是 31～35 天。
+  - SKILL.md：版本号改为 2.5.4；顺带把 conversation-log 的 `skill_version` 从遗留的 "2.5.2" 改为 "2.5.4"。
+  纯文案，不改工具。
+
+## 2026-11-02（2.5.3）
+
+### Changed
+
+- **`lift-test-creation` 2.5.3:viewer(只读)成员的权限预警。** 配合 platform-mcp:
+  `lift-test-scan` 现返回 `viewerMember`,`lift-test-create` / `-create-or-update` 写失败时对 viewer 返回可操作提示。
+  - Step 3:scan 回来若 `viewerMember=true`,在跑 ~3–4 分钟 design **之前**就提醒——你是 viewer,存不了草稿;
+    需客户 **owner/admin** 把你升为 Operator/Admin 或移除成员(本人都做不了),移除后可改用 join-as-admin;
+    再问用户是否仍要跑设计预览(不可保存)或就此停下。
+  - Step 7:create 因 viewer 被拒时,原样转述工具的可操作提示,不重试。
+  - 工具表 lift-test-scan 行补记 `viewerMember`。
+  背景:viewer 存不了 draft(platform-api 拒写),且因是 activated member,join-as-admin 会短路("already join")而不升权,也救不了——只能客户侧改。
+  **上线顺序**:与 platform-mcp 的 viewer 检测分支一起/其后发。
+
 ## 2026-10-30（2.5.2）
 
 ### Changed
