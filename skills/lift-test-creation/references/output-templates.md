@@ -279,6 +279,14 @@ Deck filed — send the link the deck skill returns, never the deck's contents r
 
 > Design deck is in the client's Drive: [Slides link] (Lift Test Design folder).
 
+Deck rebuilt after a draft update — the deck skill replaced the test's existing file:
+
+> Design deck updated in place: [Slides link] — same link as before, nothing to re-share.
+
+The deck skill found edits someone made in Slides since the deck was filed (it wrote nothing):
+
+> [Name] edited the design deck in Slides on [date]. Updating it replaces those edits (they stay in the Slides version history). Update it anyway?
+
 If the deck skill returned a local file and the folder instead of a Drive link:
 
 > Design deck built: [file name]. It goes in [folder link] — the upload is still to do.
