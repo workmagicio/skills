@@ -24,8 +24,8 @@ its `SKILL.md` frontmatter (`version:` / `last-updated:`).
     - 用户给了测试预算时，不管 PTM 按当前花费是否已经够，都单独给出 LTM 的结论（每档的最小 geo size 和门槛，或者差多少）。PTM 的结论并列给，不能替代 LTM。
     - 每天预算在 21 天不够时，再给出能满足预算的最短测试期：T = D × (0.95 × 门槛 ÷ 预算)²。
     - 写明触到平台下限的门槛同样按 × √(D / N) 随测试期变化。
-    - 回归时 2.5.1 在每天预算场景只有 2/10 给出延长测试期的方案。Beekeeper's 每天 $180 的场景，5 次都说「LTM 不可行」，实际 28 天就够。
-  - **constraints.md geo size**：「LTM 升或不变」→「通常上升，但不严格，以实际 design 为准」。Beekeeper's 150212 从 25% 到 30%，门槛由 $377 降到 $360。
+    - 回归时 2.5.1 在每天预算场景只有 2/10 给出延长测试期的方案。某账户每天 $180 的场景，5 次都说「LTM 不可行」，实际 28 天就够。
+  - **constraints.md geo size**：「LTM 升或不变」→「通常上升，但不严格，以实际 design 为准」。某账户从 25% 到 30%，门槛由 $377 降到 $360。
   - **output-templates.md**：
     - 新增「Pass rule」：所有 ✓ / ✗、差额、最短测试期，都按「金额 ≥ 0.95 × 门槛」判断，临界时写明容差；
     - 第二张表和自定义测试期的公式引用它，明确不用 D × (门槛 ÷ 金额)²。
@@ -51,7 +51,7 @@ its `SKILL.md` frontmatter (`version:` / `last-updated:`).
 
 ### Changed
 
-- **`lift-test-creation` 2.5.2：换 method 时让用户二选一，跨 method 运行必须单独确认。** 来自 150104（Comfrt）3141：选了 PTM design（`6fec…`）的 geo 分组、实验设成 LTM。
+- **`lift-test-creation` 2.5.2：换 method 时让用户二选一，跨 method 运行必须单独确认。** 来自一次实测：选了 PTM design 的 geo 分组、实验设成 LTM。
   - solve-loop「Switch method」不再默认改用另一 method 自己的 design：列出 **A** 用另一 method 自己的 design（geo 分组会变）与 **B** 保留当前 design 的 geo 分组、换 method 运行，**由用户选**；另一 method 没出 design 时只有 B。
   - 选 B 时设计确认里必须单独一行写明「这是 PTM design 的 geo 分组（`<design id>`），按 LTM 跑」并附重算后的门槛，用户 yes 才 create；create 传该 design 的 `geo_group` 原样，不换成另一 method 的。
   - Step 7 新增 create 前自检：`method` 与所选 `geo_group` 自带的 `method` 不一致而未做上述确认 → 先补问，不静默创建。
@@ -61,14 +61,14 @@ its `SKILL.md` frontmatter (`version:` / `last-updated:`).
 
 ### Fixed
 
-- **`lift-test-creation` 2.5.1：总预算的换算，以及测试预算只对 LTM 生效。** 来自 Will 的「按 50K / 75K / 100K 预算档位出 holdout 和门槛」实测（Chirp 150968，Meta 整个账户，2.4.0）。
+- **`lift-test-creation` 2.5.1：总预算的换算，以及测试预算只对 LTM 生效。** 来自「按 50K / 75K / 100K 预算档位出 holdout 和门槛」实测（Meta 整个账户，2.4.0）。
   - **总预算换算（auto-solve.md 第 2 步、第 4 / 5 步，solve-loop.md 延长测试期的 lever，constraints.md Budget 表）**：原来 `T_need = D × (0.95 × required_D / budget)²` 把预算当成每天固定，于是总预算时会建议拉长测试期。
     实际上总预算 B 固定时，每天预算是 B / T，下降得比门槛（× √(D / T)）快，条件是 B ≥ 0.95 × required_D × √(D × T)，测试越长需要的总额越多。
     → 总预算时不再算 `T_need`，按用户给的测试期、否则按 21 天检查；不满足就只能动 geo size 或加预算，不提供「延长测试期」。
     实测按原文会给出 $100K → PTM 20% / 28 天「舒适」，而 28 天时每天实际差 $1,240。
   - **测试预算只和 LTM 比（constraints.md Budget、auto-solve.md 输入表、SKILL.md §4.C）**：PTM 的门槛是平台日常每天的总花费（产品 Sufficient 检查用的是同一个数），PTM 不买新流量，测试预算和它不可比。
     → 有 PTM 时按当前（或用户说测试期间会跑的）日花费检查，不为凑测试预算去加大 PTM 的 geo size。
-    实测 Chirp Meta 每天 $28.5K，5% 已经够；原文会把 holdout 推到 28–31%。
+    实测某账户 Meta 每天 $28.5K，5% 已经够；原文会把 holdout 推到 28–31%。
   - 顺手修掉 constraints.md 两处和 SKILL.md 矛盾的地方：
     - 「geo size 越大门槛越低」→ 按方法分开写：PTM 降，LTM 升或不变（与 auto-solve Gotchas 一致）；
     - 「预算和 expected daily spend 比」→ 和 `minimum_daily_budget_required` 比（SKILL §5 已写明不读 `expected_daily_spend`）。
@@ -97,7 +97,7 @@ its `SKILL.md` frontmatter (`version:` / `last-updated:`).
 - **`lift-test-creation` 2.4.1：补齐两处仍只写 `geo_group` 的地方，与 2.3.2 / 2.3.3 的 `display_groups` 优先规则对齐。**
   - output-templates.md「Rules for both」：Reference 组大小原写「from `geo_group.test`」→ 改为优先 `display_groups.reference`，回退 `geo_group.test`（与 Step 5 取数表一致）。
   - failure-modes.md：「把 `geo_group.test` 列成 Holdout/Exposed」一条，treated 来源原写 `geo_group.control[i].name` → 改为优先 `display_groups.treated[i].geo_names`（回退 `geo_group.control[i].name`），并注明表外文字同样适用（即 §9 规则 10）。
-  其余按 2.3.3 / 2.4.0 原样（Step 5 自查、§7 / §9 规则 10、auto-solve 均未改）；A/B 抽样（Chirp，2.4.0 与本版各 2 轮）两版均 0 错。纯文案，不改工具。
+  其余按 2.3.3 / 2.4.0 原样（Step 5 自查、§7 / §9 规则 10、auto-solve 均未改）；A/B 抽样（2.4.0 与本版各 2 轮）两版均 0 错。纯文案，不改工具。
 
 ## 2026-10-28（2.4.0）
 
@@ -107,7 +107,7 @@ its `SKILL.md` frontmatter (`version:` / `last-updated:`).
   配合 platform-mcp 新工具 `conversation-log`（通用，所有 skill 可用；调用本身即记录，落 `platform.audit_event`，不建新表）
   和全部工具上注入的可选参数 `conversation_id`。
   - SKILL.md 新增 §5.4：一个 `conversation_id` = 一个意图（做出一个 draft，含对它的修改、design deck 和后续追问），由 agent 自定
-    （`ltc-YYYYMMDD-xxxxxx`），每轮按表判断 `new` / `continue` / `related`；新窗口里说"继续 draft 3301"也是 `new` + `related_draft_id`；
+    （`ltc-YYYYMMDD-xxxxxx`），每轮按表判断 `new` / `continue` / `related`；新窗口里说"继续 draft <id>"也是 `new` + `related_draft_id`；
     与创建 lift test 无关的轮次不记。
   - 每轮一次，作为最后一个工具调用、紧挨回复之前：本轮用户原话 + 即将发出的回复（发出时不改）。
     每条记录就是一组完整问答；切换意图、用户中途离开都不会漏。
@@ -180,7 +180,7 @@ its `SKILL.md` frontmatter (`version:` / `last-updated:`).
 ### Fixed
 
 - **`lift-test-creation` 2.2.8：design 表的实验组名单写明从哪个字段读，修正 Holdout / Reference 写反。**
-  2026-10-27 端到端测试（Chirp 150968，PTM）里，Step 5 的 design 表把 Reference group 的 12 个 DMA 列成了 Holdout group，真正暂停 Meta 的 16 个 DMA（含 Atlanta、Miami）反而没列出来；占比 5.82% 是对的，所以同一行里的占比和 DMA 个数来自两边。根因：output-templates.md 只要求「实验组按名字列出」，没写读哪个字段，正确的侧别映射只在 create-update-params.md 里。
+  2026-10-27 端到端测试（PTM）里，Step 5 的 design 表把 Reference group 的 12 个 DMA 列成了 Holdout group，真正暂停 Meta 的 16 个 DMA 反而没列出来；占比 5.82% 是对的，所以同一行里的占比和 DMA 个数来自两边。根因：output-templates.md 只要求「实验组按名字列出」，没写读哪个字段，正确的侧别映射只在 create-update-params.md 里。
   ① output-templates.md Step 5：新增「每行从哪个字段读」表——占比读 `cell_order_share_pct[i]`，个数和名单读 `geo_group.control[i]`，Reference group 只报 `geo_group.test` 的个数和占比；发送前核对个数等于 `control[i].name` 的长度（列出的名字加「+ N more」），个数、名单、占比同出一侧；地区名用「 · 」分隔（DMA 名自带逗号）。
   ② Reference group 改称「design 选出的匹配地区」，不再写成「剩下的所有 DMA」（output-templates.md 示例与规则、constraints.md、failure-modes.md）；failure-modes.md 新增「把 `geo_group.test` 当实验组」一条。
   ③ SKILL.md 的 design 表要求补一句侧别提示。只改文案，不改工具调用。
@@ -193,7 +193,7 @@ its `SKILL.md` frontmatter (`version:` / `last-updated:`).
   ① 新增 CRITICAL rule 9：每个新实验都从 Step 1 开始。对话里之前的实验、粘贴的 Slack / Lark 讨论、草稿或设计链接都只是背景；平台、test level、目标、cell 结构、geo size、时长、方法、CPA 只有出现在新的 Step 4 表里并被用户确认，才算数。把一个多 cell 实验拆成几个（如 3-cell 拆成两个并行 2-cell）、合并、按新需求重设计，都算新实验，各自走 Step 3–7。只有用户点名改已有草稿时才走 update。
   ② Step 4 永不跳过（用户说「没有别的了」、或者旧实验似乎已经给齐信息，都不是跳过的理由）；scope 行按 cell 写出 test level，用户没说 level 就在这里问——prepare 会静默默认 tactic；Default tactic（`tacticNames: ['']`）写成「Default tactic」，不写「(none)」。
   ③ CPA 合理性检查：设计回来后，任一平台 CPA 低于 $10 / 转化，或 CPA 存在但门槛落在平台最低花费，就在设计确认那句里请用户确认 CPA 或给出自己的 CPA；确认即建草稿，给新 CPA 就重跑 analyze（不重新设计）再确认。不拦截——真实的低 CPA 存在。auto-solve 遇到这种 CPA 先确认再搜索。
-  来源：Amy 10/22（3-cell 拆成两个 2-cell 时沿用了 tactic level、跳过 Step 4）与 10/23（CPA 与门槛）两条反馈；Xiaojun 10/26「200 是兜底，可在此基础上加一层 CPA 合理性判断」。
+  来源：10/22（3-cell 拆成两个 2-cell 时沿用了 tactic level、跳过 Step 4）与 10/23（CPA 与门槛）两条反馈；10/26 反馈「200 是兜底，可在此基础上加一层 CPA 合理性判断」。
 
 ## 2026-10-26（2.2.6）
 
@@ -223,8 +223,8 @@ its `SKILL.md` frontmatter (`version:` / `last-updated:`).
 
 - **`lift-test-creation` 2.2.4：纠正 `create-update-params.md` 里关于 readout 侧别的说明。** 2.2.1 写的是「readout 结果字段
   按统计惯例，`test_orders` = 被处理组」，与数据相反：`lift-test-readout` 的 `ctrl_orders` 才是被处理组（Holdout / Exposed group），
-  `test_orders` 是 Reference group，和草稿 `geoGroup` 模型同一套映射。2026-10-26 在三个已完成测试上核实（2795 PTM、2442 PTM、
-  1908 LTM）：`test_orders ÷ ctrl_orders` 等于设计里 Reference 占比 ÷ 被处理组占比，`ctrl_orders` 按天折算等于设计的
+  `test_orders` 是 Reference group，和草稿 `geoGroup` 模型同一套映射。2026-10-26 在三个已完成测试上核实（2 个 PTM、
+  1 个 LTM）：`test_orders ÷ ctrl_orders` 等于设计里 Reference 占比 ÷ 被处理组占比，`ctrl_orders` 按天折算等于设计的
   `shopify_daily_control_orders`。`lift-test-readout` 的 `references/terminology.md` 同步改正（原写「counterfactual / treatment-side」）。
 
 ## 2026-10-26（2.2.3）
@@ -363,7 +363,7 @@ its `SKILL.md` frontmatter (`version:` / `last-updated:`).
 ### Changed
 
 - **`attribution-weekly-report` (2.2.1 → 2.2.2)：step 4 改为「两个窗口的查询一次发完」。**
-  实测一轮（Justin session 19296）把 8 条查询拆成 3 条消息发，多出的两次模型往返净耗
+  实测一轮把 8 条查询拆成 3 条消息发，多出的两次模型往返净耗
   **25.4 秒**——而这些查询彼此独立、宿主本就并行执行。看板恒定要跟上一周期比，
   所以「先探当期、再看要不要探上期」是明知故问，现明令两窗口同批发出。
 
@@ -372,7 +372,7 @@ its `SKILL.md` frontmatter (`version:` / `last-updated:`).
 ### Changed
 
 - **`attribution-weekly-report` (2.2.0 → 2.2.1)：`instantiation.md` 直接给出每个编辑点的
-  `old_string` 原文。** 2.2.0 让宿主实例化模板后，实测一轮（Justin session 19287）仍花了
+  `old_string` 原文。** 2.2.0 让宿主实例化模板后，实测一轮仍花了
   **11 次 `bt-artifact-read`** 去逐个查找「要改的那一行现在长什么样」——每次都是一轮完整往返。
   锚串本来就是固定的，写进文档即可省掉这一整段：现按编辑点列成表，并写明「匹配不上再回读那一条」。
 
