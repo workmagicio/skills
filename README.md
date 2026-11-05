@@ -50,6 +50,7 @@ Chat apps can't install GitHub skills — they get them through the MCP. CLI age
 
 - **[media-buyer-read](skills/media-buyer-read/SKILL.md)** — Explain the managed service to a brand owner: what was done on their ad accounts, whether it worked, and how far a causal claim may go.
 - **[media-buyer-input-capture](skills/media-buyer-input-capture/SKILL.md)** — File what a customer says about their own promo calendar into the AI Media Buyer customer input ledger.
+- **[media-buyer-plan](skills/media-buyer-plan/SKILL.md)** — Hand a build request (new creatives, new ad sets, restructuring, a season or product switch) to the AI Media Buyer engines as a task, then turn their drafts into a plan the customer approves or rejects.
 
 ---
 
@@ -206,7 +207,7 @@ file, or knowledge base can use them.
   the procedure to follow once selected.
 
 > **Routing tip:** every skill's frontmatter `description` is written as "what it does + when
-> to use / when not to." For tools without built-in skill selection, feed all 12 descriptions
+> to use / when not to." For tools without built-in skill selection, feed all the skill descriptions
 > to your router/model, choose the best match, then load that single skill's body.
 
 ---
