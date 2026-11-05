@@ -1,0 +1,19 @@
+{
+  "name": "workmagic",
+  "owner": {
+    "name": "WorkMagic",
+    "url": "https://workmagic.io"
+  },
+  "metadata": {
+    "description": "WorkMagic agent skills — attribution, incrementality / lift testing, and media budget optimization.",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "workmagic-skills",
+      "source": "./",
+      "description": "Attribution analysis, incrementality / lift testing, and media budget optimization skills for operating WorkMagic.",
+      "version": "1.0.0"
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+## Failure modes — never do these
+
+- **Treat MBO and attribution numbers as if they should match** — methodology gap is expected; explain it, don't apologize for it
+- **Skip "expected to differ" framing** in mbo_vs\_\* modes before showing the gap — leading with the gap makes user think there's a bug
+- **Frame MBO vs lift test as "which is right"** — they're complementary; lift test calibrates MBO
+- **Make up a number for "how much should I spend on X?"** — this is a recommendation question, must route to create
+- **Use list / historical data to answer recommendation questions** — these don't substitute for running a scenario
+- **Skip the 2-step disambiguation** on ambiguous "show me my budget" asks
+- **Use tool names in clarification** ("do you want list or forecast?")
+- **Use scenario IDs in conversation** — use names
+- **List multiple scenarios without key attributes** (period, strategy, goal) — user needs context to pick
+- **Dump "no scenarios found"** without guiding to create flow when account has 0 scenarios
+- **Hard-interpret a forecast that's still running**
+- **Bury special states** (zero ref spend, insufficient data) inside the channel list — flag explicitly
+- **Skip the 4-dimensional interpretation** (direction / reason / magnitude / impact) — just listing recommended dollar amounts isn't a reading
+- **Explain a goal-vs-projection mismatch with a generic "more efficient channel mix" answer** — when the projected total moves opposite to the user's goal (e.g., maximize sales but total sales projected lower), the explanation is **almost always baseline (organic) vs paid media decomposition**, not channel mix. Skipping the decomposition produces a misleading answer.
+- **Skip the baseline / paid media decomposition** when goal direction and projection direction disagree — this is the case where users most often misread the recommendation as "MBO is making things worse"
+- **Blame the user's own budget locks for the projection outcome** — saying "because you locked X, Y, Z, this isn't the best plan overall, that's why sales drop" is condescending; the user knows what they locked. Locks are intent, not a flaw to call out.
+- **List the user's locks as a "limitation" or "reason"** in the reading — they're fixed scope, not an explanation. The actual explanation is usually baseline decomposition (per the row above).
+- **Treat "best plan given these locks" as a takeaway worth surfacing** — it's a tautology and adds nothing for the reader.
+- **Hide / soften a baseline-driven decline** — be honest that MBO does not optimize baseline; the decline is a model projection of organic / seasonal trend, not a result of the reallocation
+- **Cite numbers without anchoring** ("Meta is near saturation") — say at what spend, where the saturation point is
+- **Use technical terms without inline explanation on first use** (saturation curve, marginal ROAS, iROAS)
+- **Use internal DS terms** (MMM parameters, iROAS posterior, calibration weight, log-saturation function)
+- **Invent reasons for a curve shift** — cite playbook patterns; if data doesn't match, recommend CS check
+- **Confuse average ROAS with marginal ROAS** in interpretation — these are different and the distinction is MBO's value
+- **Recommend an action** ("follow MBO's recommendation") — give framing, let user decide
+- **Pick a side** in mbo_vs_attribution or mbo_vs_lift_test — give situational guidance
+- **Skip `database-query-ask` before SQL**
+- **Compare more than 2 scenarios in one shot** — too dense; offer pairwise
+- **Output two scenarios sequentially instead of as a comparison** ("scenario A first, then scenario B") — use a table / side-by-side
+- **Skip the MBO link at the end** — curves and full detail live in MBO
+- **Hard-pick a "winner" in comparison** unless user explicitly asked "which is better"
+- **Blame the model when actuals didn't match forecast** — frame as market / execution / seasonality variance
+- **Try to explain MMM model internals** — route to CSM
