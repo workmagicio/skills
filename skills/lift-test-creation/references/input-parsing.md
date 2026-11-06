@@ -13,7 +13,7 @@
 |"Roku"|Roku (`roku`)|
 |"MNTN", "Mountain"|MNTN (`mntn`)|
 |"GMV Max", "TikTok GMV Max"|TikTok GMV Max (`tiktokGMVMax`) — distinct from TikTok Ads|
-|"Amazon Ads"|**Not a lift-test platform** — say so; don't map it|
+|"Amazon Ads"|Not an officially supported platform — use it only as listed in scan's `adPlatforms` (an imported "Others" entry, manual); not listed → Data Scope step (SKILL.md §4.D). Don't map it to another platform|
 |"UK", "United Kingdom", "Britain"|country `GB`|
 |"PTM", "pause", "pause to measure"|PTM|
 |"LTM", "launch", "launch to measure"|LTM|
@@ -48,7 +48,7 @@ Spelling tolerance: "Goggle Ads", "Snapcaht" → silently corrected; surface the
 |"run for 4 weeks" / "4-week test"|testPeriod target = 28 days|
 |"as fast as possible"|Shortest viable test period (14d); flag the higher daily-budget requirement|
 |Past date ("yesterday", "June 1 2024")|**Error out** — don't hard-build. Ask what they meant.|
-|*(nothing said about timing)*|**Don't ask.** Leave testStartTime unset; note it in the draft handoff.|
+|*(nothing said about timing)*|**Don't ask.** Leave testStartTime unset; say so in the reply that hands over the draft (Step 7 template).|
 
 **Conflicting constraints** ("finish in 4 weeks + daily spend < $3k + Meta"): surface the conflict, don't silently drop a piece — this is the solve loop's job, not a quiet resolution.
 

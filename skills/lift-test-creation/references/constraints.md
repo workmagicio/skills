@@ -140,7 +140,7 @@ prepare reports the result in `geoConstraints.occupancy` (`concurrentTestCount`,
 |"avoid the geos in draft #1183"|Pull it with lift-test-get, exclude its geos, and say which test you read|
 |"that draft is dead / not going to run — ignore it"|Remove it from the exclusion set. Say what that gives back: "That frees up 11 DMAs including Chicago."|
 |"it's fine to overlap"|Only in the two forms below — never unconditionally|
-|"don't start until the other one finishes"|Records a start date. Since the skill doesn't ask for one, put it in the draft handoff note; if the user states the date outright, honor it.|
+|"don't start until the other one finishes"|Records a start date. Since the skill doesn't ask for one, say it in the reply that hands over the draft; if the user states the date outright, honor it.|
 |Names a test that doesn't exist|List their scheduled / executing / active tests and ask which one|
 
 ### What overlap is allowed

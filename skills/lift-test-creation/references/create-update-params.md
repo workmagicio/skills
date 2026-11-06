@@ -59,7 +59,7 @@ The `lift_test_group` body and where every field comes from. `lift-test-create` 
 |---|---|---|
 |`numberOfCells`|prepare (derived)|string `"2"`…`"5"` = `testChannel.length` (test cells) + 1 shared reference group|
 |`budgetRequirement`|user|`{ operator:"between", value:[min,max] }`; default `[null,null]`|
-|`additionalRequests`|user|free text, default `""`|
+|`additionalRequests`|const|`""` — **never set it.** It is not a notes field: a non-empty value files a manual-design request (the platform pings the design owner in the test's Lark group and holds the workflow at manual design). lift-test-create always saves `""`, and lift-test-create-or-update refuses a new value. Notes, caveats and the start-date line go in your reply to the user; a custom design for Data Science goes through cs-task-create (solve-loop.md).|
 |`includeCustomSalesChannels`|const|`false`|
 |`customSalesChannels`|const|`[]`|
 |`marketingChannelAdditionalInfo`|const|`[]`|
@@ -98,6 +98,7 @@ Changing geo size / any online-design input is NOT a recompute — it needs a fr
 |`name`|derived|auto-generated per-cell name (date + platform + geo size + metric, like the top-level name)|
 |`status`|const|`"draft"`|
 |`adPlatform`|user → prepare|this entry's platform|
+|`adPlatformName`|tool (derived)|**Don't pass it.** lift-test-create / create-or-update / replace-platform set it for an imported platform (its Data Scope `displayName`, e.g. `"StackAdapt"`) — the product queries that platform's spend and CPA by it. The generic `other` keeps the name it was saved with|
 |`testChannelIndex`|prepare (derived)|0-based cell index (= outer index)|
 |`primaryMetric`|scan/user|same as top-level|
 |`impactCampaignInfos`|user (impact-campaigns / tactic-list) → prepare|shape by `testLevel` — as passed to prepare: **platform**`{accountId, accountName}`; **tactic** one object per tactic `{tacticNames:[name]}` (`''` = Default tactic); **campaign**`{accountId, accountName, campaignId, campaignName}`. A persisted draft may carry the stored form (`campaigns:[…]`) — keep it verbatim on update. `[]` = skip for now. May also carry `excludeAudienceIds` / `includeAudienceIds` (nullable)|

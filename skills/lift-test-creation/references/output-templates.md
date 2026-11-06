@@ -1,3 +1,52 @@
+## Step 2 — Which platform (neither scope nor cell count given)
+
+List every `adPlatforms` entry available for the country and level — spend is a reference column, not a filter:
+
+> What should this test measure? These are the channels I can test for {client} in the US (whole-platform level):
+>
+> | Channel | Daily spend | Daily orders | Setup |
+> |---|---|---|---|
+> | TikTok GMV Max | ~$26,400 | 264 | manual |
+> | Meta | ~$11,900 | 1,083 | automatic |
+> | StackAdapt | no data yet | — | manual |
+> | … every other available entry … | | | |
+>
+> Pick one or more (each gets its own result unless you want them measured together), or just tell me how many cells you want.
+
+## Step 2 — Platform not in the Data Scope
+
+> Reddit isn't in {client}'s Data Scope yet, so it can't be tested. Adding it updates the account's Data Scope — onboarding will then list Reddit as a channel to connect. Want me to add it?
+
+On yes, after data-scope-set (mode add) and a fresh scan:
+
+> Added Reddit to the Data Scope. Continuing with the test setup.
+
+## Replace platform (SKILL.md §5.6)
+
+The old platform had targets — ask for the new ones first, at the test's level:
+
+> 3145 is a platform-level test, so its Meta part needs Google accounts. These are the Google accounts I can see: [list]. Which ones should it cover — or set them later in the test?
+
+Then confirm once (only what changes, plus the one "unchanged" line):
+
+> Here's the change to test 3185:
+>
+> | | Now | After |
+> |---|---|---|
+> | Ad platform | Other | StackAdapt |
+> | Test name | 20261104 - Other - 21% DTC Orders - LTM | 20261104 - StackAdapt - 21% DTC Orders - LTM |
+> | Targets | none | none (set in the test) |
+>
+> The design stays as it is: same markets, method, CPA, spend estimate and feasibility threshold. Update it?
+
+When the test runs automatic setup and the new platform is manual-only there, add:
+
+> StackAdapt can only be set up manually, and the test is still set to automatic — check the setup method in the test before it starts.
+
+After the swap, if the test has a design deck:
+
+> Done — 3185 is now on StackAdapt. Its design deck still says Other; want me to rebuild it?
+
 ## Step 4 — Config confirmation (scope entry)
 
 Here's the config I'll use — confirm before I run the design:
