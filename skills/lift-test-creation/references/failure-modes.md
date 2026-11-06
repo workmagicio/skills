@@ -2,6 +2,16 @@ Complete catalog. The top 9 most-violated are inline in SKILL.md §9 CRITICAL; t
 
 ## On the either/or structure
 
+❌ **Offering only the platforms with spend** — the list is every `adPlatforms` entry available for the country and level; spend is a reference column (StackAdapt with no spend data is still a choice)
+❌ **Putting a named platform in as `other`** or swapping in a different one — match it in `adPlatforms`; missing → the Data Scope step
+❌ **Adding to the Data Scope without the user's yes**, with mode replace, or with more than the one platform asked for
+❌ **Offering a platform outside its `supportCountry` / `supportTestLevel`** (e.g. TikTok in the UK) — say where it can run instead
+❌ **Swapping a test's platform with a hand-built create-or-update body** — use lift-test-replace-platform (SKILL.md §5.6)
+❌ **Re-estimating CPA / spend, re-running the design or rebuilding the deck after a platform swap** without the user asking — only the platform fields change
+❌ **Keeping the old platform's accounts / campaigns** on the new platform, or **dropping them without asking** — the user picks the new platform's targets (or "set later")
+❌ **Changing the platform of a test that has started or ended** — only draft or scheduled
+❌ **Asking for a CPA for an imported platform that has spend** — its CPA comes from the warehouse like any platform's
+❌ **Setting, editing or stripping `adPlatformName` by hand** — the tools set it from the Data Scope for imported platforms
 ❌ **Asking for a platform when the user gave a cell count** — the cell count is enough
 ❌ **Picking platforms or tactics for the user** when they only gave a cell count
 ❌ **Asking for a cell count when the user gave a scope** — derive it
@@ -139,6 +149,7 @@ Complete catalog. The top 9 most-violated are inline in SKILL.md §9 CRITICAL; t
 ❌ **Creating the draft on an implausible CPA without asking** — a CPA below $10 per conversion, or a threshold at the platform minimum while a CPA exists, gets one confirmation question first (output-templates.md, Step 5)
 ❌ **Field labels not matching the UI** — Experiment days → Test period; treatment-side labels follow the method
 ❌ **Omitting the start-date note** when testStartTime is unset
+❌ **Writing a note into `additionalRequests`** — "Created as-is…", "StackAdapt (entered as Other)", "Manual design … frozen", a caveat or the start-date line. It files a manual-design request and holds the workflow; notes go in the reply, a custom design request goes through cs-task-create
 ❌ **Omitting the proceed-as-is caveat** when the user chose it
 ❌ **Creating a duplicate draft** when the user was modifying an existing one — update it and say so
 ❌ **Splitting a multi-cell test into one draft per cell** — it's one draft, one link

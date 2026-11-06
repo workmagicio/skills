@@ -106,5 +106,5 @@ Never claim the task exists before the tool returns, and never promise what Data
 Always on the table, every round. Choosing it **is** the design confirmation (§9-2) — the user is approving the current design as it stands. If chosen:
 
 - Go straight to Step 7 — don't ask "Shall I create the draft now?" again.
-- Put one caveat line in the draft handoff — "Built as configured; at $1.8k/day the result may come back inconclusive."
+- Put one caveat line in the reply that hands over the draft (never in the draft itself) — "Built as configured; at $1.8k/day the result may come back inconclusive."
 - Don't re-litigate it. One caveat, then done.
