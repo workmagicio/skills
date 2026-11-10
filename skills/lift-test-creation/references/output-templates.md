@@ -13,6 +13,16 @@ List every `adPlatforms` entry available for the country and level — spend is 
 >
 > Pick one or more (each gets its own result unless you want them measured together), or just tell me how many cells you want.
 
+## Step 2 — AppLovin without a Campaign Management Key
+
+Say it once, when AppLovin is offered or picked (SKILL.md §4.D):
+
+> AppLovin doesn't have a Campaign Management Key connected, so this test can only be set up manually (you'd apply the holdout in AppLovin yourself), and its campaigns can't be listed yet. Automatic setup or a tactic-level test needs the key — add it in the platform: [Settings → Integrations → AppLovin]({settingsUrl}). Build it as a manual test now, or add the key first and come back?
+
+With the design, when only analyze caught it (`manualReason: applovin_key_missing`):
+
+> Setup: manual — AppLovin has no Campaign Management Key; add it at [Settings → Integrations → AppLovin]({settingsUrl}) if you want automatic setup.
+
 ## Step 2 — Platform not in the Data Scope
 
 > Reddit isn't in {client}'s Data Scope yet, so it can't be tested. Adding it updates the account's Data Scope — onboarding will then list Reddit as a channel to connect. Want me to add it?
