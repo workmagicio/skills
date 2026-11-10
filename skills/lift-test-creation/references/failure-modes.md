@@ -7,6 +7,10 @@ Complete catalog. The top 9 most-violated are inline in SKILL.md §9 CRITICAL; t
 ❌ **Adding to the Data Scope without the user's yes**, with mode replace, or with more than the one platform asked for
 ❌ **Offering a platform outside its `supportCountry` / `supportTestLevel`** (e.g. TikTok in Germany) — say where it can run instead
 ❌ **Putting TikTok and another platform in one UK / France test** — TikTok is city-only there, the others postcode-only; offer two tests (SKILL.md §4.D)
+❌ **Not saying that AppLovin has no Campaign Management Key** — offering it as automatic, or letting the design come back manual without the reason (SKILL.md §4.D)
+❌ **Asking for the AppLovin Campaign Management Key in chat**, or trying to set it — the client adds it at `settingsUrl`
+❌ **Refusing a tactic-level AppLovin test because the key is missing** — it's a notice, not a block
+❌ **Reading an empty AppLovin campaign list right after the key was added as "no campaigns"** — they appear after the next sync
 ❌ **Passing `geoLevel: "postcode"` for TikTok in the UK / France**, or `"city"` for any other platform — leave geoLevel unset; prepare derives it
 ❌ **Saying TikTok can't be tested in the UK / France** — it can, at city level (counties / departments)
 ❌ **Swapping a test's platform with a hand-built create-or-update body** — use lift-test-replace-platform (SKILL.md §5.6)

@@ -46,6 +46,7 @@ The Step 4 confirmation is a **two-column table** — label on the left, value o
 |**Your constraints**|One line, every stated constraint in the user's own terms, separated by ·|Always, if there is none, display "none"|
 |**Account geo settings**|The account-level geo configuration the test inherits — the baseline pool before any exclusion. Name the setting, not the full geo list|Only if the account geo settings are set — or when prepare's `geoConstraints` is `null` (couldn't be checked; say so, don't treat it as "none")|
 |**Also**|The concurrency note — which running test's geos are being avoided, and through what date|Only if the geo pool was reduced — or when prepare's `geoConstraints` is `null` (concurrent tests weren't checked; say so and offer to retry)|
+|**Setup**|"Manual — AppLovin has no Campaign Management Key" with the `settingsUrl` link|Only for AppLovin with `managementKeyMissing` (SKILL.md §4.D), if not already said at Step 2|
 
 ## Step 5 — Design failures
 
