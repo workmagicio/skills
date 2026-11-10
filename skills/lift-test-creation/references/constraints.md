@@ -118,7 +118,7 @@ Keeping a new test from colliding with tests the tenant already has.
 
 ### Default behavior (no constraint stated)
 
-lift-test-design-prepare keeps this test clear of every test in **scheduled**, **executing** or **active** state (same country), **per group** — the rule platform-api computes and the launch-time check enforces:
+lift-test-design-prepare keeps this test clear of every test in **scheduled**, **executing** or **active** state (same country), **per group** — the rule the platform computes and the launch-time check enforces:
 
 - A geo held by another test's **treatment** group (holdout / exposed) is kept out of **both** groups of this test.
 - A geo held only by another test's **reference** group is kept out of this test's **treatment** group only — two reference groups may overlap.
@@ -126,7 +126,7 @@ lift-test-design-prepare keeps this test clear of every test in **scheduled**, *
 - A DMA-level design also counts state-level tests (their states converted to DMAs); a state-level design does not count DMA-level tests — when scan lists one, say so and offer a start after its end date.
 - The test's own sibling cells (re-designing an existing multi-cell test → pass `liftTestGroupId`) never count.
 
-prepare reports the result in `geoConstraints.occupancy` (`concurrentTestCount`, `rangeEndTime`, `geoCodes`, `treatmentGeoCodes`, `releaseTimeline`); lift-test-scan's `runningTests` lists those tests for awareness. If `geoConstraints` comes back `null`, platform-api was unreachable: the design ran **without the concurrent exclusion and without the account geo limitation** (`geoExclusion` is `null` too, which here does not mean "no limitation") — say both in the Step 4 rows (prepare's summary carries the warning) and offer to retry prepare. lift-test-create re-checks once platform-api is reachable (with no start date it runs open-ended from the design's start date — the `restrictStartTime` you save — else from today); the launch-time check always enforces the rule. Mention it in the Step 4 summary in one line — the user should know their pool was reduced, without being asked to manage it:
+prepare reports the result in `geoConstraints.occupancy` (`concurrentTestCount`, `rangeEndTime`, `geoCodes`, `treatmentGeoCodes`, `releaseTimeline`); lift-test-scan's `runningTests` lists those tests for awareness. If `geoConstraints` comes back `null`, the platform service was unreachable: the design ran **without the concurrent exclusion and without the account geo limitation** (`geoExclusion` is `null` too, which here does not mean "no limitation") — say both in the Step 4 rows (prepare's summary carries the warning) and offer to retry prepare. lift-test-create re-checks once the platform service is reachable (with no start date it runs open-ended from the design's start date — the `restrictStartTime` you save — else from today); the launch-time check always enforces the rule. Mention it in the Step 4 summary in one line — the user should know their pool was reduced, without being asked to manage it:
 
 > "Steering clear of the geos in your Google test that runs through Apr 18."
 
@@ -140,7 +140,7 @@ prepare reports the result in `geoConstraints.occupancy` (`concurrentTestCount`,
 |"avoid the geos in draft #1183"|Pull it with lift-test-get, exclude its geos, and say which test you read|
 |"that draft is dead / not going to run — ignore it"|Remove it from the exclusion set. Say what that gives back: "That frees up 11 DMAs including Chicago."|
 |"it's fine to overlap"|Only in the two forms below — never unconditionally|
-|"don't start until the other one finishes"|Records a start date. Since the skill doesn't ask for one, put it in the draft handoff note; if the user states the date outright, honor it.|
+|"don't start until the other one finishes"|Records a start date. Since the skill doesn't ask for one, say it in the reply that hands over the draft; if the user states the date outright, honor it.|
 |Names a test that doesn't exist|List their scheduled / executing / active tests and ask which one|
 
 ### What overlap is allowed
