@@ -1,3 +1,62 @@
+## Step 2 — Which platform (neither scope nor cell count given)
+
+List every `adPlatforms` entry available for the country and level — spend is a reference column, not a filter:
+
+> What should this test measure? These are the channels I can test for {client} in the US (whole-platform level):
+>
+> | Channel | Daily spend | Daily orders | Setup |
+> |---|---|---|---|
+> | TikTok GMV Max | ~$20,000 | 200 | manual |
+> | Meta | ~$10,000 | 1,000 | automatic |
+> | StackAdapt | no data yet | — | manual |
+> | … every other available entry … | | | |
+>
+> Pick one or more (each gets its own result unless you want them measured together), or just tell me how many cells you want.
+
+## Step 2 — AppLovin without a Campaign Management Key
+
+Say it once, when AppLovin is offered or picked (SKILL.md §4.D):
+
+> AppLovin doesn't have a Campaign Management Key connected, so this test can only be set up manually (you'd apply the holdout in AppLovin yourself), and its campaigns can't be listed yet. Automatic setup or a tactic-level test needs the key — add it in the platform: [Settings → Integrations → AppLovin]({settingsUrl}). Build it as a manual test now, or add the key first and come back?
+
+With the design, when only analyze caught it (`manualReason: applovin_key_missing`):
+
+> Setup: manual — AppLovin has no Campaign Management Key; add it at [Settings → Integrations → AppLovin]({settingsUrl}) if you want automatic setup.
+
+## Step 2 — Platform not in the Data Scope
+
+> Reddit isn't in {client}'s Data Scope yet, so it can't be tested. Adding it updates the account's Data Scope — onboarding will then list Reddit as a channel to connect. Want me to add it?
+
+On yes, after data-scope-set (mode add) and a fresh scan:
+
+> Added Reddit to the Data Scope. Continuing with the test setup.
+
+## Replace platform (SKILL.md §5.6)
+
+The old platform had targets — ask for the new ones first, at the test's level:
+
+> 1235 is a platform-level test, so its Meta part needs Google accounts. These are the Google accounts I can see: [list]. Which ones should it cover — or set them later in the test?
+
+Then confirm once (only what changes, plus the one "unchanged" line):
+
+> Here's the change to test 1234:
+>
+> | | Now | After |
+> |---|---|---|
+> | Ad platform | Other | StackAdapt |
+> | Test name | 20260601 - Other - 10% DTC Orders - LTM | 20260601 - StackAdapt - 10% DTC Orders - LTM |
+> | Targets | none | none (set in the test) |
+>
+> The design stays as it is: same markets, method, CPA, spend estimate and feasibility threshold. Update it?
+
+When the test runs automatic setup and the new platform is manual-only there, add:
+
+> StackAdapt can only be set up manually, and the test is still set to automatic — check the setup method in the test before it starts.
+
+After the swap, if the test has a design deck:
+
+> Done — 1234 is now on StackAdapt. Its design deck still says Other; want me to rebuild it?
+
 ## Step 4 — Config confirmation (scope entry)
 
 Here's the config I'll use — confirm before I run the design:
@@ -70,6 +129,8 @@ The same shape extends to 4- and 5-cell tests: one column per cell, shared facts
 ### Rules for both
 
 **Label the geo row by method** — "Holdout group" for PTM, "Exposed group" for LTM. The reference group is a matched set the design chooses — not the rest of the country: give its size (geo count and % of orders, from `display_groups.reference`; fallback `geo_group.test`), never its member list.
+
+**City level (TikTok, UK / France)**: the geos are counties / unitary authorities (UK) or departments (France) — call them that once in the table ("Holdout group: 18 counties — Devon, Oxfordshire, …"), so nobody reads "Devon" as a town.
 
 **Long geo lists**: at postcode level the list can run to hundreds. Show the top 10 by order volume and "+ N more", and note the full list is on the draft.
 
@@ -208,9 +269,9 @@ Then the CS task preview — ask once and end the turn:
 > | Title | [Lift Test] Meta Prospecting 2-cell: no feasible design |
 > | Team | Data Science |
 > | Priority | P0 |
-> | Account | Acme (150024) |
+> | Account | Acme (100001) |
 > | Description | *(the exact text that will be filed, verbatim — not "the summary above")* What was asked: … What was resolved: … What was tried: … Blocker: … |
-> | Lark group | Your CSM · you · Lift Test team: amyzhou@, liangbo@, lixiaoke@, liminghang@workmagic.io · CS triage: wangyanghua@, jessiezhang@, jessie@, xukai@workmagic.io |
+> | Lark group | Your CSM · you · the Lift Test team · CS triage |
 > | Also add | None — name anyone else from WorkMagic you want in it |
 >
 > Shall I file it?
@@ -219,9 +280,9 @@ The Description row carries the exact `description` you will pass to cs-task-cre
 
 Default members come from solve-loop.md ("you" only when the user is a WorkMagic employee); the server adds them — don't put them in `inviteEmails`. Only names the user adds go there (WorkMagic emails only). After the user's yes, call cs-task-create, then:
 
-> Filed — Data Science has it. Ticket: [CRM ticket link] · they'll follow up in the Lark group: [chatShareUrl]
+> Filed — Data Science has it. Ticket: [taskUrl, or ticket #todoId] · they'll follow up in the Lark group: [chatShareUrl]
 
-The ticket link is `taskUrl` when the tool returns it; otherwise build it from the returned `todoId` as `https://crm.workmagic.io/csm-workspace?task=<todoId>`. Give each link only when its field came back (`todoId` and `chatShareUrl` are returned to WorkMagic employees only) — never invent one; drop a missing link and its label.
+The ticket is `taskUrl` when the tool returns it; otherwise give the returned `todoId` as the ticket number — never build a link from it. Give each one only when its field came back (`todoId` and `chatShareUrl` are returned to WorkMagic employees only) — never invent one; drop a missing link and its label.
 
 Duplicate:
 
@@ -295,7 +356,7 @@ The user opted out ("draft only", "no deck for now"):
 
 > Draft created: [draft link]. Skipped the design deck as you asked — say "design deck for draft [N]" when you want it.
 
-Surface without the deck skills (Justin AI, MCP-only):
+Surface without the deck skills (MCP-only):
 
 > Draft created: [draft link]. The design deck is built in Claude Code / Cowork with the wm-cs plugin — run it there on this draft.
 
