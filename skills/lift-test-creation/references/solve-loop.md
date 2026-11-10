@@ -79,12 +79,12 @@ The hand-off is filed with **cs-task-create**: a CS task on the account CSM's wo
 
 **Default group members** — the server adds these automatically; show them in the preview so the user knows who will be in the group, and never pass them in `inviteEmails`:
 
-- The account's CSM (from HubSpot)
+- The account's CSM
 - The user, when they are a WorkMagic employee
-- Lift Test team: amyzhou@workmagic.io, liangbo@workmagic.io, lixiaoke@workmagic.io, liminghang@workmagic.io
-- CS triage: wangyanghua@workmagic.io, jessiezhang@workmagic.io, jessie@workmagic.io, xukai@workmagic.io
+- The Lift Test team
+- CS triage
 
-Show people by email, never by a guessed name. This list mirrors server config (platform-api `cs-todo.category-config` for the Lift Test team, cs-support `csroster.DefaultGroupInvites` for CS triage) — when either changes, update it here.
+Show these as teams, never as named people: the server decides who is in each team, so a list written here would drift from it. Name individuals only for extra teammates the user adds, by their email.
 
 Steps:
 
@@ -97,7 +97,7 @@ Steps:
    - Lark group — the default members above, plus any extra WorkMagic teammates the user named (they can add more)
 2. **Call only on an explicit yes.** "Yes" / "file it" / "go ahead" is the approval. If the user edits anything (title, priority, wording, people to add), show the updated preview and ask again. If they decline, leave the summary in chat and stop — nothing is filed, and don't ask again.
 3. **Call once.** `cs-task-create` with `tenantId` (the same one used for scan / prepare), `category: "Lift Test"`, `title`, `description`; `priority` only if the user changed it; `inviteEmails` only for extra WorkMagic teammates the user named; `liftTestGroupId` only when an existing draft is being modified — a design that failed during creation has no draft, so omit it.
-4. **Relay the result as returned.** Created → the task is with the team, they'll follow up in the Lark group; share the CRM ticket link and `chatShareUrl` only when they came back — the ticket link is `taskUrl` if returned, else `https://crm.workmagic.io/csm-workspace?task=<todoId>` from the returned `todoId` (both fields are returned to WorkMagic employees only — never invent a link). `duplicate: true` → the same problem is already being handled; say so, nothing new was filed. `groupError` → the task was filed but the group wasn't; say so. A tool error → tell the user it failed; retry only if they ask.
+4. **Relay the result as returned.** Created → the task is with the team, they'll follow up in the Lark group; share the ticket and `chatShareUrl` only when they came back — the ticket is `taskUrl` if returned, else the returned `todoId` as the ticket number (both are returned to WorkMagic employees only — never build or invent a link). `duplicate: true` → the same problem is already being handled; say so, nothing new was filed. `groupError` → the task was filed but the group wasn't; say so. A tool error → tell the user it failed; retry only if they ask.
 
 Never claim the task exists before the tool returns, and never promise what Data Science will do or when.
 
@@ -106,5 +106,5 @@ Never claim the task exists before the tool returns, and never promise what Data
 Always on the table, every round. Choosing it **is** the design confirmation (§9-2) — the user is approving the current design as it stands. If chosen:
 
 - Go straight to Step 7 — don't ask "Shall I create the draft now?" again.
-- Put one caveat line in the draft handoff — "Built as configured; at $1.8k/day the result may come back inconclusive."
+- Put one caveat line in the reply that hands over the draft (never in the draft itself) — "Built as configured; at $1.8k/day the result may come back inconclusive."
 - Don't re-litigate it. One caveat, then done.
