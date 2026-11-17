@@ -8,20 +8,20 @@ Primary metric: Orders
 
 Summary:
 
-| Channel    | Ad spend  | Incr. orders | Lift % | Incr. ROAS | Confidence score | Significance     |
+| Channel    | Ad spend  | Incr. orders | Lift % | Incr. ROAS | Confidence score | Tier             |
 
 | Combined   | \$29,873   | 29,873       | 13.5%  | \$2.50      | 98% | Significant      |
 
 | DTC        | \$29,873   | 29,873       | 13.5%  | \$2.10      | 95% | Significant      |
 
-| Amazon     | —         | 29,873       | 13.5%  | \$1.80      | 68% | Not significant  |
+| Amazon     | —         | 29,873       | 13.5%  | \$1.80      | 68% | Inconclusive     |
 
 
 
 Headline:
 
 - On DTC, the test shows \$2.10 incremental ROAS at 13.5% lift, confidence 98% — the result confirms incremental return.
-- The Amazon halo measurement came back at 68% confidence — below the significance threshold, so the data can't confirm halo direction from this Meta spend.
+- The Amazon halo measurement came back at 68% confidence — Inconclusive (under 70%), so the data can't confirm halo direction from this Meta spend.
 
 Want this as a deck for sharing internally?
 
@@ -36,8 +36,8 @@ Want this as a deck for sharing internally?
 Read:
 
 - DTC iROAS is \$2.10, above the typical \$1.00 break-even for blended-margin businesses. At current spend (\$10,989), Meta is producing incremental revenue at a positive return on this channel.
-- The DTC row’s confidence is 98% — above the significance threshold, so the lift signal isn't driven by noise.
-- Halo to Amazon couldn't be confirmed in this test — that channel's confidence is 68%, below the significance threshold.
+- The DTC row’s confidence is 98% — Significant (90% or above), so the lift signal isn't driven by noise.
+- Halo to Amazon couldn't be confirmed in this test — that channel's confidence is 68% (Inconclusive).
 
 Consider: Scale Meta. Marginal returns at current spend look healthy. Tradeoff: this test measured the current spend level — at materially higher daily budgets, expect diminishing returns past the point this test covered. To size up the next budget step with confidence, run an MBO scenario or schedule a follow-up test at the higher spend.
 
@@ -49,9 +49,9 @@ Want this as a deck?
 
 - **Significance-explainer**
 
-The Amazon row shows lift % of 13.5%, but its confidence score is 68% — below the significance threshold the product uses to mark a result as Significant.
+The Amazon row shows lift % of 13.5%, but its confidence score is 68% — Inconclusive. The product labels a result Significant at 90% or above, Directional from 70% to under 90%, and Inconclusive below 70%.
 
-The confidence score is computed from the test’s p-value (1 - p_value); a higher score means the observed lift is less likely to be due to random chance. Because Amazon’s score is 68%, the data doesn’t confirm the observed halo — it might reflect a real effect, or it might reflect noise. That’s what “Not significant” means: not that the result is bad, but that this test didn’t have enough signal on the Amazon side to confirm direction.
+The confidence score is computed from the test’s p-value (1 - p_value); a higher score means the observed lift is less likely to be due to random chance. Because Amazon’s score is 68%, the data doesn’t confirm the observed halo — it might reflect a real effect, or it might reflect noise. That’s what “Inconclusive” means: not that the result is bad, but that this test didn’t have enough signal on the Amazon side to confirm direction.
 
 The DTC row on the same test came back at 95% confidence and was flagged Significant, so the Meta spend did drive incremental DTC orders. The halo question on Amazon is the part that needs more data to resolve.
 
@@ -63,19 +63,19 @@ Last 3 completed tests:
 
 
 
-| Test                                          | Channel  | iROAS  | Lift %  | CI            | Significance     |
+| Test                                          | Channel  | iROAS  | Lift %  | CI            | Tier             |
 
 | 20260320-Meta Ads - 20% DTC orders - PTM     | DTC      | \$2.10  | 13.5%   | 98%  | Significant      |
 
 | 20260215-TikTok - new customer test - LTM    | DTC      | \$1.40  | 8.2%    | 94%    | Significant      |
 
-| 20260108-Google - Prospecting tactic - PTM   | DTC      | \$0.90  | 2.1%    | 72%    | Not significant  |
+| 20260108-Google - Prospecting tactic - PTM   | DTC      | \$0.90  | 2.1%    | 72%    | Directional      |
 
 
 
 Notes:
 
-- Two tests confirmed positive lift; the Google Prospecting test came back not significant — confidence 72%, below the significance threshold.
+- Two tests confirmed positive lift; the Google Prospecting test came back Directional — confidence 72%: likely but not confirmed, so it does not support Scale or Maintain.
 - These tests measured different channels at different time windows; direct cross-test comparison should be read with that caveat.
 
 
@@ -100,11 +100,11 @@ Notes:
 |-|-|
 | Test is still running | Surface status (Running, with end date). Don’t read partial data. Tell the user when results will be ready. |
 | Test is in cooling period | State that the test window has ended but cooling is ongoing; results are preliminary. Offer to come back when cooling closes. |
-| Test came back not significant across **every** row | Read it honestly. Don’t manufacture insight. Suggest routing to diagnosis: “This test couldn’t confirm lift in either direction — to figure out what to change before rerunning, the diagnosis skill can walk through the likely causes.” |
+| No row came back Significant (every row Directional or Inconclusive) | Read it honestly. Don’t manufacture insight. Suggest routing to diagnosis: “This test couldn’t confirm lift in either direction — to figure out what to change before rerunning, the diagnosis skill can walk through the likely causes.” |
 | Test failed setup or was terminated early | State the status; don’t pretend there are results to read. Route to diagnosis. |
 | Calibration status is **Not calibrated** | Surface it as context — the platform / tactic test went through but didn’t roll into attribution calibration. Don’t editorialize on whether that’s a problem. |
 | User asked about an Amazon-only or marketplace-only test | Same shape, just the marketplace as primary. NC-orders framing per-store applies (\~X new Amazon customers). |
-| User asked a decision question but the test result is Not significant | Honestly say the data doesn’t support a directional recommendation. Suggest **Adjust and retest** from the vocabulary, or recommend running a new test with adjusted parameters (route to creation skill). Don’t pick Scale or Maintain on a non-significant signal. |
+| User asked a decision question but the test result is not Significant (Directional or Inconclusive) | Honestly say the data doesn’t support a Scale or Maintain recommendation. Suggest **Adjust and retest** from the vocabulary, or recommend running a new test with adjusted parameters (route to creation skill). Don’t pick Scale or Maintain on a Directional or Inconclusive signal. |
 | User asked about a specific tactic / campaign-level test | Same shape, but flag that campaign-level tests don’t feed attribution calibration (UI also surfaces this). |
 | User asked for cross-test synthesis (“how is my measurement program going overall”) | Pull recent tests, surface in a table, but **don’t roll up to a single number** — each test measured a different thing under different conditions. |
 | User asks about a test that doesn’t exist | List close matches; ask which one they meant. Don’t guess. |
@@ -134,7 +134,7 @@ Notes:
 
 **On recommendation framing**:
 
-- ❌ Recommending **Scale** on a Not-significant result
+- ❌ Recommending **Scale** on a result that is not Significant (Directional or Inconclusive)
 - ❌ Recommending without surfacing the tradeoff
 - ❌ Inventing recommendation labels outside Scale / Maintain / Optimize / Adjust and retest
 - ❌ Owning cross-channel allocation prose (“shift 30% of Meta’s \$40k to Google”) — that’s MBO’s job; hand off
@@ -144,9 +144,10 @@ Notes:
 
 **On significance**:
 
-- ❌ Reporting lift % without confidence score / significance
-- ❌ Reading not-significant rows as if they were significant
-- ❌ Tucking the significance flag at the end as an afterthought — surface it next to the lift % it qualifies
+- ❌ Reporting lift % without confidence score / tier
+- ❌ Labelling a row “Not significant” — the UI has three tiers (Significant / Directional / Inconclusive), use them
+- ❌ Reading Directional or Inconclusive rows as if they were Significant
+- ❌ Tucking the tier at the end as an afterthought — surface it next to the lift % it qualifies
 
 **On scope**:
 
