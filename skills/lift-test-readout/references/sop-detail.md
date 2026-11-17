@@ -11,14 +11,14 @@ From **lift-test-readout**:
 
 - Per-sales-platform metric rows: iorders, lift_pct, icpa, isales, iroas, nc_iorders, nc_icpa, nc_isales, nc_iroas (UI labels per references/terminology.md)
 - Combined (cross-store) row when applicable
-- extra_info JSON containing Confidence score and significance flag (rendering per references/terminology.md)
+- extra_info JSON containing Confidence score; the tier (Significant / Directional / Inconclusive) is derived from it per references/terminology.md
 
 - Step 4 — Rubric for building the readout
 
 Apply these rules in every output:
 
 - **Connect every metric to an implication.** Never report a number in isolation. “\$2.10 iROAS” is not enough — pair it with significance, or with the user-stated target if there is one, or with the spend it represents in dollar terms.
-- **Pair lift with the confidence score.** Each metric row has both a lift % and a confidence score (0-100%, computed as 1 - p_value; higher = more statistically significant). A 13.5% lift with confidence 98% is a confirmed result (“Significant”). A 13.5% lift with confidence 68% is not confirmed, even though the point estimate looks the same — the data doesn’t rule out no lift or negative lift (“Not significant”). Always surface the confidence score and significance flag alongside the lift %. Use the significance flag the tool returns — don’t compute your own threshold.
+- **Pair lift with the confidence score.** Each metric row has both a lift % and a confidence score (0-100%, computed as 1 - p_value; higher = more statistically significant). A 13.5% lift with confidence 98% is a confirmed result (“Significant”). The same lift with confidence 78% is likely but not confirmed (“Directional”). A 13.5% lift with confidence 68% is not confirmed, even though the point estimate looks the same — the data doesn’t rule out no lift or negative lift (“Inconclusive”). Always surface the confidence score and tier alongside the lift %. Use the UI’s three tiers and thresholds in references/terminology.md — no other threshold, and never a two-way Significant / Not significant split.
 - **Comparative framing — only when the reference is in the data.** Compare to: user-stated target (if they mentioned one), prior period (if data has it), or another channel in the same test. Never invent a target like “above \$1.00 baseline” if the user didn’t state one. If no reference exists, state the magnitude as a fact and let it stand.
 - **Frame stakes in dollars where possible.** Dollar amounts beat bare percentages where it fits. “\$11k incremental sales on \$11k ad spend” lands harder than “13.5% lift.”
 - **Acknowledge what wasn’t measured.** Meta-only test? Don’t speculate about Google or TikTok. Amazon halo not in scope? Say so when the user asks decision questions.
@@ -52,4 +52,4 @@ Multi-test branch (when user asks “last N tests”)
 - Pull all resolved tests’ top-line rows in a single comparison table.
 - Sort by recency by default; re-sort only if user asks.
 - Don’t weave a narrative across tests unless the user asked a synthesis question — and even then, compare on the same metric with the same significance treatment.
-- Flag any test still in progress or Not significant — these don’t roll up cleanly into “how are my tests doing overall.”
+- Flag any test still in progress or not Significant (Directional or Inconclusive) — these don’t roll up cleanly into “how are my tests doing overall.”

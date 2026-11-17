@@ -3,8 +3,8 @@ name: lift-test-readout
 description: Read and act on completed lift test results — interpret iROAS, confidence scores, and turn the data into a post-test decision.
 category: lift-test
 risk: R0
-version: 1.1.1
-last-updated: 2026-10-26
+version: 1.1.2
+last-updated: 2026-11-16
 references:
   - references/test-resolution.md
   - references/terminology.md
@@ -32,7 +32,7 @@ How to read and act on lift test results — interpreting incremental ROAS, conf
 | Status / progress only (“is my test still running”, “when will it end”) — no result interpretation needed | Plain test-status query, handle inline |
 | “Compare two creatives” / “compare lift across two time periods” | Out of scope — route to CSM |
 
-**Boundary with diagnosis**: This skill explains **what the result means** (“not significant means the data couldn’t rule out zero lift”). The diagnosis skill handles **what to do to fix or rerun it** (“here’s why your test came back inconclusive and the three things to change before rerunning”). When the user’s question mixes both (“Amazon is not significant — what should I do?”), readout handles the explanation, then suggests routing to diagnosis for the remediation path.
+**Boundary with diagnosis**: This skill explains **what the result means** (“Inconclusive means the data couldn’t rule out zero lift”). The diagnosis skill handles **what to do to fix or rerun it** (“here’s why your test came back inconclusive and the three things to change before rerunning”). When the user’s question mixes both (“Amazon is not significant — what should I do?”), readout handles the explanation, then suggests routing to diagnosis for the remediation path.
 
 ## Inputs
 
@@ -53,11 +53,11 @@ Terminology rules (DB field → UI label, store-family names, number formatting)
 ### 4.1 Steps
 
 1. **Resolve the test(s).** Apply rules in references/test-resolution.md. If ambiguous, surface candidates and ask — don’t guess. If test is still running, surface status and stop.
-2. **Pull the data.** From lift-test-get: primary metric, ad spend, calibration status, test window dates. From lift-test-readout: per-sales-platform metric rows, confidence score, significance flag from extra_info JSON. Detail → references/sop-detail.md.
+2. **Pull the data.** From lift-test-get: primary metric, ad spend, calibration status, test window dates. From lift-test-readout: per-sales-platform metric rows and the confidence score from extra_info JSON; the tier is derived from the score (references/terminology.md). Detail → references/sop-detail.md.
 3. **Pick the read shape** based on user intent — see §4.1 below.
 4. **Build the readout following the rubric.** Connect every metric to an implication, pair lift with confidence score, use comparative framing only when reference is in the data, no evaluative adjectives, no speculation about causes. Full rubric → references/sop-detail.md.
 5. **Make a recommendation** (only if user asked a decision question). One label from fixed vocabulary — Scale / Maintain / Optimize / Adjust and retest. Framing rules and tradeoff surfacing → references/sop-detail.md.
-6. **Offer deck handoff** (only when the read is substantive). Skip for single-metric queries, status checks, or all-not-significant reads. On acceptance, hand off to the deck pipeline (rubric document is the deck pipeline’s system prompt — readout doesn’t duplicate it).
+6. **Offer deck handoff** (only when the read is substantive). Skip for single-metric queries, status checks, or reads where no row is Significant. On acceptance, hand off to the deck pipeline (rubric document is the deck pipeline’s system prompt — readout doesn’t duplicate it).
 
 ### 4.2 Read-shape routing
 
@@ -67,7 +67,7 @@ Match the user’s intent to a read shape; each maps to a template in references
 |-|-|-|
 | “How did my X test do” | **Standard readout** — summary table + headline observation + per-channel call-outs | standard-readout |
 | “Should I scale / pull back / reallocate” | **Decision-oriented readout** — summary numbers, then recommendation from §5 vocabulary | decision-oriented |
-| “Why is X not significant” | **Significance explainer** — short prose on what “not significant” means + the row’s data | significance-explainer |
+| “Why is X not significant” / “what does Directional mean” | **Significance explainer** — short prose on what the row’s tier (Directional or Inconclusive) means + the row’s data | significance-explainer |
 | “How did my last N tests do” | **Multi-test readout** — comparison table, no cross-test narrative | multi-test |
 | Single specific metric (“what was the iROAS”) | **Direct answer** + the one piece of context (significance, or comparison to user-stated target) | single-metric |
 
@@ -77,7 +77,7 @@ Match the user’s intent to a read shape; each maps to a template in references
 |-|-|-|
 | lift-test-list | Required | Resolve “my last test” / “my last 3 tests” / partial-name matches |
 | lift-test-get | Required | Pull full test config, status, and stored primary metric |
-| lift-test-readout | Required | Pull result rows: ad spend, incr. orders, lift %, incr. ROAS, Confidence score, significance flag, trendline data, calibration status |
+| lift-test-readout | Required | Pull result rows: ad spend, incr. orders, lift %, incr. ROAS, Confidence score (→ tier), trendline data, calibration status |
 | Deck generation pipeline | Optional | Hand off when the user accepts the deck offer in Step 6 |
 
 If a needed field isn’t in the lift-test-result table (e.g., attribution comparison breakdown — explicitly out of scope for this skill version), don’t fabricate it. Either skip that part of the read or tell the user that piece isn’t available here.
@@ -85,7 +85,7 @@ If a needed field isn’t in the lift-test-result table (e.g., attribution compa
 ## Output rules
 
 - Use UI labels for every metric (Incr. orders, Lift %, Incr. ROAS, Incr. CAC, etc.) — full mapping in references/terminology.md.
-- Pair every lift % with its confidence score and significance flag — never report lift % alone.
+- Pair every lift % with its confidence score and its tier (Significant / Directional / Inconclusive, the UI’s three labels) — never report lift % alone.
 - Connect every metric to an implication; never report numbers in isolation.
 - Comparative framing **only** when the reference exists in the data — user-stated target, prior period, or another channel in the same test. Don’t invent baselines.
 - Format numbers per references/terminology.md — \$X.XX for ROAS (2 decimals), X.X% for percentages (1 decimal), integer % for confidence score (e.g. 92%, 65%). Always round.
@@ -94,13 +94,13 @@ If a needed field isn’t in the lift-test-result table (e.g., attribution compa
 
 ## Edge cases
 
-See references/edge-cases.md — 15 cases covering tests still running / in cooling / all-not-significant / terminated / not-calibrated / multiple-store conflicts / user-stated targets at the boundary / “is this good?” without a target / results conflicting with expectations.
+See references/edge-cases.md — 15 cases covering tests still running / in cooling / no row Significant / terminated / not-calibrated / multiple-store conflicts / user-stated targets at the boundary / “is this good?” without a target / results conflicting with expectations.
 
 ## CRITICAL rules (top 6)
 
 1. **Never invent fields or benchmarks.** If “new customers acquired” isn’t a stored count, don’t substitute it for nc_orders (allowed shorthand: \~X new customers with tilde, qualified by store). No “above the typical \$1.50 industry baseline” unless the user stated \$1.50.
-2. **Never report lift % without confidence score / significance.** A 13.5% lift with confidence 98% is a confirmed result (“Significant”); the same 13.5% lift with confidence 68% is not (“Not significant”). Always surface both alongside.
-3. **Never recommend Scale or Maintain on a Not-significant result.** Suggest Adjust and retest, or route to creation skill for a new test with adjusted parameters. Don’t pick a directional recommendation on data that doesn’t support it.
+2. **Never report lift % without confidence score / tier.** The UI labels every row with one of three tiers: Significant (confidence ≥90%), Directional (70% to under 90%), Inconclusive (under 70%). A 13.5% lift with confidence 98% is a confirmed result (“Significant”); at 78% it is likely but not confirmed (“Directional”); at 68% it is not confirmed (“Inconclusive”). Always surface both alongside. Never write “Not significant” as a label: the UI has no such badge.
+3. **Never recommend Scale or Maintain on a result that is not Significant** (Directional or Inconclusive). Suggest Adjust and retest, or route to creation skill for a new test with adjusted parameters. Don’t pick Scale or Maintain on data that doesn’t support it.
 4. **Never use evaluative adjectives.** Banned: strong, solid, weak, meaningful, substantial, remarkable, considerable, robust, compelling, impressive. Use neutral descriptors tied to data (“above your $2 target”, “stays above $X”, “diminishing past \$X”).
 5. **Never own cross-channel allocation or attribution calibration prose.** “Shift 30% of Meta’s \$40k to Google” is MBO’s job; attribution-calibration interpretation is the attribution model’s. Hand off, don’t speak their language.
 6. **Never name statistical algorithms.** No SCM, DiD, SARIMAX, SARIMA. DS hasn’t confirmed which model is used — say “our matched-market model” if you need to refer to it.

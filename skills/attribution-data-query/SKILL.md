@@ -3,8 +3,8 @@ name: attribution-data-query
 description: Translate explicit data requests into Cube.dev SQL and return results. Default skill for query-type asks in the Attribution domain. No estimation, no fabrication, no proactive dashboards.
 category: attribution
 risk: R0
-version: 1.4.0
-last-updated: 2026-09-23
+version: 1.5.0
+last-updated: 2026-11-10
 
 references:
   - references/time-range-resolution.md
@@ -101,16 +101,19 @@ Ask `database-query-ask` about the warehouse's Cube.dev schema patterns. `databa
 
 > 🛑 **HARD RULE — copy a template first, then fill placeholders**
 >
-> BEFORE writing any SQL, you **MUST** match the user's query pattern to one of the 5 templates in `templates/`:
+> BEFORE writing any SQL, you **MUST** match the user's query pattern to one of the 6 templates in `templates/`:
 > - `templates/01-channel-roas.sql` — single-platform channel-level ROAS
 > - `templates/02-top-n-campaigns.sql` — Top-N campaigns by metric
 > - `templates/03-period-over-period.sql` — WoW / MoM comparison (2 separate queries)
 > - `templates/04-creative-headlines.sql` — creative-level (JSON-array headlines)
 > - `templates/05-actual-store-sales.sql` — actual store sales (NOT attribution)
+> - `templates/06-spend-by-platform.sql` — total ad spend across all platforms, by platform
 >
 > **Copy the template, then fill placeholders** (`<tenant_id>` / `<attr_model>` / `<platform>` / `<start_date>` / `<end_date>`). Do NOT write SQL from scratch — past agents have produced wrong queries (case-sensitive platform names, missing `HAVING SUM(ad_spend) > 0`, average-of-ratios ROAS, window functions Cube rejects).
 >
-> If none of the 5 templates fit — pause and tell the user what's requested is outside the verified set, ask CSM, do NOT improvise. Pitfalls + when-to-use guidance for each template → `references/sql-examples.md`. Full worked walkthrough → `examples/example-A-meta-roas-last-week.md`.
+> If none of the 6 templates fit — pause and tell the user what's requested is outside the verified set, ask CSM, do NOT improvise. Pitfalls + when-to-use guidance for each template → `references/sql-examples.md`. Full worked walkthrough → `examples/example-A-meta-roas-last-week.md`.
+
+> 🛑 **Spend totals come from the channel-level table only.** Any platform-level or all-platform spend figure (totals, "spend by platform", the spend half of a ROAS) uses `dws_view_copilot_attr_channel_level_daily_latest`. The ad-level table loads the most recent day later, so the same window sums lower there (observed: one day short by ~$2.2K across Meta / OpenAI). Use ad-level only when the user asked for a campaign / ad set / ad breakdown, and do not present its sum as the platform total.
 
 > 💡 **Don't take the bait — never average ROAS across rows**
 >
@@ -125,7 +128,7 @@ Ask `database-query-ask` about the warehouse's Cube.dev schema patterns. `databa
 - Percentages → decimals ("> 5%" = 0.05)
 - Model filter uses `attr_model_name` dimension
 - Time-comparison → 2 separate queries with length-aligned windows (Cube SQL has no UNION / CTE / LAG)
-- **5 verified SQL templates** covering channel ROAS / Top-N campaigns / WoW comparison / creative headlines / actual store sales → `references/sql-examples.md`. **Required reading before writing SQL.**
+- **6 verified SQL templates** covering channel ROAS / Top-N campaigns / WoW comparison / creative headlines / actual store sales / spend by platform → `references/sql-examples.md`. **Required reading before writing SQL.**
 
 **Step 6: Return results**
 
@@ -165,7 +168,7 @@ Ask `database-query-ask` about the warehouse's Cube.dev schema patterns. `databa
 
 ## 7. CRITICAL rules (top 8 — full list in references/failure-modes.md)
 
-1. **Always match the query to a verified SQL template in** `references/sql-examples.md` **BEFORE writing SQL** — do not write SQL from scratch. The 5 templates cover channel ROAS / Top-N campaigns / WoW comparison / creative headlines / actual store sales. If none fit, pause and ask CSM; do not improvise.
+1. **Always match the query to a verified SQL template in** `references/sql-examples.md` **BEFORE writing SQL** — do not write SQL from scratch. The 6 templates cover channel ROAS / Top-N campaigns / WoW comparison / creative headlines / actual store sales / spend by platform. If none fit, pause and ask CSM; do not improvise.
 2. **Never skip `database-query-ask` before SQL** — `database-query-run` requires the `ctx` it produces; will fail at execution
 3. **Never skip `dashboard-metrics-list`** — guessing field names causes SQL errors / wrong data
 4. **Never use raw warehouse SQL** — Cube.dev syntax only (no CTE, UNION, subqueries, LAG, window functions)

@@ -161,3 +161,32 @@ When returning the result, prepend a scope warning: *"⚠️ Data scope: store-r
 - Adding `attr_model_name = '...'` to an `order_sales` query — that column does NOT exist on `dws_view_copilot_sales_channel_daily_latest`. The query will fail.
 - Silently defaulting to `order_*` fields when the user did NOT say "actual" — phrases like "total sales" default to `attr_all_sales` on `channel_attribution`, not `order_total_sales`. The word "total" alone is not a trigger.
 - `sales_platform` values are lowercase (`shopify`, `amazon`, `other`) — capitalize when rendering to the user.
+
+## 6. Total ad spend by platform (all platforms)
+
+**Use case**: "What did we spend on ads in the last 7 days?", "Spend by platform last week", "Which platforms are spending?" — one window, every ad platform, one row per platform plus the total.
+
+**DataSet**: `channel_attribution` (channel-level). **Fixed** — do not swap in the ad-level table.
+
+```sql
+SELECT
+  ads_platform,
+  SUM(ad_spend) AS ad_spend
+FROM dws_view_copilot_attr_channel_level_daily_latest
+WHERE tenant_id        = <tenant_id>
+  AND attr_model_name  = '<attr_model>'
+  AND src_channel      = 'ads'
+  AND event_date      >= '<start_date>'
+  AND event_date       < '<end_date>'
+GROUP BY ads_platform
+HAVING SUM(ad_spend) > 0
+ORDER BY ad_spend DESC
+```
+
+Report the total as the sum of the returned rows, and say the most recent day may still rise as platforms report late.
+
+**Common pitfalls**:
+
+- Querying `dws_view_copilot_attr_ads_ad_level_daily_latest` for a platform total — that table loads the most recent day later, so asking the same question twice can give two different totals depending on which table was picked.
+- Dropping the `attr_model_name` filter and grouping by model instead — spend is the same under every model, so it is noise at best and a 7× over-count if anything sums across models.
+- Treating "platforms with spend" as "connected platforms" — connection counts come from `integration-list` `summary`, not from this query (a channel can report spend through another platform's connection, e.g. TikTok GMV Max via TikTok).
