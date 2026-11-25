@@ -2,6 +2,9 @@
 
 - **Write SQL from scratch instead of starting from a verified template** — past agents have produced wrong queries: wrong platform casing (`meta` vs `Meta`), missing `HAVING SUM(ad_spend) > 0` causing zero-spend rows to top a DESC sort, average-of-ratios ROAS (mathematically wrong), `ROW_NUMBER()` / CTE / UNION (rejected by Cube). **Always copy from** `references/sql-examples.md` **first, then adapt.**
 - **Skip `dashboard-metrics-list` and query directly** — guessing field names causes SQL errors or wrong data
+- **Select a name you didn't see in `dashboard-metrics-list` / `database-query-ask`** — guesses seen failing: `adset_status` / `ad_status` (delivery status asked on the ad-level table), `account_name`, `ads_clicks`, `video_views_p3`. They fail with `Invalid identifier`. If the field isn't listed, tell the user it isn't available instead of trying variants
+- **Use MySQL date functions** — `DATE_FORMAT()`, `DATE_SUB()`, `CURDATE()`, `INTERVAL` don't exist in Cube SQL. Use literal date strings; for week / month buckets group by `event_date` and roll up client-side
+- **Query the channel / ad / creative attribution tables without an `attr_model_name` filter** — rows fan out one per model, so `database-query-run` rejects the query
 - **Skip `database-query-ask` before SQL** — `database-query-run` requires the `ctx` it produces; without it the query fails at execution
 - **Use raw warehouse SQL instead of Cube.dev syntax** — `database-query-run` only accepts Cube.dev SQL
 - **Use `attribution_model` as a SQL column** — the actual dimension is `attr_model_name`

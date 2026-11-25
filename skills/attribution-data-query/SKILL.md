@@ -3,8 +3,8 @@ name: attribution-data-query
 description: Translate explicit data requests into Cube.dev SQL and return results. Default skill for query-type asks in the Attribution domain. No estimation, no fabrication, no proactive dashboards.
 category: attribution
 risk: R0
-version: 1.5.0
-last-updated: 2026-11-10
+version: 1.5.1
+last-updated: 2026-11-25
 
 references:
   - references/time-range-resolution.md
@@ -96,6 +96,7 @@ Ask `database-query-ask` about the warehouse's Cube.dev schema patterns. `databa
 - Confirm metric / dimension field names exist on the chosen DataSet
 - For aliases ("POAS", "return on ad spend") → find closest match. If none, ask once.
 - **For NC dimensions on `ads_attribution` / `creative_attribution`**: pass `tenantId` to fan out tenant-specific propertyNames (e.g., `Product Group`, `Asset Type`). Use propertyName **exactly as returned (case-sensitive)**.
+- **Every name you SELECT, filter or group by must appear in this response or the `database-query-ask` answer.** If the question needs a field that isn't there (common asks: ad / ad set delivery status, ad account name), don't try a guessed column such as `ad_status` or `account_name` — tell the user that field isn't available in the attribution data and answer with the fields that are.
 
 **Step 5: Construct & execute SQL via `database-query-run`**
 
@@ -126,7 +127,8 @@ Ask `database-query-ask` about the warehouse's Cube.dev schema patterns. `databa
 - WHERE clauses must reflect user filter intent (incl. `NOT LIKE` / `NOT IN`)
 - Aggregation granularity must match user intent ("spend > 1000" defaults to total per campaign, not per-day)
 - Percentages → decimals ("> 5%" = 0.05)
-- Model filter uses `attr_model_name` dimension
+- Model filter uses `attr_model_name` dimension — required on the channel / ad / creative attribution tables; `database-query-run` rejects a query on them without it
+- Dates: literal strings only (`event_date >= '2026-04-01'`). No MySQL date functions (`DATE_FORMAT`, `DATE_SUB`, `CURDATE`, `INTERVAL`); for weekly / monthly figures group by `event_date` and roll up client-side
 - Time-comparison → 2 separate queries with length-aligned windows (Cube SQL has no UNION / CTE / LAG)
 - **6 verified SQL templates** covering channel ROAS / Top-N campaigns / WoW comparison / creative headlines / actual store sales / spend by platform → `references/sql-examples.md`. **Required reading before writing SQL.**
 
