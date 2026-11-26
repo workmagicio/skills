@@ -39,6 +39,7 @@ Chat apps can't install GitHub skills — they get them through the MCP. CLI age
 - **[attribution-model-comparison](skills/attribution-model-comparison/SKILL.md)** — Compare attribution across models side-by-side and explain the differences.
 - **[attribution-weekly-report](skills/attribution-weekly-report/SKILL.md)** — Build the recurring business-review board (daily / weekly / monthly / quarterly) and, optionally, schedule a snapshot or a condition alert to be delivered automatically.
 - **[attribution-custom-dimension](skills/attribution-custom-dimension/SKILL.md)** — Slice by a business label (region, audience, brand) via Naming Convention rules.
+- **[naming-convention-setup](skills/naming-convention-setup/SKILL.md)** — Build, review, change or delete the tenant's Naming Convention rules from its real campaign / ad set / ad names.
 - **[attribution-edge-routing](skills/attribution-edge-routing/SKILL.md)** — Route requests that fall outside attribution's capability boundary.
 
 ### Budget Optimization
