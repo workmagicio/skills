@@ -2,9 +2,10 @@
 name: attribution-weekly-report
 description: Build or schedule a recurring attribution performance board — a business-review page at whatever cadence the user reviews on (daily / weekly / monthly / quarterly), optionally delivered on a schedule, plus condition-based alerts (Heartbeat). A one-off number is attribution-data-query.
 category: attribution
+requires: bt-artifact-manage
 risk: R1
-version: 2.3.0
-last-updated: 2026-09-23
+version: 2.4.0
+last-updated: 2026-11-25
 
 references:
 - references/board-spine.md
@@ -180,7 +181,8 @@ plainly — "This will share attribution data externally to [email] every [caden
 ## 5. Tools used
 
 Tool names are unprefixed here. Justin exposes WorkMagic tools as `wm_*`; other MCP clients
-expose them unprefixed. The board template tries both.
+expose them unprefixed. The board template tries both. The board is a Justin artifact, so
+`requires: bt-artifact-manage` keeps this skill out of clients that don't have it.
 
 | Tool | Required? | Purpose |
 |-|-|-|

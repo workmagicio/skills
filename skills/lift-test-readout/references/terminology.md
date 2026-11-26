@@ -25,7 +25,7 @@ UI labels not directly from lift-test-readout — source and rendering
 |-|-|-|
 | Ad spend | NOT from lift-test-readout — comes from lift-test-get config or aggregated platform spend | Required to interpret any iROAS / CAC value. Pull from config source, not the readout response. |
 | Confidence score | In extra_info JSON in the readout response | value; per test, per sales channel. Render as integer % — e.g. 92%, 65%, 98%. |
-| Significance | If Confidence score > =90%, derive as "Significant"; if Confidence score < 90%, derive as "Not significant" | Render as “Significant” / “Not significant” matching UI badge. |
+| Significance tier | Derived from Confidence score, same thresholds as the UI: ≥ 90% → "Significant"; ≥ 70% and < 90% → "Directional"; < 70% → "Inconclusive". Lower bounds are inclusive (0.90 is Significant, 0.70 is Directional); do not round up before comparing (0.896 is Directional). | Render as “Significant” / “Directional” / “Inconclusive”, matching the UI badge. Never “Not significant”: the UI has no such badge. |
 
 Fields NOT exposed in the readout
 
@@ -52,6 +52,6 @@ Number formatting (always apply)
 | ROAS / iROAS / NC iROAS values | \$X.XX always 2 decimals — \$2.10, \$0.58 |
 | Percentages | X.X% one decimal — 13.5%, 0.2% |
 | Dollar amounts ≥ \$1,000 \| \`\$X,XXX—\$10,989\| \| Per-unit costs < \$1,000 \|\$XX.XX—\$76.31\| \| Confidence score \| integer % — 92%, 65%, 98%\` matching UI format |  |
-| Significance flag | “Significant” / “Not significant” (match UI badge exactly) |
+| Significance tier | “Significant” / “Directional” / “Inconclusive” (match UI badge exactly) |
 
 **Always round** — never carry source precision through. \$2.1287643 is wrong, \$2.13 is right.
